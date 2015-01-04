@@ -10,6 +10,6 @@
 
 #include <GL/gl.h>
 
-GLuint glTextureLoadPVR(char *fname, unsigned char UseMipMap);
+GLuint glTextureLoadPVR(char *fname, unsigned char isMipMapped, unsigned char glMipMap);
 
 #endif

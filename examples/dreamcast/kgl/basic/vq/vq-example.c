@@ -29,24 +29,22 @@ GLuint texture[1];
 extern unsigned char fruit[];
 extern unsigned char fruit_end[];
 
-/* Load a texture and glTexImage2D, not glKosTex2D */
-/* Notice with glTexImage2D, OpenGL will handle allocating and transfering texture data into VRAM */
+/* Load a texture with glCompressedTexImage2D */
 static int loadtxr() {
 
     glGenTextures(1, texture);
     glBindTexture(GL_TEXTURE_2D, texture[0]);
 
-    glTexImage2D(GL_TEXTURE_2D,  /* This must be GL_TEXTURE_2D */
-                 0,             /* 0 = Texture does not contain Mip-Maps | 1 = Texture contains Mip-Maps */
-                 GL_RGB,        /* GL_RGB = Has No ALPHA, GL_RGBA = Has ALPHA */
-                 512,           /* Texture Width */
-                 512,           /* Texture Height */
-                 0,             /* This bit is actually ignored by this OpenGL API */
-                 GL_RGB,        /* Must Match Previous Format  */
-                 GL_UNSIGNED_SHORT_5_6_5_VQ_TWID,      /* Texture color and Format */
-                 fruit);       /* Address of texture data in RAM: OpenGL will load the texture into VRAM for you.
-                                  Because of this, make sure to call glDeleteTextures() as needed, as that will
-                                  free the VRAM allocated for the texture. */
+    glCompressedTexImage2D(GL_TEXTURE_2D,  /* This must be GL_TEXTURE_2D */
+                           0,             /* 0 = Texture does not contain Mip-Maps */
+                           GL_UNSIGNED_SHORT_5_6_5_VQ_TWID,        /* GL Compressed Color Format */
+                           512,           /* Texture Width */
+                           512,           /* Texture Height */
+                           0,             /* This bit must be set to 0 */
+                           fruit_end - fruit, /* Compressed Texture Size*/
+                           fruit);       /* Address of texture data in RAM: OpenGL will load the texture into VRAM for you.
+                                            Because of this, make sure to call glDeleteTextures() as needed, as that will
+                                            free the VRAM allocated for the texture. */
     return 0;
 }
 

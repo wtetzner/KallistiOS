@@ -5,7 +5,7 @@
 #   
 
 TARGET = nehe16.elf
-OBJS = nehe16.o
+OBJS = nehe16.o pvr-texture.o
 
 all: rm-elf $(TARGET)
 

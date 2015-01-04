@@ -1060,10 +1060,10 @@ int main() {
     glMaterialf(GL_FRONT, GL_SHININESS, 10.0f);
 
     /* Set up the textures */
-    texture[0] = glTextureLoadPVR("/rd/brick_w1.pvr", 0);
+    texture[0] = glTextureLoadPVR("/rd/brick_w1.pvr", 0, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_FILTER, GL_FILTER_BILINEAR);
 
-    texture[1] = glTextureLoadPVR("/rd/FONT0.pvr", 0);
+    texture[1] = glTextureLoadPVR("/rd/FONT0.pvr", 0, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_FILTER, GL_LINEAR);
     font = FontInit(512, 512, 10, 10,
                     PVR_PACK_COLOR(1.0f, 1.0f, 1.0f, 1.0f));

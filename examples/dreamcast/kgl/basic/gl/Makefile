@@ -5,7 +5,7 @@
 #   
 
 TARGET = gltest.elf
-OBJS = gltest.o
+OBJS = gltest.o pvr-texture.o
 
 all: rm-elf $(TARGET)
 

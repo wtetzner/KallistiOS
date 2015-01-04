@@ -50,7 +50,7 @@ void sq_clr(void *dest, int n);
     \param  n               The number of bytes to copy (multiple of 32).
     \return                 The original value of dest.
 */
-void * sq_cpy(void *dest, void *src, int n);
+void * sq_cpy(void *dest, const void *src, int n);
 
 /** \brief  Set a block of memory to an 8-bit value.
 

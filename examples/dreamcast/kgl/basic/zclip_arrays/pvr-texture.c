@@ -70,12 +70,24 @@ GLuint glTextureLoadPVR(char *fname, unsigned char isMipMapped, unsigned char gl
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
 
-    /* If the texture is MipMapped, tell Open GL to use the MipMap levels of the texture */
-    if(isMipMapped || glMipMap)
-        glTexImage2D(GL_TEXTURE_2D, 1, GL_RGB, texW, texH, 0, GL_RGB, texFormat | texColor, TEX0);
-    /* If the texture is not MipMapped, tell Open GL to use the base level of the texture */
+    if(texFormat & PVR_TXRFMT_VQ_ENABLE)
+        glCompressedTexImage2D(GL_TEXTURE_2D,
+                               (isMipMapped || glMipMap) ? 1 : 0,
+ 	                       texFormat | texColor,
+ 	                       texW,
+ 	                       texH,
+ 	                       0,
+ 	                       texSize,
+ 	                       TEX0);
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0, GL_RGB, texFormat | texColor, TEX0);
+        glTexImage2D(GL_TEXTURE_2D,
+                     (isMipMapped || glMipMap) ? 1 : 0,
+                     GL_RGB,
+                     texW, texH,
+                     0,
+                     GL_RGB,
+                     texFormat | texColor,
+                     TEX0);    
 
     free(TEX0);
 

@@ -6,7 +6,7 @@
 #
 
 TARGET = scissor.elf
-OBJS = scissor.o
+OBJS = scissor.o pvr-texture.o
 
 all: rm-elf $(TARGET)
 

@@ -39,7 +39,7 @@ void sq_clr(void *dest, int n) {
 }
 
 /* copies n bytes from src to dest, dest must be 32-byte aligned */
-void * sq_cpy(void *dest, void *src, int n) {
+void * sq_cpy(void *dest, const void *src, int n) {
     unsigned int *d = (unsigned int *)(void *)
                       (0xe0000000 | (((unsigned long)dest) & 0x03ffffe0));
     unsigned int *s = src;
