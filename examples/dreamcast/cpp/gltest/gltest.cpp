@@ -249,9 +249,25 @@ void loadtxr(const char *fname, GLuint *txr) {
 
     glGenTextures(1, txr);
     glBindTexture(GL_TEXTURE_2D, *txr);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                 texW, texH, 0,
-                 texFormat, texColor, texBuf + PVR_HDR_SIZE);
+
+    if(texFormat & PVR_TXRFMT_VQ_ENABLE)
+        glCompressedTexImage2D(GL_TEXTURE_2D,
+                               0,
+ 	                       texFormat | texColor,
+ 	                       texW,
+ 	                       texH,
+ 	                       0,
+ 	                       texSize,
+ 	                       texBuf);
+    else
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     GL_RGB,
+                     texW, texH,
+                     0,
+                     GL_RGB,
+                     texFormat | texColor,
+                     texBuf);       
 }
 extern uint8 romdisk[];
 KOS_INIT_ROMDISK(romdisk);
@@ -389,7 +405,7 @@ int main(int argc, char **argv) {
     for(int i = 0; i < 4; i++)
         delete cubes[i];
 
-	glDelTextures(1, &texture);
+	glDeleteTextures(1, &texture);
 
     return 0;
 }
