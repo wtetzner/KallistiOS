@@ -140,7 +140,7 @@ int net_dev_init(void) {
 }
 
 /* Init */
-int net_init(void) {
+int net_init(uint32 ip) {
     int rv = 0;
 
     /* Make sure we haven't already done this */
@@ -179,8 +179,15 @@ int net_init(void) {
     /* Initialize the DHCP system */
     net_dhcp_init();
 
-    if(net_default_dev && !net_default_dev->ip_addr[0]) {
-        rv = net_dhcp_request();
+    if(net_default_dev) {
+        /* Did we get a requested IP address? If so, set it. */
+        if(ip)
+            net_ipv4_parse_address(ip, net_default_dev->ip_addr);
+
+        /* We didn't get a requested IP address, if we don't already have one
+           set, then do so via DHCP. */
+        else if(!net_default_dev->ip_addr[0])
+            rv = net_dhcp_request();
     }
 
     net_initted = 1;

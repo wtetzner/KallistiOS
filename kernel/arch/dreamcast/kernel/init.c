@@ -1,7 +1,8 @@
 /* KallistiOS ##version##
 
    init.c
-   Copyright (C)2003 Dan Potter
+   Copyright (C) 2003 Dan Potter
+   Copyright (C) 2015 Lawrence Sebald
 */
 
 #include <stdio.h>
@@ -29,8 +30,8 @@ void fini(void);
 void __verify_newlib_patch();
 #endif
 
-/* Ditto */
 int main(int argc, char **argv);
+uint32 _fs_dclsocket_get_ip(void);
 
 /* We have to put this here so we can include plat-specific devices */
 dbgio_handler_t * dbgio_handlers[] = {
@@ -46,6 +47,11 @@ int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
    to be running in your build, and also below in arch_main() */
 /* #if 0 */
 int  __attribute__((weak)) arch_auto_init() {
+    union {
+        uint32 ipl;
+        uint8 ipb[4];
+    } ip;
+
     /* Initialize memory management */
     mm_init();
 
@@ -117,13 +123,19 @@ int  __attribute__((weak)) arch_auto_init() {
     }
 
     if(__kos_init_flags & INIT_NET) {
+        ip.ipl = 0;
+
         /* Check if the dcload-ip console is up, and if so, disable it,
            otherwise we'll crash when we attempt to bring up the BBA */
         if(!(__kos_init_flags & INIT_NO_DCLOAD) && dcload_type == DCLOAD_TYPE_IP) {
+            /* Grab the IP address from dcload before we disable dbgio... */
+            ip.ipl = _fs_dclsocket_get_ip();
+            dbglog(DBG_INFO, "dc-load says our IP is %d.%d.%d.%d\n", ip.ipb[3],
+                   ip.ipb[2], ip.ipb[1], ip.ipb[0]);
             dbgio_disable();
         }
 
-        net_init();     /* Enable networking (and drivers) */
+        net_init(ip.ipl);     /* Enable networking (and drivers) */
 
         if(!(__kos_init_flags & INIT_NO_DCLOAD) && dcload_type == DCLOAD_TYPE_IP) {
             fs_dclsocket_init_console();

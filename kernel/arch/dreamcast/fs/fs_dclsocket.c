@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    kernel/arch/dreamcast/fs/fs_dclsocket.c
-   Copyright (C) 2007, 2008, 2012, 2013 Lawrence Sebald
+   Copyright (C) 2007, 2008, 2012, 2013, 2015 Lawrence Sebald
 
    Based on fs_dclnative.c and related files
    Copyright (C) 2003 Dan Potter
@@ -758,6 +758,12 @@ void fs_dclsocket_init_console() {
     dbgio_dcls.read_buffer = dbgio_null.read_buffer;
 
     initted = 1;
+}
+
+uint32 _fs_dclsocket_get_ip(void) {
+    uint32 ip, port;
+
+    return dcloadsyscall(DCLOAD_GETHOSTINFO, &ip, &port);
 }
 
 int fs_dclsocket_init() {

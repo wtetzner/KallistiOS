@@ -745,9 +745,15 @@ int net_reg_device(netif_t *device);
 int net_unreg_device(netif_t *device);
 
 /** \brief  Init network support.
+    \param  ip              The IPv4 address to set on the default device, in
+                            host byte order.
+
     \return                 0 on success, <0 on failure.
+    \note                   To auto-detect the IP address to assign to the
+                            default device (i.e, over DHCP or from the flashrom
+                            on the Dreamcast), pass 0 as the IP parameter.
 */
-int net_init(void);
+int net_init(uint32 ip);
 
 /** \brief  Shutdown network support. */
 void net_shutdown(void);
