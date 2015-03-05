@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    hardware/g1ata.c
-   Copyright (C) 2013, 2014 Lawrence Sebald
+   Copyright (C) 2013, 2014, 2015 Lawrence Sebald
 */
 
 #include <errno.h>
@@ -14,9 +14,11 @@
 #include <kos/dbglog.h>
 #include <kos/sem.h>
 #include <kos/mutex.h>
+#include <kos/thread.h>
 
 #include <arch/timer.h>
 #include <arch/cache.h>
+#include <arch/irq.h>
 
 /*
    This file implements support for accessing devices over the G1 bus by the
@@ -160,6 +162,7 @@ static uint8_t orig_dev = 0x00;
 static int dma_in_progress = 0;
 static int dma_blocking = 0;
 static semaphore_t dma_done = SEM_INITIALIZER(0);
+static kthread_t *dma_thd = NULL;
 
 /* From cdrom.c */
 extern mutex_t _g1_ata_mutex;
@@ -210,7 +213,7 @@ static void g1_dma_irq_hnd(uint32 code) {
         }
 
         dma_in_progress = 0;
-        g1_ata_mutex_unlock();
+        mutex_unlock_as_thread(&_g1_ata_mutex, dma_thd);
     }
 }
 
@@ -264,6 +267,12 @@ static inline int g1_ata_wait_drq(void) {
 static int dma_common(uint8_t cmd, size_t nsects, uint32_t addr, int dir,
                       int block) {
     uint8_t status;
+
+    /* Set the thread ID that initiated this DMA. */
+    dma_thd = thd_current;
+
+    if(irq_inside_int())
+        dma_thd = (kthread_t *)0xFFFFFFFF;
 
     /* Set the DMA parameters up. */
     OUT32(G1_ATA_DMA_ADDRESS, addr);

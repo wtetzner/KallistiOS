@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    mutex.c
-   Copyright (C) 2012 Lawrence Sebald
+   Copyright (C) 2012, 2015 Lawrence Sebald
 
 */
 
@@ -86,7 +86,8 @@ int mutex_lock_timed(mutex_t *m, int timeout) {
     int old, rv = 0;
 
     if(irq_inside_int()) {
-        dbglog(DBG_WARNING, "mutex_lock_timed: called inside interrupt\n");
+        dbglog(DBG_WARNING, "%s: called inside interrupt\n",
+               timeout ? "mutex_lock_timed" : "mutex_lock");
         errno = EPERM;
         return -1;
     }
@@ -141,20 +142,26 @@ int mutex_is_locked(mutex_t *m) {
 
 int mutex_trylock(mutex_t *m) {
     int old, rv = 0;
+    kthread_t *thd = thd_current;
 
     old = irq_disable();
+
+    /* If we're inside of an interrupt, pick a special value for the thread that
+       would otherwise be impossible... */
+    if(irq_inside_int())
+        thd = (kthread_t *)0xFFFFFFFF;
 
     if(m->type < MUTEX_TYPE_NORMAL || m->type > MUTEX_TYPE_RECURSIVE) {
         errno = EINVAL;
         rv = -1;
     }
     /* Check if the lock is held by some other thread already */
-    else if(m->holder && m->holder != thd_current) {
+    else if(m->count && m->holder != thd) {
         errno = EAGAIN;
         rv = -1;
     }
     else {
-        m->holder = thd_current;
+        m->holder = thd;
 
         switch(m->type) {
             case MUTEX_TYPE_NORMAL:
@@ -184,7 +191,7 @@ int mutex_trylock(mutex_t *m) {
     return rv;
 }
 
-int mutex_unlock(mutex_t *m) {
+static int mutex_unlock_common(mutex_t *m, kthread_t *thd) {
     int old, rv = 0, wakeup = 0;
 
     old = irq_disable();
@@ -197,7 +204,7 @@ int mutex_unlock(mutex_t *m) {
             break;
 
         case MUTEX_TYPE_ERRORCHECK:
-            if(m->holder != thd_current) {
+            if(m->holder != thd) {
                 errno = EPERM;
                 rv = -1;
             }
@@ -209,7 +216,7 @@ int mutex_unlock(mutex_t *m) {
             break;
 
         case MUTEX_TYPE_RECURSIVE:
-            if(m->holder != thd_current) {
+            if(m->holder != thd) {
                 errno = EPERM;
                 rv = -1;
             }
@@ -225,10 +232,30 @@ int mutex_unlock(mutex_t *m) {
     }
 
     /* If we need to wake up a thread, do so. */
-    if(wakeup) {
+    if(wakeup)
         genwait_wake_one(m);
-    }
 
     irq_restore(old);
     return rv;
+}
+
+int mutex_unlock(mutex_t *m) {
+    kthread_t *thd = thd_current;
+
+    /* If we're inside of an interrupt, use the special value for the thread
+       from mutex_trylock(). */
+    if(irq_inside_int())
+        thd = (kthread_t *)0xFFFFFFFF;
+
+    return mutex_unlock_common(m, thd);
+}
+
+int mutex_unlock_as_thread(mutex_t *m, kthread_t *thd) {
+    /* Make sure we're in an IRQ handler */
+    if(!irq_inside_int()) {
+        errno = EACCES;
+        return -1;
+    }
+
+    return mutex_unlock_common(m, thd);
 }
