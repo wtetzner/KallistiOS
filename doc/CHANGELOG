@@ -45,6 +45,9 @@ KallistiOS version 2.0.1 -----------------------------------------------
 - *** Fixed a problem where poll() would deadlock if the timeout expired [LS]
 - *** Modified getaddrinfo() so that it would try multiple times to contact the
       DNS server with a timeout between messages [LS]
+- DC  Various cleanups and modifications to the cdrom code, including subcode
+      reading functionality, DMA-based sector reads, and using a recursive mutex
+      for the G1 lock [Donald Haase == DH]
 - DC  Fixed pvr_mem_available() to report all available texture memory, not just
       what was available in the pvr_malloc() arena [LS]
 - DC  Added a utility function to the PVR code for controlling the cheap shadow
@@ -52,7 +55,17 @@ KallistiOS version 2.0.1 -----------------------------------------------
 - DC  Added an example of the PVR's cheap shadow functionality [LS]
 - DC  Added a tool for generation of bumpmaps that was sent to the mailing list
       all the way back in 2005 [Fredrik Ehnbom = FE]
+- *** Added the fs_path_append() function to append path components [LS]
+- *** Added a nanosleep() function to koslib by request [LS]
+- *** Added rewinddir() support to the VFS and serveral filesystems [LS]
 - *** Added in C11 threading support [LS]
+- *** Added UDP Lite support to the network stack [LS]
+- DC  Adjust sq_cpy() to use a const pointer for the source [JP]
+- DC  Retrieve the IP address from dcload-ip when we can [LS]
+- *** Added the mutex_unlock_as_thread() function to allow an IRQ handler to
+      unlock a mutex as if it were a specified thread [LS]
+- DC  Fixed a deadlock issue in the G1ATA code related to the use of a recursive
+      mutex for locking -- Thanks to SWAT for noticing the issue [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
