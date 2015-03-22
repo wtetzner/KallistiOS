@@ -71,16 +71,11 @@ static void mouse_periodic(maple_driver_t *drv) {
 
 /* Device Driver Struct */
 static maple_driver_t mouse_drv = {
-functions:
-    MAPLE_FUNC_MOUSE,
-name:       "Mouse Driver"
-    ,
-periodic:
-    mouse_periodic,
-attach:
-    NULL,
-detach:
-    NULL
+    .functions = MAPLE_FUNC_MOUSE,
+    .name = "Mouse Driver",
+    .periodic = mouse_periodic,
+    .attach = NULL,
+    .detach = NULL
 };
 
 /* Add the mouse to the driver chain */
@@ -91,4 +86,3 @@ int mouse_init() {
 void mouse_shutdown() {
     maple_driver_unreg(&mouse_drv);
 }
-

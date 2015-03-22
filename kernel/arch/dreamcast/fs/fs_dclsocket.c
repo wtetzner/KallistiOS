@@ -44,7 +44,7 @@ typedef struct {
     unsigned char id[4];
     unsigned int address;
     unsigned int size;
-    unsigned char data[0];
+    unsigned char data[];
 } PACKED command_t;
 
 typedef struct {
@@ -385,6 +385,7 @@ static ssize_t dcls_write(void *hnd, const void *buf, size_t cnt) {
 }
 
 static off_t dcls_seek(void *hnd, off_t offset, int whence) {
+    uint32 fd = (uint32)hnd;
     int locked;
     command_3int_t *command = (command_3int_t *)pktbuf;
 
@@ -401,10 +402,10 @@ static off_t dcls_seek(void *hnd, off_t offset, int whence) {
         mutex_lock(&mutex);
     }
 
-    --hnd;
+    --fd;
 
     memcpy(command->id, "DC11", 4);
-    command->value0 = htonl((uint32)hnd);
+    command->value0 = htonl(fd);
     command->value1 = htonl((uint32)offset);
     command->value2 = htonl((uint32)whence);
 

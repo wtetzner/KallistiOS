@@ -21,22 +21,22 @@ typedef unsigned long uint32;
    head point and the queue size, the command will wrap around to
    the beginning (i.e., queue commands _can_ be split up). */
 typedef struct aica_queue {
-    uint32      head;       /* Insertion point offset (in bytes)    */
-    uint32      tail;       /* Removal point offset (in bytes)  */
-    uint32      size;       /* Queue size (in bytes)        */
+    uint32      head;       /* Insertion point offset (in bytes) */
+    uint32      tail;       /* Removal point offset (in bytes) */
+    uint32      size;       /* Queue size (in bytes) */
     uint32      valid;      /* 1 if the queue structs are valid */
     uint32      process_ok; /* 1 if it's ok to process the data */
-    uint32      data;       /* Pointer to queue data buffer     */
+    uint32      data;       /* Pointer to queue data buffer */
 } aica_queue_t;
 
 /* Command queue struct for commanding the AICA from the SH-4 */
 typedef struct aica_cmd {
-    uint32      size;       /* Command data size in dwords              */
-    uint32      cmd;        /* Command ID                       */
-    uint32      timestamp;  /* When to execute the command (0 == now)       */
-    uint32      cmd_id;     /* Command ID, for cmd/response pairs, or channel id    */
-    uint32      misc[4];    /* Misc Parameters / Padding                */
-    uint8       cmd_data[0];    /* Command data                     */
+    uint32      size;       /* Command data size in dwords */
+    uint32      cmd;        /* Command ID */
+    uint32      timestamp;  /* When to execute the command (0 == now) */
+    uint32      cmd_id;     /* Command ID, for cmd/response pairs, or channel id */
+    uint32      misc[4];    /* Misc Parameters / Padding */
+    uint8       cmd_data[]; /* Command data */
 } aica_cmd_t;
 
 /* Maximum command size -- 256 dwords */
@@ -45,18 +45,18 @@ typedef struct aica_cmd {
 /* This is the cmd_data for AICA_CMD_CHAN. Make this 16 dwords long
    for two aica bus queues. */
 typedef struct aica_channel {
-    uint32      cmd;        /* Command ID       */
-    uint32      base;       /* Sample base in RAM   */
-    uint32      type;       /* (8/16bit/ADPCM)  */
-    uint32      length;     /* Sample length    */
-    uint32      loop;       /* Sample looping   */
-    uint32      loopstart;  /* Sample loop start    */
-    uint32      loopend;    /* Sample loop end  */
-    uint32      freq;       /* Frequency        */
-    uint32      vol;        /* Volume 0-255     */
-    uint32      pan;        /* Pan 0-255        */
-    uint32      pos;        /* Sample playback pos  */
-    uint32      pad[5];     /* Padding      */
+    uint32      cmd;        /* Command ID */
+    uint32      base;       /* Sample base in RAM */
+    uint32      type;       /* (8/16bit/ADPCM) */
+    uint32      length;     /* Sample length */
+    uint32      loop;       /* Sample looping */
+    uint32      loopstart;  /* Sample loop start */
+    uint32      loopend;    /* Sample loop end */
+    uint32      freq;       /* Frequency */
+    uint32      vol;        /* Volume 0-255 */
+    uint32      pan;        /* Pan 0-255 */
+    uint32      pos;        /* Sample playback pos */
+    uint32      pad[5];     /* Padding */
 } aica_channel_t;
 
 /* Declare an aica_cmd_t big enough to hold an aica_channel_t

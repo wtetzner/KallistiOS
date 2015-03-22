@@ -343,7 +343,7 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
         if(f & 0x80000000) {
             ++d;
         }
-        
+
         f <<= 1;
         tmp <<= 1;
     }
@@ -362,11 +362,11 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
 
 /* Device driver struct */
 static maple_driver_t kbd_drv = {
-    functions:  MAPLE_FUNC_KEYBOARD,
-    name:       "Keyboard Driver",
-    periodic:   kbd_periodic,
-    attach:     kbd_attach,
-    detach:     NULL
+    .functions =  MAPLE_FUNC_KEYBOARD,
+    .name = "Keyboard Driver",
+    .periodic = kbd_periodic,
+    .attach = kbd_attach,
+    .detach = NULL
 };
 
 /* Add the keyboard to the driver chain */

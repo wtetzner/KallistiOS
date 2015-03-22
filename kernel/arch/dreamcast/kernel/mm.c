@@ -44,7 +44,7 @@ void* mm_sbrk(unsigned long increment) {
     if(increment & 3)
         increment = (increment + 4) & ~3;
 
-    sbrk_base += increment;
+    sbrk_base = (void *)(increment + (unsigned long)sbrk_base);
 
     if(((uint32)sbrk_base) >= (0x8d000000 - 65536)) {
         dbglog(DBG_DEAD, "Requested sbrk_base %p, was %p, diff %lu\n",
@@ -56,5 +56,3 @@ void* mm_sbrk(unsigned long increment) {
 
     return base;
 }
-
-

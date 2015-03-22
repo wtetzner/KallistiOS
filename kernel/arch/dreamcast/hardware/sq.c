@@ -42,7 +42,7 @@ void sq_clr(void *dest, int n) {
 void * sq_cpy(void *dest, const void *src, int n) {
     unsigned int *d = (unsigned int *)(void *)
                       (0xe0000000 | (((unsigned long)dest) & 0x03ffffe0));
-    unsigned int *s = src;
+    const unsigned int *s = src;
 
     /* Set store queue memory area as desired */
     QACR0 = ((((unsigned int)dest) >> 26) << 2) & 0x1c;

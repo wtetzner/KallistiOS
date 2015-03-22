@@ -654,7 +654,8 @@ int thd_join(kthread_t * thd, void **value_ptr) {
         return -1;
 
     if(irq_inside_int()) {
-        dbglog(DBG_WARNING, "thd_join(%p) called inside an interrupt!\n", thd);
+        dbglog(DBG_WARNING, "thd_join(%p) called inside an interrupt!\n",
+               (void *)thd);
         return -1;
     }
 

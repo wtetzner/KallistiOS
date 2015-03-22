@@ -99,16 +99,11 @@ static void cont_periodic(maple_driver_t *drv) {
 
 /* Device Driver Struct */
 static maple_driver_t controller_drv = {
-functions:
-    MAPLE_FUNC_CONTROLLER,
-name:       "Controller Driver"
-    ,
-periodic:
-    cont_periodic,
-attach:
-    NULL,
-detach:
-    NULL
+    .functions = MAPLE_FUNC_CONTROLLER,
+    .name = "Controller Driver",
+    .periodic = cont_periodic,
+    .attach = NULL,
+    .detach = NULL
 };
 
 /* Add the controller to the driver chain */
@@ -119,4 +114,3 @@ int cont_init() {
 void cont_shutdown() {
     maple_driver_unreg(&controller_drv);
 }
-

@@ -18,7 +18,7 @@
 #if 0
 #define dbgp printf
 #else
-#define dbgp(x...)
+#define dbgp(...)
 #endif
 
 void netcfg_vmuify(const char *filename_in, const char *filename_out) {

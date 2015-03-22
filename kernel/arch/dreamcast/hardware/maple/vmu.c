@@ -29,16 +29,11 @@ static int vmu_attach(maple_driver_t *drv, maple_device_t *dev) {
 
 /* Device Driver Struct */
 static maple_driver_t vmu_drv = {
-functions:
-    MAPLE_FUNC_MEMCARD | MAPLE_FUNC_LCD | MAPLE_FUNC_CLOCK,
-name:       "VMU Driver"
-    ,
-periodic:
-    NULL,
-attach:
-    vmu_attach,
-detach:
-    NULL
+    .functions = MAPLE_FUNC_MEMCARD | MAPLE_FUNC_LCD | MAPLE_FUNC_CLOCK,
+    .name = "VMU Driver",
+    .periodic = NULL,
+    .attach = vmu_attach,
+    .detach = NULL
 };
 
 /* Add the VMU to the driver chain */

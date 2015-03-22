@@ -289,16 +289,11 @@ static int sip_attach(maple_driver_t *drv, maple_device_t *dev) {
 
 /* Device Driver Struct */
 static maple_driver_t sip_drv = {
-functions:
-    MAPLE_FUNC_MICROPHONE,
-name:       "Sound Input Peripheral"
-    ,
-periodic:
-    sip_periodic,
-attach:
-    sip_attach,
-detach:
-    NULL
+    .functions = MAPLE_FUNC_MICROPHONE,
+    .name = "Sound Input Peripheral",
+    .periodic = sip_periodic,
+    .attach = sip_attach,
+    .detach = NULL
 };
 
 /* Add the SIP to the driver chain */

@@ -224,7 +224,7 @@ typedef struct maple_response {
     uint8   dst_addr;   /**< \brief Destination address */
     uint8   src_addr;   /**< \brief Source address */
     uint8   data_len;   /**< \brief Data length (in 32-bit words) */
-    uint8   data[0];    /**< \brief Data (if any) */
+    uint8   data[];     /**< \brief Data (if any) */
 } maple_response_t;
 
 /** \brief  One maple device.
