@@ -169,6 +169,8 @@ __BEGIN_DECLS
 */
 #define KBD_REGION_JP       1           /**< \brief Japanese keyboard */
 #define KBD_REGION_US       2           /**< \brief US keyboard */
+#define KBD_REGION_UK       3           /**< \brief (maybe?) UK keyboard */
+#define KBD_REGION_DE       4           /**< \brief German keyboard */
 /** @} */
 
 /** \brief  Size of a keyboard queue.
@@ -184,13 +186,15 @@ __BEGIN_DECLS
 /** \brief  Keyboard keymap.
 
     This structure represents a mapping from raw key values to ASCII values, if
-    appropriate. This handles base values as well as shifted values.
+    appropriate. This handles base values as well as shifted ("shift" and "Alt"
+    keys) values.
 
     \headerfile dc/maple/keyboard.h
 */
 typedef struct kbd_keymap {
     uint8 base[256];
     uint8 shifted[256];
+    uint8 alt[256];
 } kbd_keymap_t;
 
 /** \brief  Keyboard raw condition structure.
