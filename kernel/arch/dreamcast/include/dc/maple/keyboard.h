@@ -169,7 +169,7 @@ __BEGIN_DECLS
 */
 #define KBD_REGION_JP       1           /**< \brief Japanese keyboard */
 #define KBD_REGION_US       2           /**< \brief US keyboard */
-#define KBD_REGION_UK       3           /**< \brief (maybe?) UK keyboard */
+#define KBD_REGION_UK       3           /**< \brief UK keyboard */
 #define KBD_REGION_DE       4           /**< \brief German keyboard */
 /** @} */
 
