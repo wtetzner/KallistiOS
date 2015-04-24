@@ -163,7 +163,7 @@ static kbd_keymap_t keymaps[KBD_NUM_KEYMAPS] = {
             0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x48 - 0x4F */
             0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x50 - 0x57 */
             0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x58 - 0x5F */
-            0, 0, 0, 0, '|', 0, 0, 0,                       /* 0x60 - 0x65 */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x60 - 0x65 */
             /* All the rest are unused, and will be 0. */
         }
     },
