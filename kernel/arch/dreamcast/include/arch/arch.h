@@ -66,7 +66,7 @@ __BEGIN_DECLS
     \param  str             The error message to print.
     \note                   This function will never return!
 */
-void panic(const char *str) __noreturn;
+void arch_panic(const char *str) __noreturn;
 
 /** \brief  Kernel C-level entry point.
     \return                 The program's return value.
@@ -361,4 +361,3 @@ const char *kos_get_authors(void);
 __END_DECLS
 
 #endif  /* __ARCH_ARCH_H */
-

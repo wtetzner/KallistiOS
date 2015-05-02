@@ -107,7 +107,7 @@ void irq_handle_exception(int code) {
     int handled = 0;
 
     /* If it's a code 0, well, we shouldn't be here. */
-    if(code == 0) panic("spurious RESET exception");
+    if(code == 0) arch_panic("spurious RESET exception");
 
     /* If it's a code 1 or 2, grab the event from expevt. */
     if(code == 1 || code == 2) evt = *expevt;
@@ -126,7 +126,7 @@ void irq_handle_exception(int code) {
 
         thd_pslist(dbgio_printf);
         // library_print_list(dbgio_printf);
-        panic("double fault");
+        arch_panic("double fault");
     }
 
     inside_int = 1;
@@ -173,7 +173,7 @@ void irq_handle_exception(int code) {
         else
             irq_dump_regs(code, evt);
 
-        panic("unhandled IRQ/Exception");
+        arch_panic("unhandled IRQ/Exception");
     }
 
     /* dbgio_printf("returning from int\n"); */

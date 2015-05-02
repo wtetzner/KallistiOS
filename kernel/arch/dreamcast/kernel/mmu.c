@@ -344,7 +344,7 @@ int mmu_copyin(mmucontext_t *context, uint32 srcaddr, uint32 srccnt, void *buffe
         srcpage = map_virt(context, srcptr >> PAGESIZE_BITS);
 
         if(srcpage == NULL)
-            panic("mmu_copyv with invalid source page");
+            arch_panic("mmu_copyv with invalid source page");
 
         src = (srcpage->physical << PAGESIZE_BITS) | (srcptr & PAGEMASK);
         srckrn = 0;
@@ -385,7 +385,7 @@ int mmu_copyin(mmucontext_t *context, uint32 srcaddr, uint32 srccnt, void *buffe
             srcpage = map_virt(context, srcptr >> PAGESIZE_BITS);
 
             if(srcpage == NULL)
-                panic("mmu_copyv with invalid source page (in loop)");
+                arch_panic("mmu_copyv with invalid source page (in loop)");
 
             src = (srcpage->physical << PAGESIZE_BITS)
                   | (srcptr - (srcptr & ~PAGEMASK));
@@ -426,7 +426,7 @@ int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
         srcpage = map_virt(context1, srcptr >> PAGESIZE_BITS);
 
         if(srcpage == NULL)
-            panic("mmu_copyv with invalid source page");
+            arch_panic("mmu_copyv with invalid source page");
 
         src = (srcpage->physical << PAGESIZE_BITS) | (srcptr & PAGEMASK);
         srckrn = 0;
@@ -445,7 +445,7 @@ int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
         dstpage = map_virt(context2, dstptr >> PAGESIZE_BITS);
 
         if(dstpage == NULL)
-            panic("mmu_copyv with invalid destination page");
+            arch_panic("mmu_copyv with invalid destination page");
 
         dst = (dstpage->physical << PAGESIZE_BITS) | (dstptr & PAGEMASK);
         dstkrn = 0;
@@ -514,7 +514,7 @@ int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
                 srcpage = map_virt(context1, srcptr >> PAGESIZE_BITS);
 
                 if(srcpage == NULL)
-                    panic("mmu_copyv with invalid source page (in loop)");
+                    arch_panic("mmu_copyv with invalid source page (in loop)");
 
                 src = (srcpage->physical << PAGESIZE_BITS) | (srcptr & PAGEMASK);
             }
@@ -527,7 +527,7 @@ int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
                 srcpage = map_virt(context1, srcptr >> PAGESIZE_BITS);
 
                 if(srcpage == NULL)
-                    panic("mmu_copyv with invalid source page (in loop)");
+                    arch_panic("mmu_copyv with invalid source page (in loop)");
 
                 src = (srcpage->physical << PAGESIZE_BITS)
                       | (srcptr - (srcptr & ~PAGEMASK));
@@ -548,7 +548,7 @@ int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
                 dstpage = map_virt(context2, dstptr >> PAGESIZE_BITS);
 
                 if(dstpage == NULL)
-                    panic("mmu_copyv with invalid destination page (in loop)");
+                    arch_panic("mmu_copyv with invalid destination page (in loop)");
 
                 dst = (dstpage->physical << PAGESIZE_BITS) | (dstptr & PAGEMASK);
             }
@@ -561,7 +561,7 @@ int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
                 dstpage = map_virt(context2, dstptr >> PAGESIZE_BITS);
 
                 if(dstpage == NULL)
-                    panic("mmu_copyv with invalid destination page (in loop)");
+                    arch_panic("mmu_copyv with invalid destination page (in loop)");
 
                 dst = (dstpage->physical << PAGESIZE_BITS)
                       | (dstptr - (dstptr & ~PAGEMASK));
@@ -607,7 +607,7 @@ static void unhandled_mmu(irq_t source, irq_context_t *context) {
     for(i = 0; i < 512; i++)
         dbgio_flush();
 
-    panic("unhandled MMU exception");
+    arch_panic("unhandled MMU exception");
 }
 
 /* Generic handler that takes a missed TLB exception and loads the
@@ -754,4 +754,3 @@ void mmu_shutdown() {
     irq_set_handler(EXC_DTLB_PV_WRITE, NULL);
     irq_set_handler(EXC_INITIAL_PAGE_WRITE, NULL);
 }
-

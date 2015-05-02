@@ -526,7 +526,7 @@ void thd_schedule(int front_of_line, uint64 now) {
     /* Didn't find one? Big problem here... */
     if(thd == NULL) {
         thd_pslist(printf);
-        panic("couldn't find a runnable thread");
+        arch_panic("couldn't find a runnable thread");
     }
 
     /* We should now have a runnable thread, so remove it from the

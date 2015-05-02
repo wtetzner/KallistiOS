@@ -49,7 +49,7 @@ void* mm_sbrk(unsigned long increment) {
     if(((uint32)sbrk_base) >= (0x8d000000 - 65536)) {
         dbglog(DBG_DEAD, "Requested sbrk_base %p, was %p, diff %lu\n",
                sbrk_base, base, increment);
-        panic("out of memory; about to run over kernel stack");
+        arch_panic("out of memory; about to run over kernel stack");
     }
 
     irq_restore(old);
