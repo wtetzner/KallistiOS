@@ -12,8 +12,7 @@ rm-elf:
 	-rm -f $(TARGET) romdisk.*
 
 $(TARGET): $(OBJS) romdisk.o
-	$(KOS_CCPLUS) $(KOS_CFLAGS) $(KOS_CPPFLAGS) $(KOS_LDFLAGS) -o $(TARGET) $(KOS_START) \
-		$(OBJS) romdisk.o $(OBJEXTRA) -lmodplug -lm $(KOS_LIBS)
+	kos-c++ -o $(TARGET) $(OBJS) romdisk.o $(OBJEXTRA) -lmodplug -lm
 
 romdisk.img:
 	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v
