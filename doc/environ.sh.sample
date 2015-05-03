@@ -21,6 +21,7 @@ export KOS_SUBARCH="pristine"
 
 # KOS main base path
 export KOS_BASE="/opt/toolchains/dc/kos"
+export KOS_PORTS="${KOS_BASE}/../kos-ports"
 
 # Make utility
 export KOS_MAKE="make"

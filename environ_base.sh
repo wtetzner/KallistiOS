@@ -12,7 +12,7 @@ export KOS_INC_PATHS="${KOS_INC_PATHS} -I${KOS_BASE}/include \
 -I${KOS_BASE}/kernel/arch/${KOS_ARCH}/include -I${KOS_BASE}/addons/include"
 
 # "System" libraries
-export KOS_LIB_PATHS="-L${KOS_BASE}/lib/${KOS_ARCH} -L${KOS_BASE}/addons/lib/${KOS_ARCH}"
+export KOS_LIB_PATHS="-L${KOS_BASE}/lib/${KOS_ARCH} -L${KOS_BASE}/addons/lib/${KOS_ARCH} -L${KOS_PORTS}/lib"
 export KOS_LIBS="-Wl,--start-group -lkallisti -lc -lgcc -Wl,--end-group"
 
 # Main arch compiler paths
