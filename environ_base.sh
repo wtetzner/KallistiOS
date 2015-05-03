@@ -1,6 +1,11 @@
 # KallistiOS environment variable settings. These are the shared pieces
 # that are generated from the user config. Configure if you like.
 
+# Default the kos-ports path if it isn't already set.
+if [ -z "${KOS_PORTS}" ] ; then
+    export KOS_PORTS="${KOS_BASE}/../kos-ports"
+fi
+
 # Pull in the arch environ file
 . ${KOS_BASE}/environ_${KOS_ARCH}.sh
 
@@ -9,7 +14,8 @@ export PATH="${PATH}:${KOS_BASE}/utils/gnu_wrappers"
 
 # Our includes
 export KOS_INC_PATHS="${KOS_INC_PATHS} -I${KOS_BASE}/include \
--I${KOS_BASE}/kernel/arch/${KOS_ARCH}/include -I${KOS_BASE}/addons/include"
+-I${KOS_BASE}/kernel/arch/${KOS_ARCH}/include -I${KOS_BASE}/addons/include \
+-I${KOS_PORTS}/include"
 
 # "System" libraries
 export KOS_LIB_PATHS="-L${KOS_BASE}/lib/${KOS_ARCH} -L${KOS_BASE}/addons/lib/${KOS_ARCH} -L${KOS_PORTS}/lib"
