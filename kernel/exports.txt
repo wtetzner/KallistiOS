@@ -218,7 +218,7 @@ mmu_init
 mmu_shutdown
 
 # Panic!
-panic
+arch_panic
 
 # Real-time clock
 rtc_unix_secs
