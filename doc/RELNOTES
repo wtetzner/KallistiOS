@@ -1,6 +1,6 @@
 KallistiOS ##version##
 Copyright (C) 2002, 2003 Dan Potter
-Copyright (C) 2012-2014 Lawrence Sebald
+Copyright (C) 2012-2015 Lawrence Sebald
 
 RELEASE NOTES for 2.0.1
 -----------------------
@@ -57,6 +57,19 @@ sampling with the samples collected that frame. The idea is that you'd copy the
 samples into some buffer in your program and basically return immediately from
 the callback (it is called in an IRQ handler context, so you really shouldn't be
 doing a lot of work in the callback).
+
+The kos-ports tree has been changed quite a bit from the last release. No longer
+does the kos-ports tree itself host all the source code of the various libraries
+it contains, but rather just (generally) a Makefile with some metadata and any
+patched or additional files needed for building the library for KOS. You build a
+library simply by going into its directory in the kos-ports tree and running
+"make install clean", much like the FreeBSD ports collection. Check out the
+README in the kos-ports tree for more information. Some libraries have been
+updated in the switchover, so keep that in mind. Anything that uses Lua or
+liboggvorbisplay will probably have a bit of fixing up needed. Lua has been
+updated to 5.3.0. liboggvorbisplay has been split into three libraries: libogg,
+libvorbis, and liboggvorbisplay (the first two are the official libraries from
+Xiph.org and liboggvorbisplay is the KOS wrapper for them).
 
 RELEASE NOTES for 2.0.0
 -----------------------
