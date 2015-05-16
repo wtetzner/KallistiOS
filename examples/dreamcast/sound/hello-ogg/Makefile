@@ -19,7 +19,7 @@ clean:
 # version, and oggvorbisplay is the full FP version.
 $(TARGET): $(OBJS) 
 	kos-cc -o $(TARGET) $(OBJS) $(DATAOBJS) $(OBJEXTRA) -ltremor -lm
-#	kos-cc -o $(TARGET) $(OBJS) $(DATAOBJS) $(OBJEXTRA) -loggvorbisplay -lm
+#	kos-cc -o $(TARGET) $(OBJS) $(DATAOBJS) $(OBJEXTRA) -loggvorbisplay -lvorbis -logg -lm
 
 romdisk.img:
 	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v
