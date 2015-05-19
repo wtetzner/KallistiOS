@@ -395,4 +395,6 @@ int g1_ata_init(void);
 */
 void g1_ata_shutdown(void);
 
+__END_DECLS
+
 #endif /* __DC_G1ATA_H */
