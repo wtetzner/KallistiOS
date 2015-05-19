@@ -1,6 +1,6 @@
 KallistiOS ##version## FAQ
 Copyright (C) 2001 Dan Potter
-Copyright (C) 2012-2014 Lawrence Sebald
+Copyright (C) 2012-2015 Lawrence Sebald
 
 Here you may find some answers to some common questions we hear
 regarding the usage of KOS. We will be adding more to this file over
@@ -90,8 +90,8 @@ are the breaks. Sorry.
 
 Also, to keep you safe from accidentally linking GPL'd code into your
 program, 100% of this code is located inside the "xingmp3" tree in the
-"addons" tree. All headers in the global "headers" tree are either ours
-or otherwise BSD-style licensed.
+"libmp3" tree. All headers in the "include" directory for libmp3 are
+either ours, or similarly available under a BSD-like license.
 
 
 1 --- OS Basics --------------------------------------------------------
@@ -326,19 +326,18 @@ Q) Does KOS have any kind of TCP/IP stack? Network support at all?
 
 A) Yes. There is a working driver for the Sega broadband adapter (an
 RTL8193C based 10/100 card) and the Lan Adapter on the DC. With regards
-to TCP/IP and friends, there are two choices: either you can use the
-built-in network stack or you can use lwIP, which is in the kos-ports
-tree. Note that lwIP is pretty much considered deprecated now, and
-isn't actively tested anymore. You should use the internal network stack
-for all new code.
+to TCP/IP and friends, there is a built-in network stack provided in
+the kernel tree. There is also a PPP stack provided in the addons tree
+for using the modem.
 
-There is also a driver for the Dreamcast modem and a PPP stack that links
-it into the rest of the TCP/IP stack.
+lwIP used to be provided as an alternate TCP/IP stack for the BBA and
+Lan Adapters, however it was removed from the kos-ports tree as it has
+been deprecated by the built-in network stack.
 
 
 3.2
 
-Q) What about a BSD stack?
+Q) What about the BSD stack?
 
 A) That seems to be everyone's generic answer to wanting a TCP/IP stack.
 Have you actually _looked_ at the BSD stack? Not just glanced through it
@@ -381,7 +380,7 @@ previously but those should now be fixed.
 Q) I work on a DC; I don't have a serial cable so how can I see the
 debug output?
 
-A) Use dc-load-ip with your broadband adapter or lan adapter on the
+A) Use dc-load-ip with your broadband adapter or Lan adapter on the
 Dreamcast. If you don't have one of those, you might look into fb_console,
 which you can redirect to either the whole frame buffer or a texture
 somewhere in VRAM.
@@ -412,6 +411,97 @@ There is an effort to make a GDB stub that will work with KOS, but
 nothing has fully materialized yet. There's a very simplistic one
 for the DC port which lets you place manual breakpoints, but it
 doesn't support any sort of tracing.
+
+
+6 --- kos-ports ---------------------------------------------------------
+
+6.1
+
+Q) What is kos-ports?
+
+A) kos-ports is a repository of libraries that have been ported to or
+designed for KallistiOS over the years. Most (but not all) of the ported
+libraries contain some KOS-specific functionality, such as interfacing
+with the PVR code for texture loading or other things of the sort.
+
+Note that kos-ports no longer contains the full source code of each
+ported library. This has been done to make updating each port easier (and
+thus to actually encourage us to do so). Instead, each port in kos-ports
+contains a minimal amount of metadata that is used to build the library
+in question from the upstream source (where available). In addition, the
+kos-ports system keeps track of dependencies and other such things to
+ensure that you don't try to do something like building libpng without
+having zlib already built.
+
+
+6.2
+
+Q) How do I get kos-ports?
+
+A) If you're using a release version of KOS, I'd recommend grabbing the
+corresponding release version of the kos-ports tree from the sourceforge
+file release system (or by using a version-specific tag to check it out
+from the Git repository). That way, you'll know that each port should
+actually work with the version of KOS you're using, in case there have
+been updates done to it in the Git repository to support new versions
+of KOS.
+
+If you're tracking the Git repository for KOS, then I'd recommend doing
+the same for kos-ports. You can grab the latest Git version of kos-ports
+by doing the following in a shell:
+
+    git clone git://git.code.sf.net/p/cadcdev/kos-ports
+
+I'd recommend putting the kos-ports tree as a sibling of the main KOS
+tree (putting the root kos-ports directory in the same parent directory
+as your kos tree).
+
+You can then update the kos-ports tree by doing a "git pull" in the
+kos-ports directory (you will have to check each port for updates
+yourself).
+
+
+6.3
+
+Q) How do I build a port?
+
+Q) How do I update an installed version of a port?
+
+Q) How do I build every port that's available, as I used to do?
+
+To build one port (and any of its dependencies), simply cd to the port's
+directory in the kos-ports tree and run the following command:
+
+    make install clean
+
+This command will also work for updating a port you already have
+installed (but it will not update dependencies).
+
+If you really want to install every port that is in the tree, there is
+a script to do so. Simply cd to the kos-ports directory and run the
+following command:
+
+    utils/build-all.sh
+
+I personally don't recommend building every port, but rather building
+only those you use, but to each his own, as they say.
+
+
+6.4
+
+Q) When I try to build a port, I get an error complaining that "curl" is
+not found. What's up with that?
+
+The curl utility is used by default to download the distribution files
+for each port. If you'd rather use wget to do this (or any other similar
+utility), edit the kos-ports/config.mk file to point to your favorite
+utility. There is an example in there for using wget already -- just
+comment out the "FETCH_CMD = curl --progress-bar -O" line by putting a
+# in front of it, and uncomment the line below it to use wget instead.
+
+As for why curl is the default, well, it's installed by default on OS X,
+which is what I use for development currently. ;-) Plus, it's easily
+available on pretty much every *nix system.
 
 
 --- End ------------------------------------------------------------
