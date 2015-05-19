@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    kos.h
-   (c)2001 Dan Potter
+   Copyright (C) 2001 Dan Potter
 
 */
 
@@ -50,6 +50,11 @@ __BEGIN_DECLS
 #include <kos/nmmgr.h>
 #include <kos/exports.h>
 #include <kos/dbgio.h>
+#include <kos/blockdev.h>
+#include <kos/dbglog.h>
+#include <kos/elf.h>
+#include <kos/fs_socket.h>
+#include <kos/string.h>
 
 #include <arch/arch.h>
 #include <arch/cache.h>
@@ -61,38 +66,48 @@ __BEGIN_DECLS
 #include <arch/stack.h>
 
 #ifdef _arch_dreamcast
+#   include <arch/gdb.h>
 #   include <arch/mmu.h>
+#   include <arch/rtc.h>
 
+#   include <dc/asic.h>
 #   include <dc/biosfont.h>
 #   include <dc/cdrom.h>
+#   include <dc/fb_console.h>
+#   include <dc/flashrom.h>
+#   include <dc/fmath.h>
 #   include <dc/fs_dcload.h>
+#   include <dc/fs_dclsocket.h>
 #   include <dc/fs_iso9660.h>
 #   include <dc/fs_vmu.h>
-#   include <dc/asic.h>
+#   include <dc/g1ata.h>
+#   include <dc/g2bus.h>
 #   include <dc/maple.h>
 #   include <dc/maple/controller.h>
+#   include <dc/maple/dreameye.h>
 #   include <dc/maple/keyboard.h>
 #   include <dc/maple/mouse.h>
-#   include <dc/maple/vmu.h>
-#   include <dc/maple/sip.h>
 #   include <dc/maple/purupuru.h>
-#   include <dc/vmu_pkg.h>
-#   include <dc/spu.h>
-#   include <dc/pvr.h>
-#   include <dc/video.h>
-#   include <dc/fmath.h>
+#   include <dc/maple/sip.h>
+#   include <dc/maple/vmu.h>
+#   include <dc/matrix3d.h>
 #   include <dc/matrix.h>
-#   include <dc/sound/stream.h>
-#   include <dc/sound/sfxmgr.h>
+#   include <dc/modem/modem.h>
 #   include <dc/net/broadband_adapter.h>
 #   include <dc/net/lan_adapter.h>
-#   include <dc/modem/modem.h>
+#   include <dc/pvr.h>
+#   include <dc/scif.h>
+#   include <dc/sd.h>
+#   include <dc/sound/stream.h>
+#   include <dc/sound/sfxmgr.h>
+#   include <dc/spu.h>
 #   include <dc/sq.h>
 #   include <dc/ubc.h>
-#   include <dc/flashrom.h>
 #   include <dc/vblank.h>
+#   include <dc/vec3f.h>
+#   include <dc/video.h>
+#   include <dc/vmu_pkg.h>
 #   include <dc/vmufs.h>
-#   include <dc/scif.h>
 #else   /* _arch_dreamcast */
 #   error Invalid architecture or no architecture specified
 #endif
