@@ -6,8 +6,7 @@
 
 all: rm-elf lua.elf
 
-KOS_LOCAL_CFLAGS := -I$(KOS_BASE)/addons/lua/include
-
+KOS_CFLAGS += -I$(KOS_PORTS)/include/lua
 
 include $(KOS_BASE)/Makefile.rules
 
@@ -19,9 +18,8 @@ clean:
 rm-elf:
 	-rm -f lua.elf
 
-lua.elf: $(OBJS) 
-	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o lua.elf $(KOS_START) $(OBJS) $(DATAOBJS) \
-		$(OBJEXTRA) -llua -llualib -lconio $(KOS_LIBS) -lm
+lua.elf: $(OBJS)
+	kos-cc -o lua.elf $(OBJS) $(DATAOBJS) $(OBJEXTRA) -llua -lm
 
 run: lua.elf
 	$(KOS_LOADER) lua.elf
