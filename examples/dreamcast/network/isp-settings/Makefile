@@ -12,8 +12,7 @@ rm-elf:
 	-rm -f $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o $(TARGET) $(KOS_START) \
-		$(OBJS) $(OBJEXTRA) $(KOS_LIBS)
+	kos-cc -o $(TARGET) $(OBJS) $(OBJEXTRA)
 
 run: $(TARGET)
 	$(KOS_LOADER) $(TARGET)
@@ -21,4 +20,3 @@ run: $(TARGET)
 dist:
 	rm -f $(OBJS)
 	$(KOS_STRIP) $(TARGET)
-

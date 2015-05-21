@@ -1,10 +1,12 @@
 /* KallistiOS ##version##
 
    isp-settings.c
-   Copyright (C)2004 Dan Potter
+   Copyright (C) 2004 Dan Potter
+   Copyright (C) 2015 Lawrence Sebald
 */
 
-#include <kos.h>
+#include <stdio.h>
+#include <dc/flashrom.h>
 
 /* This uses the new flashrom ISP settings code, which is based
    heavily on the info from Sam Steele. Thanks Sam! */
@@ -17,7 +19,7 @@ int main(int argc, char **argv) {
         printf("Couldn't find any IP-related config info!\n");
     }
     else {
-        if(cfg.ip_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_IP)) {
             static const char * methods[] = {
                 "DHCP",
                 "Static",
@@ -34,38 +36,33 @@ int main(int argc, char **argv) {
             printf("Hostname: '%s'\n", cfg.hostname);
         }
 
-        if(cfg.email_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_EMAIL))
             printf("Email:    '%s'\n", cfg.email);
-        }
 
-        if(cfg.smtp_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_SMTP))
             printf("SMTP:     '%s'\n", cfg.smtp);
-        }
 
-        if(cfg.pop3_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_POP3))
             printf("POP3:     '%s'\n", cfg.pop3);
-        }
 
-        if(cfg.pop3_login_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_POP3_USER))
             printf("POP3 Login: '%s'\n", cfg.pop3_login);
-        }
 
-        if(cfg.pop3_passwd_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_POP3_PASS))
             printf("POP3 Pass:  '%s'\n", cfg.pop3_passwd);
+
+        if((cfg.valid_fields & FLASHROM_ISP_PROXY_HOST))
             printf("Proxy Host: '%s'\n", cfg.proxy_host);
-        }
 
-        if(cfg.ppp_login_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_PROXY_PORT))
             printf("Proxy Port: %d\n", cfg.proxy_port);
-            printf("PPP Login:  '%s'\n", cfg.ppp_login);
-        }
 
-        if(cfg.ppp_passwd_valid) {
+        if((cfg.valid_fields & FLASHROM_ISP_PPP_USER))
+            printf("PPP Login:  '%s'\n", cfg.ppp_login);
+
+        if((cfg.valid_fields & FLASHROM_ISP_PPP_PASS))
             printf("PPP Pass:   '%s'\n", cfg.ppp_passwd);
-        }
     }
 
     return 0;
 }
-
-
