@@ -9,9 +9,6 @@
 
   This module implements the stuff enumerated in flashrom.h.
 
-  Writing to the flash is disabled by default. To re-enable it, uncomment
-  the #define below.
-
   Thanks to Marcus Comstedt for the info about the flashrom and syscalls.
 
  */
@@ -28,24 +25,27 @@ typedef int (*flashrom_sc)(int, void *, int, int);
 int flashrom_info(int part, int * start_out, int * size_out) {
     flashrom_sc sc = (flashrom_sc)(*((uint32 *)0x8c0000b8));
     uint32  ptrs[2];
-    int rv;
+    int old, rv;
 
-    if(sc(part, ptrs, 0, 0) == 0) {
+    old = irq_disable();
+
+    if(!(rv = sc(part, ptrs, 0, 0))) {
         *start_out = ptrs[0];
         *size_out = ptrs[1];
-        rv = 0;
     }
-    else
-        rv = -1;
+
+    irq_restore(old);
 
     return rv;
 }
 
 int flashrom_read(int offset, void * buffer_out, int bytes) {
     flashrom_sc sc = (flashrom_sc)(*((uint32 *)0x8c0000b8));
-    int rv;
+    int old, rv;
 
+    old = irq_disable();
     rv = sc(offset, buffer_out, bytes, 1);
+    irq_restore(old);
     return rv;
 }
 
@@ -78,7 +78,7 @@ int flashrom_delete(int offset) {
 static int flashrom_calc_crc(uint8 * buffer) {
     int i, c, n = 0xffff;
 
-    for(i = 0; i < 62; i++) {
+    for(i = 0; i < FLASHROM_OFFSET_CRC; i++) {
         n ^= buffer[i] << 8;
 
         for(c = 0; c < 8; c++) {
@@ -96,25 +96,25 @@ static int flashrom_calc_crc(uint8 * buffer) {
 int flashrom_get_block(int partid, int blockid, uint8 * buffer_out) {
     int start, size;
     int bmcnt;
-    char    magic[18];
-    uint8   * bitmap;
-    int i, rv;
+    char magic[18];
+    uint8 * bitmap;
+    int i;
 
     /* First, figure out where the partition is located. */
-    if(flashrom_info(partid, &start, &size) < 0)
-        return -2;
+    if(flashrom_info(partid, &start, &size))
+        return FLASHROM_ERR_NO_PARTITION;
 
     /* Verify the partition */
     if(flashrom_read(start, magic, 18) < 0) {
         dbglog(DBG_ERROR, "flashrom_get_block: can't read part %d magic\n", partid);
-        return -3;
+        return FLASHROM_ERR_READ_PART;
     }
 
     if(strncmp(magic, "KATANA_FLASH____", 16) || *((uint16*)(magic + 16)) != partid) {
         bmcnt = *((uint16*)(magic + 16));
         magic[16] = 0;
         dbglog(DBG_ERROR, "flashrom_get_block: invalid magic '%s' or id %d in part %d\n", magic, bmcnt, partid);
-        return -4;
+        return FLASHROM_ERR_BAD_MAGIC;
     }
 
     /* We need one bit per 64 bytes of partition size. Figure out how
@@ -131,15 +131,16 @@ int flashrom_get_block(int partid, int blockid, uint8 * buffer_out) {
     /* This is messy but simple and safe... */
     if(bmcnt > 65536) {
         dbglog(DBG_ERROR, "flashrom_get_block: bogus part %p/%d\n", (void *)start, size);
-        return -5;
+        return FLASHROM_ERR_BOGUS_PART;
     }
 
-    bitmap = (uint8 *)malloc(bmcnt);
+    if(!(bitmap = (uint8 *)malloc(bmcnt)))
+        return FLASHROM_ERR_NOMEM;
 
     if(flashrom_read(start + size - bmcnt, bitmap, bmcnt) < 0) {
         dbglog(DBG_ERROR, "flashrom_get_block: can't read part %d bitmap\n", partid);
-        rv = -6;
-        goto ex;
+        free(bitmap);
+        return FLASHROM_ERR_READ_BITMAP;
     }
 
     /* Go through all the allocated blocks, and look for the latest one
@@ -155,12 +156,13 @@ int flashrom_get_block(int partid, int blockid, uint8 * buffer_out) {
             break;
     }
 
+    /* Done with the bitmap, free it. */
+    free(bitmap);
+
     /* All blocks unused -> file not found. Note that this is probably
        a very unusual condition. */
-    if(i == 0) {
-        rv = -1;
-        goto ex;
-    }
+    if(i == 0)
+        return FLASHROM_ERR_EMPTY_PART;
 
     i--;    /* 'i' was the first unused block, so back up one */
 
@@ -169,8 +171,7 @@ int flashrom_get_block(int partid, int blockid, uint8 * buffer_out) {
            _user_ block zero, which is physical block 1. */
         if(flashrom_read(start + (i + 1) * 64, buffer_out, 64) < 0) {
             dbglog(DBG_ERROR, "flashrom_get_block: can't read part %d phys block %d\n", partid, i + 1);
-            rv = -6;
-            goto ex;
+            return FLASHROM_ERR_READ_BLOCK;
         }
 
         /* Does the block ID match? */
@@ -180,23 +181,18 @@ int flashrom_get_block(int partid, int blockid, uint8 * buffer_out) {
         /* Check the checksum to make sure it's valid */
         bmcnt = flashrom_calc_crc(buffer_out);
 
-        if(bmcnt != *((uint16*)(buffer_out + 62))) {
+        if(bmcnt != *((uint16*)(buffer_out + FLASHROM_OFFSET_CRC))) {
             dbglog(DBG_WARNING, "flashrom_get_block: part %d phys block %d has invalid checksum %04x (should be %04x)\n",
-                   partid, i + 1, *((uint16*)(buffer_out + 62)), bmcnt);
+                   partid, i + 1, *((uint16*)(buffer_out + FLASHROM_OFFSET_CRC)), bmcnt);
             continue;
         }
 
         /* Ok, looks like we got it! */
-        rv = 0;
-        goto ex;
+        return FLASHROM_ERR_NONE;
     }
 
     /* Didn't find anything */
-    rv = -1;
-
-ex:
-    free(bitmap);
-    return rv;
+    return FLASHROM_ERR_NOT_FOUND;
 }
 
 /* This internal function returns the system config block. As far as I
@@ -238,7 +234,7 @@ int flashrom_get_region() {
     char region[6] = { 0 };
 
     /* Find the partition */
-    if(flashrom_info(FLASHROM_PT_SYSTEM, &start, &size) < 0) {
+    if(flashrom_info(FLASHROM_PT_SYSTEM, &start, &size)) {
         dbglog(DBG_ERROR, "flashrom_get_region: can't find partition 0\n");
         return -1;
     }

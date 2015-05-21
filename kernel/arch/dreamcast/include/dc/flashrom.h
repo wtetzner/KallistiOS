@@ -66,6 +66,23 @@ __BEGIN_DECLS
 #define FLASHROM_B1_PPPPASSWD       0xE9    /**< \brief PPP passwd (BLOCK_1) */
 /** @} */
 
+#define FLASHROM_OFFSET_CRC         62      /**< \brief Location of CRC in each block */
+
+/** \defgroup fr_errs   Error values for the flashrom_get_block() function
+    @{
+*/
+#define FLASHROM_ERR_NONE           0       /**< \brief Success */
+#define FLASHROM_ERR_NOT_FOUND      -1      /**< \brief Block not found */
+#define FLASHROM_ERR_NO_PARTITION   -2      /**< \brief Partition not found */
+#define FLASHROM_ERR_READ_PART      -3      /**< \brief Error reading partition */
+#define FLASHROM_ERR_BAD_MAGIC      -4      /**< \brief Invalid block magic */
+#define FLASHROM_ERR_BOGUS_PART     -5      /**< \brief Bogus partition size */
+#define FLASHROM_ERR_NOMEM          -6      /**< \brief Memory allocation failure */
+#define FLASHROM_ERR_READ_BITMAP    -7      /**< \brief Error reading bitmap */
+#define FLASHROM_ERR_EMPTY_PART     -8      /**< \brief Empty partition */
+#define FLASHROM_ERR_READ_BLOCK     -9      /**< \brief Error reading block */
+/** @} */
+
 /** \brief  Retrieve information about the given partition.
 
     This function implements the FLASHROM_INFO syscall; given a partition ID,

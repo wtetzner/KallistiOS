@@ -67,6 +67,7 @@ KallistiOS version 2.0.1 -----------------------------------------------
 - DC  Fixed a deadlock issue in the G1ATA code related to the use of a recursive
       mutex for locking -- Thanks to SWAT for noticing the issue [LS]
 - DC  Add support for German (DE) and UK keyboards [Christian Groessler == CG]
+- DC  Minor cleanups to the flashrom code [Harley Laue == HL && LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
