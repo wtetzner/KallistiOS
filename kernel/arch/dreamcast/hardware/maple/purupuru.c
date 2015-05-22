@@ -119,7 +119,7 @@ static maple_driver_t purupuru_drv = {
     .detach = NULL
 };
 
-/* Add the mouse to the driver chain */
+/* Add the purupuru to the driver chain */
 int purupuru_init() {
     return maple_driver_reg(&purupuru_drv);
 }
