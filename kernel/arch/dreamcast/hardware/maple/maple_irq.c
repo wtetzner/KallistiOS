@@ -2,6 +2,7 @@
 
    maple_irq.c
    Copyright (C) 2002 Dan Potter
+   Copyright (C) 2015 Lawrence Sebald
  */
 
 #include <malloc.h>
@@ -10,6 +11,7 @@
 #include <assert.h>
 #include <dc/maple.h>
 #include <dc/asic.h>
+#include <dc/pvr.h>
 #include <kos/thread.h>
 
 /*********************************************************************/
@@ -199,6 +201,7 @@ void maple_vbl_irq_hnd(uint32 code) {
 void maple_dma_irq_hnd(uint32 code) {
     maple_frame_t   *i;
     int8        resp;
+    uint32 gun;
 
     (void)code;
 
@@ -248,6 +251,13 @@ void maple_dma_irq_hnd(uint32 code) {
             maple_frame_unlock(i);
     }
 
+    /* If gun mode is enabled, read the latched H/V counter values. */
+    if(maple_state.gun_port > -1) {
+        gun = PVR_GET(PVR_GUN_POS);
+        maple_state.gun_x = gun & 0x3ff;
+        maple_state.gun_y = (gun >> 16) & 0x3ff;
+        maple_state.gun_port = -1;
+    }
+
     /* dbgio_write_str("finish dma_irq_hnd\n"); */
 }
-

@@ -2,6 +2,7 @@
 
    dc/maple.h
    Copyright (C) 2002 Dan Potter
+   Copyright (C) 2015 Lawrence Sebald
 
    This new driver's design is based loosely on the LinuxDC maple
    bus driver.
@@ -355,6 +356,15 @@ typedef struct maple_state_str {
 
     /** \brief  Our vblank handler handle */
     int                         vbl_handle;
+
+    /** \brief  The port to read for lightgun status, if any. */
+    int                         gun_port;
+
+    /** \brief  The horizontal position of the lightgun signal. */
+    int                         gun_x;
+
+    /** \brief  The vertical position of the lightgun signal. */
+    int                         gun_y;
 } maple_state_t;
 
 /** \brief  Maple DMA buffer size.
@@ -476,6 +486,45 @@ const char * maple_perror(int response);
     \return                 Non-zero if the device is valid.
 */
 int maple_dev_valid(int p, int u);
+
+/** \brief  Enable light gun mode for this frame.
+
+    This function enables light gun processing for the current frame of data.
+    Light gun mode will automatically be disabled when the data comes back for
+    this frame.
+
+    \param  port            The port to enable light gun mode on.
+    \return                 MAPLE_EOK on success, MAPLE_EFAIL on error.
+*/
+int maple_gun_enable(int port);
+
+/** \brief  Disable light gun mode.
+
+    There is probably very little reason to call this function. Light gun mode
+    is ordinarily disabled and is automatically disabled after the data has been
+    read from the device. The only reason to call this function is if you call
+    the maple_gun_enable() function, and then change your mind during the same
+    frame.
+*/
+void maple_gun_disable(void);
+
+/** \brief  Read the light gun position values.
+
+    This function fetches the gun position values from the video hardware and
+    returns them via the parameters. These values are not normalized before
+    returning.
+
+    \param  x               Storage for the horizontal position of the gun.
+    \param  y               Storage for the vertical position of the gun.
+
+    \note   The values returned from this function are the raw H and V counter
+            values from the video hardware where the gun registered its
+            position. The values, however, need a bit of massaging before they
+            correspond nicely to screen values. The y value is particularly odd
+            in interlaced modes due to the fact that you really have half as
+            many physical lines on the screen as you might expect.
+*/
+void maple_gun_read_pos(int *x, int *y);
 
 #if MAPLE_DMA_DEBUG
 /* Debugging help */

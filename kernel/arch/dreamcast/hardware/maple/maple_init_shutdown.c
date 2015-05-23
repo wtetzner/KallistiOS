@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    maple_init.c
-   (c)2002 Dan Potter
+   Copyright (C) 2002 Dan Potter
  */
 
 #include <malloc.h>
@@ -19,6 +19,7 @@
 #include <dc/maple/purupuru.h>
 #include <dc/maple/sip.h>
 #include <dc/maple/dreameye.h>
+#include <dc/maple/lightgun.h>
 
 /*
   This system handles low-level communication/initialization of the maple
@@ -81,6 +82,8 @@ int maple_hw_init() {
     maple_state.detect_port_next = 0;
     maple_state.detect_unit_next = 0;
     maple_state.detect_wrapped = 0;
+    maple_state.gun_port = -1;
+    maple_state.gun_x = maple_state.gun_y = -1;
 
     /* Reset hardware */
     maple_write(MAPLE_RESET1, MAPLE_RESET1_MAGIC);
@@ -168,6 +171,7 @@ void maple_wait_scan() {
 
 /* Full init: initialize known drivers and start maple operations */
 int maple_init() {
+    lightgun_init();
     cont_init();
     kbd_init();
     mouse_init();
@@ -190,5 +194,5 @@ void maple_shutdown() {
     mouse_shutdown();
     kbd_shutdown();
     cont_shutdown();
+    lightgun_shutdown();
 }
-

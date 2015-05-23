@@ -1,7 +1,8 @@
 /* KallistiOS ##version##
 
    maple_queue.c
-   (c)2002 Dan Potter
+   Copyright (C) 2002 Dan Potter
+   Copyright (C) 2015 Lawrence Sebald
  */
 
 #include <stdio.h>
@@ -19,6 +20,10 @@ void maple_queue_flush() {
     cnt = amt = 0;
     out = (uint32 *)maple_state.dma_buffer;
     last = NULL;
+
+    /* Make sure we end up with space for the gun enable command... */
+    if(maple_state.gun_port > -1)
+        amt = 12;
 
     /* Go through and process each frame... */
     TAILQ_FOREACH(i, &maple_state.frame_queue, frameq) {
@@ -55,6 +60,15 @@ void maple_queue_flush() {
 
         cnt++;
         amt += i->length * 4;
+    }
+
+    /* Are we entering gun mode this frame? */
+    if(maple_state.gun_port > -1) {
+        last = out;
+        *out++ = 0x200 | (maple_state.gun_port << 16);
+        *out++ = 0;
+        *out++ = 0;
+        cnt++;
     }
 
     /* Did we actually do anything...? */
@@ -190,4 +204,3 @@ void maple_frame_unlock(maple_frame_t *frame) {
     assert(frame->state == MAPLE_FRAME_RESPONDED);
     frame->state = MAPLE_FRAME_VACANT;
 }
-

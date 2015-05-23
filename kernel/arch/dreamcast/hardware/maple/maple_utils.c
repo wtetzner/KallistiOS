@@ -1,7 +1,8 @@
 /* KallistiOS ##version##
 
    maple_util.c
-   (c)2002 Dan Potter
+   Copyright (C) 2002 Dan Potter
+   Copyright (C) 2015 Lawrence Sebald
  */
 
 #include <assert.h>
@@ -146,6 +147,24 @@ const char * maple_perror(int response) {
 /* Determine if a given device is valid */
 int maple_dev_valid(int p, int u) {
     return maple_state.ports[p].units[u].valid;
+}
+
+int maple_gun_enable(int port) {
+    if(port >= 0 && port < 4) {
+        maple_state.gun_port = port;
+        return MAPLE_EOK;
+    }
+
+    return MAPLE_EFAIL;
+}
+
+void maple_gun_disable(void) {
+    maple_state.gun_port = -1;
+}
+
+void maple_gun_read_pos(int *x, int *y) {
+    *x = maple_state.gun_x;
+    *y = maple_state.gun_y;
 }
 
 #if MAPLE_DMA_DEBUG

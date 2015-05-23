@@ -68,6 +68,7 @@ KallistiOS version 2.0.1 -----------------------------------------------
       mutex for locking -- Thanks to SWAT for noticing the issue [LS]
 - DC  Add support for German (DE) and UK keyboards [Christian Groessler == CG]
 - DC  Minor cleanups to the flashrom code [DH && LS]
+- DC  Add light gun support roughly based on how it is done in libronin [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
