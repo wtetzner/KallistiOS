@@ -79,7 +79,7 @@ of the software distributed with KOS (newlib math routines, Xing MP3
 engine, modplug, etc) are under different licenses. Please read "LICENSE"
 if in doubt!
 
-This software is optinoally based in part on the work of the Independent JPEG
+This software is optionally based in part on the work of the Independent JPEG
 Group (see addons/libjpeg/README).
 
 I have also added a somewhat informative "licensing" section to the FAQ.
@@ -94,7 +94,9 @@ Building KallistiOS from source entirely requires two things:
 - GNU Binutils / GCC, cross-compile to the platform of your choice; for
   DC this is a compiler targeted for "sh-elf", as well as (optionally)
   a compiler targeted for "arm-eabi". See below about version notes.
-- GNU Binutils / GCC / GNU Make for your host platform
+- A working compiler toolchain that can be used to cross-compile the
+  requisite target toolchain (so GCC or Clang based, basically) and
+  GNU Make for your host platform
 
 For the Dreamcast version, a Makefile is provided to build the requisite
 GCC, Binutils, and Newlib versions in the utils/dc-chain directory.
