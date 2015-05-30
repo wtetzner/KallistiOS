@@ -59,6 +59,9 @@ __BEGIN_DECLS
 
     This is the list of keys that are on the keyboard that may be pressed. The
     keyboard returns keys in this format.
+
+    These are the raw keycodes returned by the US keyboard, and thus only cover
+    the keys on US keyboards.
     @{
 */
 #define KBD_KEY_NONE            0x00
@@ -171,6 +174,9 @@ __BEGIN_DECLS
 #define KBD_REGION_US       2           /**< \brief US keyboard */
 #define KBD_REGION_UK       3           /**< \brief UK keyboard */
 #define KBD_REGION_DE       4           /**< \brief German keyboard */
+#define KBD_REGION_FR       5           /**< \brief French keyboard (not supported yet) */
+#define KBD_REGION_IT       6           /**< \brief Italian keyboard (not supported yet) */
+#define KBD_REGION_ES       7           /**< \brief Spanish keyboard */
 /** @} */
 
 /** \brief  Size of a keyboard queue.
@@ -320,5 +326,3 @@ void kbd_shutdown();
 __END_DECLS
 
 #endif  /* __DC_MAPLE_KEYBOARD_H */
-
-

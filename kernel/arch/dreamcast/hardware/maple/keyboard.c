@@ -21,7 +21,7 @@ repeat handling.
 */
 
 /* Built-in keymaps. */
-#define KBD_NUM_KEYMAPS 4
+#define KBD_NUM_KEYMAPS 8
 static kbd_keymap_t keymaps[KBD_NUM_KEYMAPS] = {
     {
         /* Japanese keyboard */
@@ -169,7 +169,8 @@ static kbd_keymap_t keymaps[KBD_NUM_KEYMAPS] = {
     },
     {
         /* German/QWERTZ keyboard */
-        /* The hex values in the tables are the ISO8859-1 represention of the German special chars. */
+        /* The hex values in the tables are the ISO-8859-15 represention of the
+           German special chars. */
         {
             /* Base values */
             0, 0, 0, 0, 'a', 'b', 'c', 'd',                 /* 0x00 - 0x07 */
@@ -222,6 +223,82 @@ static kbd_keymap_t keymaps[KBD_NUM_KEYMAPS] = {
             /* All the rest are unused, and will be 0. */
         }
     },
+    {
+        /* French/AZERTY keyboard, probably. This one needs to be confirmed
+           still. */
+        { },
+        { },
+        { }
+    },
+    {
+        /* Italian/QWERTY keyboard, probably. This one needs to be confirmed
+           still. */
+        { },
+        { },
+        { }
+    },
+    {
+        /* ES (Spanish QWERTY) keyboard */
+        /* The hex values in the tables are the ISO-8859-15 (Euro revision)
+           represention of the Spanish special chars. */
+        {
+            /* Base values */
+            /* 0xa1: '¡', 0xba: 'º', 0xb4: '´', 0xe7: 'ç',
+               0xf1: 'ñ' */
+            0, 0, 0, 0, 'a', 'b', 'c', 'd',                 /* 0x00 - 0x07 */
+            'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',         /* 0x08 - 0x0F */
+            'm', 'n', 'o', 'p', 'q', 'r', 's', 't',         /* 0x10 - 0x17 */
+            'u', 'v', 'w', 'x', 'y', 'z', '1', '2',         /* 0x18 - 0x1F */
+            '3', '4', '5', '6', '7', '8', '9', '0',         /* 0x20 - 0x27 */
+            10, 27, 8, 9, ' ', '\'', 0xa1, '`',             /* 0x28 - 0x2F */
+            '+', 0, 0xe7, 0xf1, 0xb4, 0xba, ',', '.',       /* 0x30 - 0x37 */
+            '-', 0, 0, 0, 0, 0, 0, 0,                       /* 0x38 - 0x3F */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x40 - 0x47 */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x48 - 0x4F */
+            0, 0, 0, 0, '/', '*', '-', '+',                 /* 0x50 - 0x57 */
+            13, '1', '2', '3', '4', '5', '6', '7',          /* 0x58 - 0x5F */
+            '8', '9', '0', '.', '<', 0, 0, 0,               /* 0x60 - 0x65 */
+            /* All the rest are unused, and will be 0. */
+        },
+        {
+             /* Shifted values */
+             /* 0xaa: 'ª', 0xb7: '·', 0xbf: '¿', 0xc7: 'Ç',
+                0xd1: 'Ñ', 0xa8: '¨' */
+            0, 0, 0, 0, 'A', 'B', 'C', 'D',                 /* 0x00 - 0x07 */
+            'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',         /* 0x08 - 0x0F */
+            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',         /* 0x10 - 0x17 */
+            'U', 'V', 'W', 'X', 'Y', 'Z', '!', '"',         /* 0x18 - 0x1F */
+            0xb7, '$', '%', '&', '/', '(', ')', '=',        /* 0x20 - 0x27 */
+            10, 27, 8, 9, ' ', '?', 0xbf, '^',              /* 0x28 - 0x2F */
+            '*', 0, 0xc7, 0xd1, 0xa8, 0xaa, ';', ':',       /* 0x30 - 0x37 */
+            '_', 0, 0, 0, 0, 0, 0, 0,                       /* 0x38 - 0x3F */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x40 - 0x47 */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x48 - 0x4F */
+            0, 0, 0, 0, '/', '*', '-', '+',                 /* 0x50 - 0x57 */
+            13, '1', '2', '3', '4', '5', '6', '7',          /* 0x58 - 0x5F */
+            '8', '9', '0', '.', '>', 0, 0, 0,               /* 0x60 - 0x65 */
+            /* All the rest are unused, and will be 0. */
+        },
+        {
+            /* "Alt" shifted values */
+            /* 0xa4: '€', 0xac: '¬' */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x00 - 0x07 */
+            0xa4, 0, 0, 0, 0, 0, 0, 0,                      /* 0x08 - 0x0F */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x10 - 0x17 */
+            0, 0, 0, 0, 0, 0, '|', '@',                     /* 0x18 - 0x1F */
+            '#', 0, 0, 0xac, 0, 0, 0, 0,                    /* 0x20 - 0x27 */
+            0, 0, 0, 0, 0, 0, 0, '[',                       /* 0x28 - 0x2F */
+            ']', 0, '}', 0, '{', '\\', 0, 0,                /* 0x30 - 0x37 */
+            '-', 0, 0, 0, 0, 0, 0, 0,                       /* 0x38 - 0x3F */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x40 - 0x47 */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x48 - 0x4F */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x50 - 0x57 */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x58 - 0x5F */
+            0, 0, 0, 0, 0, 0, 0, 0,                         /* 0x60 - 0x65 */
+            /* All the rest are unused, and will be 0. */
+        }
+
+    }
 };
 
 
@@ -342,7 +419,7 @@ int kbd_queue_pop(maple_device_t *dev, int xlat) {
 
     mods = rv >> 8;
 
-    if(mods & KBD_MOD_RALT || (mods & (KBD_MOD_LCTRL | KBD_MOD_LALT)) == (KBD_MOD_LCTRL | KBD_MOD_LALT))
+    if((mods & KBD_MOD_RALT) || (mods & (KBD_MOD_LCTRL | KBD_MOD_LALT)) == (KBD_MOD_LCTRL | KBD_MOD_LALT))
         ascii = keymaps[state->region - 1].alt[(uint8)rv];
     else if(mods & (KBD_MOD_LSHIFT | KBD_MOD_RSHIFT | (1 << 9)))
         ascii = keymaps[state->region - 1].shifted[(uint8)rv];
@@ -357,8 +434,7 @@ int kbd_queue_pop(maple_device_t *dev, int xlat) {
 
 /* Update the keyboard status; this will handle debounce handling as well as
    queueing keypresses for later usage. The key press queue uses 16-bit
-   words so that we can store "special" keys as such. This needs to be called
-   fairly periodically if you're expecting keyboard input. */
+   words so that we can store "special" keys as such. */
 static void kbd_check_poll(maple_frame_t *frm) {
     kbd_state_t *state;
     kbd_cond_t *cond;

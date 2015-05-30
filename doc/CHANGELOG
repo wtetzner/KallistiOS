@@ -70,6 +70,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Minor cleanups to the flashrom code [DH && LS]
 - DC  Added light gun support roughly based on how it is done in libronin [LS]
 - DC  Added a very simple light gun example [LS]
+- DC  Added support for Spanish keyboards [Xavier Vallejo == XV]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
