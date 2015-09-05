@@ -419,6 +419,18 @@ typedef struct {
 /** @} */
 
 /** \defgroup pvr_uv_flip           Enable or disable U/V flipping on the PVR
+
+    These flags determine what happens when U/V coordinate values exceed 1.0.
+    In any of the flipped cases, the specified coordinate value will flip around
+    after 1.0, essentially mirroring the image. So, if you displayed an image
+    with a U coordinate of 0.0 on the left hand side and 2.0 on the right hand
+    side with U flipping turned on, you'd have an image that was displayed twice
+    as if mirrored across the middle. This mirroring behavior happens at every
+    unit boundary (so at 2.0 it returns to normal, at 3.0 it flips, etc).
+
+    The default case is to disable mirroring. In addition, clamping of the U/V
+    coordinates by PVR_UVCLAMP_U, PVR_UVCLAMP_V, or PVR_UVCLAMP_UV will disable
+    the mirroring behavior.
     @{
 */
 #define PVR_UVFLIP_NONE         0   /**< \brief No flipped coordinates */
@@ -428,6 +440,11 @@ typedef struct {
 /** @} */
 
 /** \defgroup pvr_uv_clamp          Enable or disable clamping of U/V on the PVR
+
+    These flags determine whether clamping will be applied to U/V coordinate
+    values that exceed 1.0. If enabled, these modes will explicitly override the
+    flip/mirroring modes (PVR_UVFLIP_U, PVR_UVFLIP_V, and PVR_UVFLIP_UV), and
+    will instead ensure that the coordinate(s) in question never exceed 1.0.
     @{
 */
 #define PVR_UVCLAMP_NONE        0   /**< \brief Disable clamping */
