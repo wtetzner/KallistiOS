@@ -186,6 +186,13 @@ SECTIONS
   . = ALIGN(32 / 8);
   . = ALIGN(32 / 8);
   _end = .; PROVIDE (end = .);
+  .ocram 0x7c001000 (NOLOAD) :
+  {
+    *(.ocram)
+    /* We have 8kb of operand cache RAM. The next line lets ld throw
+       an error if we exceed that size.  */
+    . = . > 0x2000 ? 0x2000 : .;
+  }
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }
