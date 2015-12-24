@@ -64,6 +64,7 @@ __BEGIN_DECLS
 #include <arch/types.h>
 #include <arch/exec.h>
 #include <arch/stack.h>
+#include <arch/byteorder.h>
 
 #ifdef _arch_dreamcast
 #   include <arch/gdb.h>
