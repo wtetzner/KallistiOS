@@ -4,7 +4,7 @@
    Copyright (C) 2000, 2001, 2003 Dan Potter
    Copyright (C) 2001 Andrew Kieschnick
    Copyright (C) 2002 Bero
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 
 */
 
@@ -990,6 +990,36 @@ static int iso_fcntl(void *h, int cmd, va_list ap) {
     return rv;
 }
 
+static int iso_fstat(void *h, struct stat *st) {
+    file_t fd = (file_t)h;
+
+    if(fd >= MAX_ISO_FILES || !fh[fd].first_extent || fh[fd].broken) {
+        errno = EBADF;
+        return -1;
+    }
+
+    memset(st, 0, sizeof(struct stat));
+
+    if(fh[fd].dir) {
+        st->st_size = 0;
+        st->st_dev = 'c' | ('d' << 8);
+        st->st_mode = S_IFDIR | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR |
+            S_IXGRP | S_IXOTH;
+        st->st_nlink = 1;
+        st->st_blksize = 512;
+    }
+    else {
+        st->st_size = fh[fd].size;
+        st->st_dev = 'c' | ('d' << 8);
+        st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR |
+            S_IXGRP | S_IXOTH;
+        st->st_nlink = 1;
+        st->st_blksize = 512;
+    }
+
+    return 0;
+}
+
 /* Put everything together */
 static vfs_handler_t vh = {
     /* Name handler */
@@ -1029,7 +1059,7 @@ static vfs_handler_t vh = {
     NULL,               /* total64 */
     NULL,               /* readlink */
     iso_rewinddir,
-    NULL                /* fstat */
+    iso_fstat
 };
 
 /* Initialize the file system */
