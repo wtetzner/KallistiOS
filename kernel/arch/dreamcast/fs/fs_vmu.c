@@ -2,7 +2,7 @@
 
    fs_vmu.c
    Copyright (C) 2003 Dan Potter
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 
 */
 
@@ -567,6 +567,7 @@ static int vmu_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
     maple_device_t * dev;
     size_t len = strlen(fn);
 
+    (void)vfs;
     (void)flag;
 
     /* The only thing we can stat right now is full VMUs, and what that
@@ -588,7 +589,7 @@ static int vmu_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
     /* Get the number of free blocks */
     memset(rv, 0, sizeof(struct stat));
     rv->st_size = vmufs_free_blocks(dev);
-    rv->st_dev = (dev_t)((ptr_t)vfs);
+    rv->st_dev = (dev_t)((ptr_t)dev);
     rv->st_mode = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
     rv->st_nlink = 1;
     rv->st_blksize = 512;
@@ -652,6 +653,39 @@ static int vmu_rewinddir(void * fd) {
     return 0;
 }
 
+static int vmu_fstat(void *fd, struct stat *st) {
+    vmu_fh_t *fh;
+    vmu_dh_t *dh;
+
+    /* Check the handle */
+    if(!vmu_verify_hnd(fd, VMU_ANY)) {
+        errno = EBADF;
+        return -1;
+    }
+
+    fh = (vmu_fh_t *)fd;
+    memset(st, 0, sizeof(struct stat));
+
+    if(fh->strtype == VMU_DIR) {
+        dh = (vmu_dh_t *)fh;
+
+        st->st_size = vmufs_free_blocks(dh->dev);
+        st->st_dev = (dev_t)((ptr_t)dh->dev);
+        st->st_mode = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
+        st->st_nlink = 1;
+        st->st_blksize = 512;
+    }
+    else {
+        st->st_dev = (dev_t)((ptr_t)fh->dev);
+        st->st_mode = S_IFREG | S_IRWXU | S_IRWXG | S_IRWXO;
+        st->st_nlink = 1;
+        st->st_blksize = 512;
+        st->st_size = fh->filesize * 512;
+    }
+
+    return 0;
+}
+
 /* handler interface */
 static vfs_handler_t vh = {
     /* Name handler */
@@ -690,7 +724,7 @@ static vfs_handler_t vh = {
     NULL,               /* total64 */
     NULL,               /* readlink */
     vmu_rewinddir,
-    NULL                /* fstat */
+    vmu_fstat
 };
 
 int fs_vmu_init() {
