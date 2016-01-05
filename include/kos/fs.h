@@ -2,7 +2,7 @@
 
    kos/fs.h
    Copyright (C) 2000, 2001, 2002, 2003 Dan Potter
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 
 */
 
@@ -193,6 +193,9 @@ typedef struct vfs_handler {
 
     /** \brief Rewind a directory stream to the start */
     int (*rewinddir)(void *hnd);
+
+    /** \brief Get status information on an already opened file. */
+    int (*fstat)(void *hnd, struct stat *st);
 } vfs_handler_t;
 
 /** \brief  The number of distinct file descriptors that can be in use at a
@@ -559,6 +562,21 @@ int fs_stat(const char *path, struct stat *buf, int flag);
                             ENOSYS and -1 will be returned.
 */
 int fs_rewinddir(file_t hnd);
+
+/** \brief  Retrieve information about an opened file.
+
+    This function retrieves status information on the given file descriptor,
+    which must correspond to an already opened file.
+
+    \param  hnd             The file descriptor to retrieve information about.
+    \param  buf             The buffer to store stat information in.
+    \return                 0 on success, -1 on failure.
+
+    \note                   Some filesystems may not support this function. If a
+                            filesystem doesn't support it, errno will be set to
+                            ENOSYS and -1 will be returned.
+*/
+int fs_fstat(file_t hnd, struct stat *buf);
 
 /** \brief  Duplicate a file descriptor.
 

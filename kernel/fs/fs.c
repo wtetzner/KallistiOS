@@ -871,6 +871,27 @@ int fs_rewinddir(file_t fd) {
     return h->handler->rewinddir(h->hnd);
 }
 
+int fs_fstat(file_t fd, struct stat *st) {
+    fs_hnd_t *h = fs_map_hnd(fd);
+
+    if(!h) {
+        errno = EBADF;
+        return -1;
+    }
+
+    if(h->handler == NULL) {
+        h->hnd = (void *)0;
+        return 0;
+    }
+
+    if(h->handler->fstat == NULL) {
+        errno = ENOSYS;
+        return -1;
+    }
+
+    return h->handler->fstat(h->hnd, st);
+}
+
 /* Initialize FS structures */
 int fs_init() {
     return 0;

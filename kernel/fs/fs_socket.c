@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    fs_socket.c
-   Copyright (C) 2006, 2009, 2012, 2013 Lawrence Sebald
+   Copyright (C) 2006, 2009, 2012, 2013, 2016 Lawrence Sebald
 
 */
 
@@ -89,6 +89,15 @@ static short fs_socket_poll(void *hnd, short events) {
     return sock->protocol->poll(sock, events);
 }
 
+static int fs_socket_fstat(void *hnd, struct stat *st) {
+    (void)hnd;
+
+    /* Not very useful, but whatever... */
+    memset(st, 0, sizeof(struct stat));
+    st->st_mode = S_IFSOCK;
+    return 0;
+}
+
 /* VFS handler */
 static vfs_handler_t vh = {
     /* Name handler */
@@ -127,7 +136,8 @@ static vfs_handler_t vh = {
     NULL,            /* tell64 */
     NULL,            /* total64 */
     NULL,            /* readlink */
-    NULL             /* rewinddir */
+    NULL,            /* rewinddir */
+    fs_socket_fstat  /* fstat */
 };
 
 /* Have we been initialized? */

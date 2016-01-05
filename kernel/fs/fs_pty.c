@@ -730,7 +730,8 @@ static vfs_handler_t vh = {
     NULL,
     NULL,
     NULL,
-    pty_rewinddir
+    pty_rewinddir,
+    NULL
 };
 
 /* Are we initialized? */

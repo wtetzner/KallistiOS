@@ -1028,7 +1028,8 @@ static vfs_handler_t vh = {
     NULL,               /* tell64 */
     NULL,               /* total64 */
     NULL,               /* readlink */
-    iso_rewinddir
+    iso_rewinddir,
+    NULL                /* fstat */
 };
 
 /* Initialize the file system */

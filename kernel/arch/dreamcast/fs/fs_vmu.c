@@ -689,7 +689,8 @@ static vfs_handler_t vh = {
     NULL,               /* tell64 */
     NULL,               /* total64 */
     NULL,               /* readlink */
-    vmu_rewinddir
+    vmu_rewinddir,
+    NULL                /* fstat */
 };
 
 int fs_vmu_init() {

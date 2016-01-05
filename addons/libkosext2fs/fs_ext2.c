@@ -1821,7 +1821,8 @@ static vfs_handler_t vh = {
     fs_ext2_tell64,             /* tell64 */
     fs_ext2_total64,            /* total64 */
     fs_ext2_readlink,           /* readlink */
-    fs_ext2_rewinddir           /* rewinddir */
+    fs_ext2_rewinddir,          /* rewinddir */
+    NULL                        /* fstat */
 };
 
 static int initted = 0;

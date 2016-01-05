@@ -734,7 +734,8 @@ static vfs_handler_t vh = {
     NULL,               /* tell64 XXX */
     NULL,               /* total64 XXX */
     NULL,               /* readlink XXX */
-    ramdisk_rewinddir
+    ramdisk_rewinddir,
+    NULL                /* fstat */
 };
 
 /* Attach a piece of memory to a file. This works somewhat like open for
