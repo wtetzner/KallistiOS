@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    fs_ext2.c
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 */
 
 #include <time.h>
@@ -1783,6 +1783,86 @@ static int fs_ext2_rewinddir(void *h) {
     return 0;
 }
 
+static int fs_ext2_fstat(void *h, struct stat *buf) {
+    fs_ext2_fs_t *fs;
+    ext2_inode_t *inode;
+    uint64_t sz;
+    file_t fd = ((file_t)h) - 1;
+    int irv = 0;
+
+    mutex_lock(&ext2_mutex);
+
+    if(fd >= MAX_EXT2_FILES || !fh[fd].inode_num) {
+        mutex_unlock(&ext2_mutex);
+        errno = EBADF;
+        return -1;
+    }
+
+    /* Find the object in question */
+    inode = fh[fd].inode;
+    fs = fh[fd].fs;
+
+    /* Fill in the structure */
+    memset(buf, 0, sizeof(struct stat));
+    buf->st_dev = (dev_t)((ptr_t)fs->vfsh);
+    buf->st_ino = fh[fd].inode_num;
+    buf->st_mode = inode->i_mode & 0x0FFF;
+    buf->st_nlink = inode->i_links_count;
+    buf->st_uid = inode->i_uid;
+    buf->st_gid = inode->i_gid;
+
+    buf->st_atime = inode->i_atime;
+    buf->st_mtime = inode->i_mtime;
+    buf->st_ctime = inode->i_ctime;
+    buf->st_blksize = 512;
+    buf->st_blocks = inode->i_blocks;
+
+    /* The rest depends on what type of inode this is... */
+    switch(inode->i_mode & 0xF000) {
+        case EXT2_S_IFLNK:
+            buf->st_mode |= S_IFLNK;
+            buf->st_size = inode->i_size;
+            break;
+
+        case EXT2_S_IFREG:
+            buf->st_mode |= S_IFREG;
+            sz = ext2_inode_size(inode);
+
+            if(sz > LONG_MAX) {
+                errno = EOVERFLOW;
+                irv = -1;
+            }
+
+            buf->st_size = sz;
+            break;
+
+        case EXT2_S_IFDIR:
+            buf->st_mode |= S_IFDIR;
+            buf->st_size = inode->i_size;
+            break;
+
+        case EXT2_S_IFSOCK:
+            buf->st_mode |= S_IFSOCK;
+            break;
+
+        case EXT2_S_IFIFO:
+            buf->st_mode |= S_IFIFO;
+            break;
+
+        case EXT2_S_IFBLK:
+            buf->st_mode |= S_IFBLK;
+            break;
+
+        case EXT2_S_IFCHR:
+            buf->st_mode |= S_IFCHR;
+            break;
+    }
+
+    mutex_unlock(&ext2_mutex);
+
+    return irv;
+}
+
 /* This is a template that will be used for each mount */
 static vfs_handler_t vh = {
     /* Name Handler */
@@ -1822,7 +1902,7 @@ static vfs_handler_t vh = {
     fs_ext2_total64,            /* total64 */
     fs_ext2_readlink,           /* readlink */
     fs_ext2_rewinddir,          /* rewinddir */
-    NULL                        /* fstat */
+    fs_ext2_fstat               /* fstat */
 };
 
 static int initted = 0;
