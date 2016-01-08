@@ -76,7 +76,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Added fs_fstat and modified the fstat function in the newlib handlers to
       use that or fake it for filesystems that don't support fstat [LS]
 - DC  Added fstat support to fs_iso9660 and fs_vmu [LS]
-- *** Added fstat support to fs_ext2 [LS]
+- *** Added fstat support to fs_ext2, fs_ramdisk, fs_romdisk, and fs_pty [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

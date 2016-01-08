@@ -2,7 +2,7 @@
 
    fs_ramdisk.c
    Copyright (C) 2002, 2003 Dan Potter
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 
 */
 
@@ -609,6 +609,7 @@ static int ramdisk_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
     rd_file_t *f;
     int rv = -1;
 
+    (void)vfs;
     (void)flag;
 
     mutex_lock(&rd_mutex);
@@ -618,8 +619,9 @@ static int ramdisk_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
 
     if(f) {
         memset(buf, 0, sizeof(struct stat));
-        buf->st_dev = (dev_t)((ptr_t)vfs);
-        buf->st_mode = S_IRUSR | S_IWUSR;
+        buf->st_dev = (dev_t)('r' | ('a' << 8) | ('m' << 16));
+        buf->st_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH |
+            S_IWOTH;
 
         if(f->type == STAT_TYPE_DIR)
             buf->st_mode |= S_IFDIR;
@@ -696,6 +698,43 @@ static int ramdisk_rewinddir(void * h) {
     return rv;
 }
 
+static int ramdisk_fstat(void *h, struct stat *buf) {
+    file_t fd = (file_t)h;
+    rd_file_t *f;
+
+    mutex_lock(&rd_mutex);
+
+    if(fd >= MAX_RAM_FILES || !fh[fd].file) {
+        mutex_unlock(&rd_mutex);
+        errno = EBADF;
+        return -1;
+    }
+
+    /* Grab the file itself... */
+    f = fh[fd].file;
+
+    /* Fill in the structure. */
+    memset(buf, 0, sizeof(struct stat));
+    buf->st_dev = (dev_t)('r' | ('a' << 8) | ('m' << 16));
+    buf->st_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+
+    if(f->type == STAT_TYPE_DIR)
+        buf->st_mode |= S_IFDIR;
+    else
+        buf->st_mode |= S_IFREG;
+
+    buf->st_nlink = 1;
+    buf->st_size = f->datasize;
+    buf->st_blksize = 1024;
+    buf->st_blocks = f->datasize >> 10;
+
+    if(f->datasize & 0x3ff)
+        ++buf->st_blocks;
+
+    mutex_unlock(&rd_mutex);
+    return 0;
+}
+
 /* Put everything together */
 static vfs_handler_t vh = {
     /* Name handler */
@@ -735,7 +774,7 @@ static vfs_handler_t vh = {
     NULL,               /* total64 XXX */
     NULL,               /* readlink XXX */
     ramdisk_rewinddir,
-    NULL                /* fstat */
+    ramdisk_fstat
 };
 
 /* Attach a piece of memory to a file. This works somewhat like open for

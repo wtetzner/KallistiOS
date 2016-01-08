@@ -2,7 +2,7 @@
 
    fs.c
    Copyright (C) 2000, 2001, 2002, 2003 Dan Potter
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2015, 2016 Lawrence Sebald
 
 */
 
@@ -876,6 +876,11 @@ int fs_fstat(file_t fd, struct stat *st) {
 
     if(!h) {
         errno = EBADF;
+        return -1;
+    }
+
+    if(!st) {
+        errno = EFAULT;
         return -1;
     }
 

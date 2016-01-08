@@ -2,7 +2,7 @@
 
    fs_romdisk.c
    Copyright (C) 2001, 2002, 2003 Dan Potter
-   Copyright (C) 2012, 2013, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 
 */
 
@@ -449,6 +449,35 @@ static int romdisk_rewinddir(void *h) {
     return 0;
 }
 
+static int romdisk_fstat(void *h, struct stat *st) {
+    file_t fd = (file_t)h;
+
+    if(fd >= MAX_RD_FILES || !fh[fd].index) {
+        errno = EBADF;
+        return -1;
+    }
+
+    memset(st, 0, sizeof(struct stat));
+
+    if(fh[fd].dir)
+        st->st_mode = S_IFDIR | S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP |
+            S_IROTH | S_IXOTH;
+    else
+        st->st_mode = S_IFREG | S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP |
+            S_IROTH | S_IXOTH;
+
+    st->st_dev = (dev_t)((ptr_t)fh[fd].mnt);
+    st->st_size = fh[fd].size;
+    st->st_nlink = 1;
+    st->st_blksize = 1024;
+    st->st_blocks = fh[fd].size >> 10;
+
+    if(fh[fd].size & 0x3ff)
+        ++st->st_blocks;
+
+    return 0;
+}
+
 /* This is a template that will be used for each mount */
 static vfs_handler_t vh = {
     /* Name Handler */
@@ -488,7 +517,7 @@ static vfs_handler_t vh = {
     NULL,                       /* total64 */
     NULL,                       /* readlink */
     romdisk_rewinddir,
-    NULL                        /* fstat */
+    romdisk_fstat
 };
 
 /* Are we initialized? */

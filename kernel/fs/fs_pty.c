@@ -2,7 +2,7 @@
 
    fs_pty.c
    Copyright (C) 2003 Dan Potter
-   Copyright (C) 2012, 2014 Lawrence Sebald
+   Copyright (C) 2012, 2014, 2016 Lawrence Sebald
 
 */
 
@@ -693,6 +693,31 @@ static int pty_fcntl(void *h, int cmd, va_list ap) {
     return rv;
 }
 
+static int pty_fstat(void *h, struct stat *st) {
+    pipefd_t *fd = (pipefd_t *)h;
+
+    if(!fd) {
+        errno = EBADF;
+        return -1;
+    }
+
+    memset(st, 0, sizeof(struct stat));
+
+    st->st_dev = (dev_t)('p' | ('t' << 8) | ('y' << 16));
+
+    if(fd->mode & O_DIR) {
+        st->st_mode = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
+    }
+    else {
+        st->st_mode = S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
+            S_IROTH | S_IWOTH;
+        st->st_size = (off_t)fd->d.p->cnt;
+        st->st_blksize = 1;
+    }
+
+    return 0;
+}
+
 static vfs_handler_t vh = {
     /* Name Handler */
     {
@@ -731,7 +756,7 @@ static vfs_handler_t vh = {
     NULL,
     NULL,
     pty_rewinddir,
-    NULL
+    pty_fstat
 };
 
 /* Are we initialized? */
