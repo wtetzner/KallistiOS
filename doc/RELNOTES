@@ -1,6 +1,6 @@
 KallistiOS ##version##
 Copyright (C) 2002, 2003 Dan Potter
-Copyright (C) 2012-2015 Lawrence Sebald
+Copyright (C) 2012-2016 Lawrence Sebald
 
 RELEASE NOTES for 2.1.0
 -----------------------
@@ -31,7 +31,9 @@ something like fs_stat("/vmu/a1", &buf, 0), you will still get the number of
 free blocks in buf.st_size (the standard doesn't say what to do with the st_size
 value on a stat() call about a directory, so this is actually compliant with the
 standard, oddly enough). More filesystems support fs_stat() directly now, such
-as fs_dcload/fs_dclsocket.
+as fs_dcload/fs_dclsocket. Also added is an fs_fstat() call (which, of course,
+maps onto the normal C fstat() function). If a filesystem doesn't support
+fs_fstat(), it will get a simple mapped version of it, much like with fs_stat().
 
 Hardware-wise, a new driver was added for accessing a hard drive that might be
 hooked directly up to the GD-ROM port. The GD-ROM itself is actually a bit of a
@@ -70,6 +72,16 @@ liboggvorbisplay will probably have a bit of fixing up needed. Lua has been
 updated to 5.3.0. liboggvorbisplay has been split into three libraries: libogg,
 libvorbis, and liboggvorbisplay (the first two are the official libraries from
 Xiph.org and liboggvorbisplay is the KOS wrapper for them).
+
+Also, speaking of kos-ports, SDL has been updated a bit to version 1.2.15. If
+anyone is interested in updating SDL further to the 2.x versions, feel free to
+contact me. As of now, nobody's maintaining the KOS port of SDL, so it could use
+a maintainer too. Continuing on with kos-ports news, a port of the Opus audio
+codec (the successor to Vorbis and Speex) has been added. Like the Vorbis port,
+this one is split into multiple libraries, mirroring how it is distributed. Opus
+and Opusfile are direct from Xiph.org. The libopusplay library links against
+those two libraries and adds in the KOS-specific interface, which should look
+very familiar to anyone who's used liboggvorbisplay.
 
 RELEASE NOTES for 2.0.0
 -----------------------
