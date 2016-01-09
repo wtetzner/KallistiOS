@@ -2,7 +2,7 @@
 
    kernel/thread/thread.c
    Copyright (C) 2000, 2001, 2002, 2003 Dan Potter
-   Copyright (C) 2010 Lawrence Sebald
+   Copyright (C) 2010, 2016 Lawrence Sebald
 */
 
 #include <stdlib.h>
@@ -49,10 +49,6 @@ static struct ktlist thd_list;
    now this condition is being broken because sleeping threads are on the
    same queue. We deal with those in thd_switch below. */
 static struct ktqueue run_queue;
-
-/* "Jiffy" count: this is basically a counter that gets incremented each
-   time a timer interrupt happens. */
-vuint32 jiffies;
 
 /* The currently executing thread. This thread should not be on any queues. */
 kthread_t *thd_current = NULL;
@@ -885,9 +881,6 @@ int thd_init(int mode) {
     /* Main thread -- the kern thread */
     thd_current = kern;
     irq_set_context(&kern->context);
-
-    /* Re-initialize jiffy counter */
-    jiffies = 0;
 
     /* Initialize thread sync primitives */
     genwait_init();
