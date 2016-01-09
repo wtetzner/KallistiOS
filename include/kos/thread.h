@@ -2,7 +2,7 @@
 
    include/kos/thread.h
    Copyright (C) 2000, 2001, 2002, 2003 Dan Potter
-   Copyright (C) 2009, 2010 Lawrence Sebald
+   Copyright (C) 2009, 2010, 2016 Lawrence Sebald
 
 */
 
@@ -219,13 +219,6 @@ extern int thd_mode;
     Do not manipulate this variable directly!
 */
 extern kthread_t *thd_current;
-
-/** \brief  "Jiffy" count.
-
-    This variable counts the number of context switches done by the threading
-    system. Do not manipulate this variable directly!
-*/
-extern vuint32 jiffies;
 
 /** \brief  Block the current thread.
 
@@ -510,7 +503,6 @@ int thd_pslist(int (*pf)(const char *fmt, ...));
 */
 int thd_pslist_queue(int (*pf)(const char *fmt, ...));
 
-
 /** \brief  Initialize the threading system.
 
     This is normally done for you by default when KOS starts. This will also
@@ -533,4 +525,3 @@ void thd_shutdown();
 __END_DECLS
 
 #endif  /* __KOS_THREAD_H */
-
