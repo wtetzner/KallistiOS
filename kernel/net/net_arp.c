@@ -3,7 +3,7 @@
    kernel/net/net_arp.c
 
    Copyright (C) 2002 Dan Potter
-   Copyright (C) 2005, 2010, 2012, 2013 Lawrence Sebald
+   Copyright (C) 2005, 2010, 2012, 2013, 2016 Lawrence Sebald
 */
 
 #include <string.h>
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <kos/net.h>
 #include <kos/thread.h>
+#include <arch/timer.h>
 
 #include "net_ipv4.h"
 
@@ -49,7 +50,7 @@ typedef struct netarp {
     uint8               ip[4];
 
     /* Cache entry time; if zero, this entry won't expire */
-    uint32              timestamp;
+    uint64              timestamp;
 
     /* Optional packet to send when the entry is filled in */
     ip_hdr_t            *pkt;
@@ -76,6 +77,7 @@ struct netarp_list net_arp_cache = LIST_HEAD_INITIALIZER(0);
 /* Garbage collect timed out entries */
 static int net_arp_gc(netif_t *nif) {
     netarp_t *a1, *a2;
+    uint64 now = timer_ms_gettime64();
 
     a1 = LIST_FIRST(&net_arp_cache);
 
@@ -83,7 +85,7 @@ static int net_arp_gc(netif_t *nif) {
         a2 = LIST_NEXT(a1, ac_list);
 
         if(a1->timestamp) {
-            if(jiffies >= (a1->timestamp + 120 * HZ)) {
+            if(now >= (a1->timestamp + 120 * 1000)) {
                 LIST_REMOVE(a1, ac_list);
 
                 if(a1->pkt) {
@@ -100,7 +102,7 @@ static int net_arp_gc(netif_t *nif) {
                since we queried it, try again. */
             if(a1->mac[0] == 0 && a1->mac[1] == 0 && a1->mac[2] == 0 &&
                a1->mac[3] == 0 && a1->mac[4] == 0 && a1->mac[5] == 0 &&
-               jiffies > (a1->timestamp + 5 * HZ)) {
+               now > (a1->timestamp + 5 * 1000)) {
                 net_arp_query(nif, a1->ip);
             }
         }
@@ -113,7 +115,7 @@ static int net_arp_gc(netif_t *nif) {
 
 /* Add an entry to the ARP cache manually */
 int net_arp_insert(netif_t *nif, const uint8 mac[6], const uint8 ip[4],
-                   uint32 timestamp) {
+                   uint64 timestamp) {
     netarp_t *cur;
 
     /* First make sure the entry isn't already there */
@@ -176,7 +178,7 @@ int net_arp_lookup(netif_t *nif, const uint8 ip_in[4], uint8 mac_out[6],
             memcpy(mac_out, cur->mac, 6);
 
             if(cur->timestamp != 0)
-                cur->timestamp = jiffies;
+                cur->timestamp = timer_ms_gettime64();
 
             return 0;
         }
@@ -186,7 +188,7 @@ int net_arp_lookup(netif_t *nif, const uint8 ip_in[4], uint8 mac_out[6],
     cur = (netarp_t *)malloc(sizeof(netarp_t));
     memset(cur, 0, sizeof(netarp_t));
     memcpy(cur->ip, ip_in, 4);
-    cur->timestamp = jiffies;
+    cur->timestamp = timer_ms_gettime64();
 
     /* Copy our packet if we have one to copy. */
     if(pkt && data && data_size) {
@@ -230,7 +232,7 @@ int net_arp_revlookup(netif_t *nif, uint8 ip_out[4], const uint8 mac_in[6]) {
             memcpy(ip_out, cur->ip, 4);
 
             if(cur->timestamp != 0)
-                cur->timestamp = jiffies;
+                cur->timestamp = timer_ms_gettime64();
 
             return 0;
         }
@@ -288,10 +290,12 @@ int net_arp_input(netif_t *nif, const uint8 *pkt_in, int len) {
             net_arp_send(nif, pkt);
         case 2: /* ARP Reply */
             /* Insert into ARP cache */
-            net_arp_insert(nif, pkt->hw_send, pkt->pr_send, jiffies);
+            net_arp_insert(nif, pkt->hw_send, pkt->pr_send,
+                           timer_ms_gettime64());
             break;
         default:
-            dbglog(DBG_KDEBUG, "net_arp: Unknown ARP Opcode: %d\n", pkt->opcode[1]);
+            dbglog(DBG_KDEBUG, "net_arp: Unknown ARP Opcode: %d\n",
+                   pkt->opcode[1]);
     }
 
     return 0;

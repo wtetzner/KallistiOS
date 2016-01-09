@@ -2,7 +2,8 @@
 
    include/kos/net.h
    Copyright (C) 2002 Dan Potter
-   Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013 Lawrence Sebald
+   Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013,
+                 2016 Lawrence Sebald
 
 */
 
@@ -256,11 +257,12 @@ void net_arp_shutdown(void);
     \param  mac             The MAC address of the entry.
     \param  ip              The IPv4 address of the entry.
     \param  timestamp       The entry's timestamp. Set to 0 for a permanent
-                            entry, otherwise set to jiffies.
+                            entry, otherwise set to the current number of
+                            milliseconds since boot (i.e, timer_ms_gettime64()).
     \retval 0               On success (no error conditions defined).
 */
 int net_arp_insert(netif_t *nif, const uint8 mac[6], const uint8 ip[4],
-                   uint32 timestamp);
+                   uint64 timestamp);
 
 /** \brief  Look up an entry from the ARP cache.
 

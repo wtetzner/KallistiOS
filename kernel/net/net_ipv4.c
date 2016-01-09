@@ -2,10 +2,11 @@
 
    kernel/net/net_ipv4.c
 
-   Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013 Lawrence Sebald
+   Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013,
+                 2016 Lawrence Sebald
 
    Portions adapted from KOS' old net_icmp.c file:
-   Copyright (c) 2002 Dan Potter
+   Copyright (C) 2002 Dan Potter
 
 */
 
@@ -16,6 +17,7 @@
 #include <arpa/inet.h>
 #include <kos/net.h>
 #include <kos/fs_socket.h>
+#include <arch/timer.h>
 
 #include "net_ipv4.h"
 #include "net_icmp.h"
@@ -243,7 +245,7 @@ int net_ipv4_input(netif_t *src, const uint8 *pkt, size_t pktsize,
     /* Add the sender to the ARP cache, if they're not already there. */
     if(eth) {
         net_ipv4_parse_address(ntohl(ip->src), ipa);
-        net_arp_insert(src, eth->src, ipa, jiffies);
+        net_arp_insert(src, eth->src, ipa, timer_ms_gettime64());
     }
 
     /* Submit the packet for possible reassembly. */
