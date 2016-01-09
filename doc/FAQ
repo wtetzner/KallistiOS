@@ -237,8 +237,7 @@ called 'dc-load'. DC-Load is Andrew Kieschnick's BBA/Serial port loader
 program. If you use the DC-Load console, then you can read files
 directly from your in the /pc directory. The other major advantage (if
 you are using a BBA) is that DC-Load will redirect console messages over
-the ethernet for you. There is also the ps2-load-ip console for PS2 RTE
-development which performs a similar function.
+the ethernet for you.
 
 - VMU -- mounts on /vmu, what it sounds like. This dynamic file system
 shows all detected VMU or memory cards on the maple bus and lets you
