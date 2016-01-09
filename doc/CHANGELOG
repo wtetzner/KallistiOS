@@ -79,6 +79,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Added fstat support to fs_ext2, fs_ramdisk, fs_romdisk, and fs_pty [LS]
 - *** Changed libc/koslib/byteorder.c functions to use the <arch/byteorder.h>
       macros, instead of being hard-coded as little-endian [LS]
+- DC  Added Opus decoding example using libopusplay [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
