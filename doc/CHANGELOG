@@ -84,6 +84,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Added the thd_create_ex() function to create a thread with a given set of
       attributes set at thread creation (allowing us to expand that list of
       attributes a bit more easily than what we would have to do otherwise) [LS]
+- *** Made thd_mode local to the threading code (if you need to get the mode at
+      runtime, for some reason, use the new thd_get_mode() function) [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

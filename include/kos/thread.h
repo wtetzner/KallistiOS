@@ -222,18 +222,9 @@ typedef struct kthread_attr {
     const char *label;
 } kthread_attr_t;
 
-/** \brief  Are threads cooperative or preemptive?
-
-    Do not modify this variable directly. Instead, use the thd_set_mode()
-    function to switch threading modes.
-
-    \see    thd_modes
-*/
-extern int thd_mode;
-
 /** \defgroup thd_modes             Threading system modes
 
-    The thd_mode variable will always have one of this set of values. This
+    The threading system will always be in one of the following modes. This
     represents the type of scheduling done by the system (or the special case of
     threads not having been initialized yet).
 
@@ -503,6 +494,12 @@ struct _reent * thd_get_reent(kthread_t *thd);
     \return                 The old mode of the threading system.
 */
 int thd_set_mode(int mode);
+
+/** \brief  Fetch the current threading mode.
+
+    \return                 The current mode of the threading system.
+*/
+int thd_get_mode(void);
 
 /** \brief  Wait for a thread to exit.
 

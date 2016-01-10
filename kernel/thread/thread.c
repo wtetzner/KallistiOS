@@ -54,7 +54,7 @@ static struct ktqueue run_queue;
 kthread_t *thd_current = NULL;
 
 /* Thread mode: cooperative or pre-emptive. */
-int thd_mode = THD_MODE_NONE;
+static int thd_mode = THD_MODE_NONE;
 
 /* Reaper semaphore. Counts the number of threads waiting to be reaped. */
 static semaphore_t thd_reap_sem;
@@ -816,6 +816,10 @@ int thd_set_mode(int mode) {
     thd_mode = mode;
 
     return old;
+}
+
+int thd_get_mode(void) {
+    return thd_mode;
 }
 
 /* Delete a TLS key. Note that currently this doesn't prevent you from reusing
