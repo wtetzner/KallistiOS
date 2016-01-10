@@ -128,4 +128,14 @@ typedef void *_iconv_t;
 // Include stuff to make pthreads work as well.
 #include <sys/_pthread.h>
 
+#ifndef __RESTRICT
+#if (__STDC_VERSION__ >= 199901L)
+#define __RESTRICT restrict
+#elif defined(__GNUC__) || defined(__GNUG__)
+#define __RESTRICT __restrict
+#else /* < C99 and not GCC */
+#define __RESTRICT
+#endif
+#endif /* !__RESTRICT */
+
 #endif  /* _SYS__TYPES_H */

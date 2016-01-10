@@ -155,8 +155,8 @@ extern int mtx_lock(mtx_t *mtx);
     \note   Although timeouts are specified in seconds and nanoseconds, the
             timeout will be rounded up to the nearest millisecond.
 */
-extern int mtx_timedlock(mtx_t *restrict mtx,
-                         const struct timespec *restrict ts);
+extern int mtx_timedlock(mtx_t *__RESTRICT mtx,
+                         const struct timespec *__RESTRICT ts);
 
 /** \brief  Attempt to acquire a mutex lock.
 
@@ -268,8 +268,8 @@ extern int cnd_signal(cnd_t *cond);
     \note   Although timeouts are specified in seconds and nanoseconds, the
             timeout will be rounded up to the nearest millisecond.
 */
-extern int cnd_timedwait(cnd_t *restrict cond, mtx_t *restrict mtx,
-                         const struct timespec *restrict ts);
+extern int cnd_timedwait(cnd_t *__RESTRICT cond, mtx_t *__RESTRICT mtx,
+                         const struct timespec *__RESTRICT ts);
 
 /** \brief  Wait on a condition variable.
 
