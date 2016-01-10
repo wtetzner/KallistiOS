@@ -38,7 +38,7 @@ __BEGIN_DECLS
     The scheduler supports two distinct types of threads: joinable and detached
     threads. A joinable thread is one that can return a value to the creating
     thread (or for that matter, any other thread that wishes to join it). A
-    detached thread is one taht is completely detached from the rest of the
+    detached thread is one that is completely detached from the rest of the
     system and cannot return values by "normal" means. Detached threads
     automatically clean up all of the internal resources associated with the
     thread when it exits. Joinable threads, on the other hand, must keep some
@@ -192,6 +192,36 @@ typedef struct kthread {
 #define STATE_FINISHED  0x0004  /**< \brief Finished execution */
 /** @} */
 
+/** \brief  Thread creation attributes.
+
+    This structure allows you to specify the various attributes for a thread to
+    have when it is created. These can only be modified (in general) at thread
+    creation time (with the exception of detaching a thread, which can be done
+    later with thd_detach()).
+
+    Leaving any of the attributes in this structure 0 will set them to their
+    default value.
+
+    \headerfile kos/thread.h
+*/
+typedef struct kthread_attr {
+    /** \brief  1 for a detached thread. */
+    int create_detached;
+
+    /** \brief  Set the size of the stack to be created. */
+    uint32 stack_size;
+
+    /** \brief  Pre-allocate a stack for the thread.
+        \note   If you use this attribute, you must also set stack_size. */
+    void *stack_ptr;
+
+    /** \brief  Set the thread's priority. */
+    prio_t prio;
+
+    /** \brief  Thread label. */
+    const char *label;
+} kthread_attr_t;
+
 /** \brief  Are threads cooperative or preemptive?
 
     Do not modify this variable directly. Instead, use the thd_set_mode()
@@ -297,6 +327,22 @@ int thd_remove_from_runnable(kthread_t *thd);
     \return                 The new thread on success, NULL on failure.
 */
 kthread_t *thd_create(int detach, void * (*routine)(void *param), void *param);
+
+/** \brief  Create a new thread with the specified set of attributes.
+
+    This function creates a new kernel thread with the specified set of
+    parameters to run the given routine.
+
+    \param  attr            A set of thread attributes for the created thread.
+                            Passing NULL will initialize all attributes to their
+                            default values.
+    \param  routine         The function to call in the new thread.
+    \param  param           A parameter to pass to the function called.
+
+    \return                 The new thread on success, NULL on failure.
+*/
+kthread_t *thd_create_ex(kthread_attr_t *attr, void *(*routine)(void *),
+                         void *param);
 
 /** \brief  Brutally kill the given thread.
 

@@ -316,13 +316,31 @@ int thd_remove_from_runnable(kthread_t *thd) {
 }
 
 /* New thread function; given a routine address, it will create a
-   new kernel thread with a default stack. When the routine
+   new kernel thread with the given attributes. When the routine
    returns, the thread will exit. Returns the new thread struct. */
-kthread_t *thd_create(int detach, void * (*routine)(void *param), void *param) {
+kthread_t *thd_create_ex(kthread_attr_t *attr, void * (*routine)(void *param),
+                         void *param) {
     kthread_t *nt = NULL;
     tid_t tid;
     uint32 params[4];
     int oldirq = 0;
+    kthread_attr_t real_attr = { 0, THD_STACK_SIZE, NULL, PRIO_DEFAULT, NULL };
+
+    if(attr)
+        real_attr = *attr;
+
+    /* Look through the attributes and see what we have. If any are set to 0,
+       then default them now to save ourselves trouble later. */
+    if(real_attr.stack_ptr && !real_attr.stack_size) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    if(!real_attr.stack_size)
+        real_attr.stack_size = THD_STACK_SIZE;
+
+    if(!real_attr.prio)
+        real_attr.prio = PRIO_DEFAULT;
 
     oldirq = irq_disable();
 
@@ -338,15 +356,20 @@ kthread_t *thd_create(int detach, void * (*routine)(void *param), void *param) {
             memset(nt, 0, sizeof(kthread_t));
 
             /* Create a new thread stack */
-            nt->stack = (uint32*)malloc(THD_STACK_SIZE);
+            if(!real_attr.stack_ptr) {
+                nt->stack = (uint32*)malloc(real_attr.stack_size);
 
-            if(!nt->stack) {
-                free(nt);
-                irq_restore(oldirq);
-                return NULL;
+                if(!nt->stack) {
+                    free(nt);
+                    irq_restore(oldirq);
+                    return NULL;
+                }
+            }
+            else {
+                nt->stack = (uint32*)real_attr.stack_ptr;
             }
 
-            nt->stack_size = THD_STACK_SIZE;
+            nt->stack_size = real_attr.stack_size;
 
             /* Populate the context */
             params[0] = (uint32)routine;
@@ -358,10 +381,17 @@ kthread_t *thd_create(int detach, void * (*routine)(void *param), void *param) {
                                (uint32)thd_birth, params, 0);
 
             nt->tid = tid;
-            nt->prio = PRIO_DEFAULT;
+            nt->prio = real_attr.prio;
             nt->flags = THD_DEFAULTS;
             nt->state = STATE_READY;
-            strcpy(nt->label, "[un-named kernel thread]");
+
+            if(!real_attr.label) {
+                strcpy(nt->label, "[un-named kernel thread]");
+            }
+            else {
+                strncpy(nt->label, real_attr.label, 255);
+                nt->label[255] = 0;
+            }
 
             if(thd_current)
                 strcpy(nt->pwd, thd_current->pwd);
@@ -371,9 +401,8 @@ kthread_t *thd_create(int detach, void * (*routine)(void *param), void *param) {
             _REENT_INIT_PTR((&(nt->thd_reent)));
 
             /* Should we detach the thread? */
-            if(detach) {
+            if(real_attr.create_detached)
                 nt->flags |= THD_DETACHED;
-            }
 
             /* Initialize thread-local storage. */
             LIST_INIT(&nt->tls_list);
@@ -391,6 +420,11 @@ kthread_t *thd_create(int detach, void * (*routine)(void *param), void *param) {
 
     irq_restore(oldirq);
     return nt;
+}
+
+kthread_t *thd_create(int detach, void *(*routine)(void *), void *param) {
+    kthread_attr_t attrs = { detach, 0, 0, 0, 0 };
+    return thd_create_ex(&attrs, routine, param);
 }
 
 /* Given a thread id, this function removes the thread from
