@@ -86,6 +86,9 @@ KallistiOS version 2.1.0 -----------------------------------------------
       attributes a bit more easily than what we would have to do otherwise) [LS]
 - *** Made thd_mode local to the threading code (if you need to get the mode at
       runtime, for some reason, use the new thd_get_mode() function) [LS]
+- DC  Patched the GCC patch so that GCC 4.7.x compiles cleanly with a newer host
+      GCC version [Luke Benstead == LB]
+- *** Fixed GCC version detection in the environ script for some locales [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

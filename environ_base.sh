@@ -39,7 +39,7 @@ export KOS_CPPFLAGS="${KOS_CPPFLAGS} ${KOS_INC_PATHS_CPP} -fno-operator-names -f
 export KOS_CSTD="-std=c99"
 export KOS_CPPSTD="-std=gnu++98"
 
-export KOS_GCCVER="`kos-cc -v 2>&1 | tail -1 | awk '{print $3}'`"
+export KOS_GCCVER="`kos-cc -dumpversion`"
 
 case $KOS_GCCVER in
   4*)
