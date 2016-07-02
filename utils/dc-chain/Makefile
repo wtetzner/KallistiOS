@@ -31,8 +31,8 @@ kos_base=$(CURDIR)/../..
 binutils_ver=2.23.2
 gcc_ver=4.7.3
 newlib_ver=2.0.0
-gdb_ver=6.7.1
-insight_ver=6.7.1
+gdb_ver=7.11.1
+insight_ver=6.8-1
 
 # With GCC 4.x versions, the patches provide a kos thread model, so you should
 # use it. With 3.4.6, you probably want posix here. If you really don't want
@@ -95,7 +95,7 @@ patch_targets=patch-binutils patch-gcc patch-newlib patch-kos
 patch: $(patch_targets)
 patch-binutils: $(binutils_patches)
 patch-gcc: $(gcc_patches)
-patch-newlib: $(newlib_patches) 
+patch-newlib: $(newlib_patches)
 patch-kos: $(kos_patches)
 
 $(newlib_patches):
@@ -133,8 +133,8 @@ $(build_arm_targets): target = $(arm_target)
 $(build_arm_targets): extra_configure_args = --with-arch=armv4
 
 # To avoid code repetition, we use the same commands for both
-# architectures.  But we can't create a single target called 
-# build-binutils for both sh4 and arm, because phony targets 
+# architectures.  But we can't create a single target called
+# build-binutils for both sh4 and arm, because phony targets
 # can't be run multiple times.  So we create multiple targets.
 build_binutils     = build-sh4-binutils  build-arm-binutils
 build_gcc_pass1    = build-sh4-gcc-pass1 build-arm-gcc-pass1
@@ -212,17 +212,17 @@ $(build_gcc_pass2): logdir
 
 # GDB building
 
-gdb-$(gdb_ver).tar.bz2:
+gdb-$(gdb_ver).tar.gz:
 	@echo "+++ Downloading GDB..."
-	wget -c ftp://ftp.gnu.org/gnu/gdb/gdb-$(gdb_ver).tar.bz2
+	wget -c ftp://ftp.gnu.org/gnu/gdb/gdb-$(gdb_ver).tar.gz
 
-unpack_gdb: gdb-$(gdb_ver).tar.bz2 unpack_gdb_stamp
+unpack_gdb: gdb-$(gdb_ver).tar.gz unpack_gdb_stamp
 
-unpack_gdb_stamp: 
+unpack_gdb_stamp:
 	@echo "+++ Unpacking GDB..."
 	rm -f $@
 	rm -rf gdb-$(gdb_ver)
-	tar jxf gdb-$(gdb_ver).tar.bz2
+	tar xf gdb-$(gdb_ver).tar.gz
 	touch $@
 
 build_gdb: log = $(logdir)/gdb-$(gdb_ver).log
@@ -255,19 +255,19 @@ install_gdb_stamp:
 gdb: install_gdb
 
 
-# INSIGHT building
+# Insight building
 
-insight-$(insight_ver).tar.bz2:
-	@echo "+++ Downloading INSIGHT..."
-	wget -c ftp://sourceware.org/pub/insight/releases/insight-$(insight_ver).tar.bz2
+insight-$(insight_ver)a.tar.bz2:
+	@echo "+++ Downloading Insight..."
+	wget -c ftp://sourceware.org/pub/insight/releases/insight-$(insight_ver)a.tar.bz2
 
-unpack_insight: insight-$(insight_ver).tar.bz2 unpack_insight_stamp
+unpack_insight: insight-$(insight_ver)a.tar.bz2 unpack_insight_stamp
 
 unpack_insight_stamp:
-	@echo "+++ Unpacking INSIGHT..."
+	@echo "+++ Unpacking Insight..."
 	rm -f $@
 	rm -rf insight-$(insight_ver)
-	tar jxf insight-$(insight_ver).tar.bz2
+	tar xf insight-$(insight_ver)a.tar.bz2
 	touch $@
 
 build_insight: log = $(logdir)/insight-$(insight_ver).log
@@ -275,7 +275,7 @@ build_insight: logdir
 build_insight: unpack_insight build_insight_stamp
 
 build_insight_stamp:
-	@echo "+++ Building INSIGHT..."
+	@echo "+++ Building Insight..."
 	rm -f $@
 	> $(log)
 	rm -rf build-insight-$(insight_ver)
@@ -292,7 +292,7 @@ install_insight: logdir
 install_insight: build_insight install_insight_stamp
 
 install_insight_stamp:
-	@echo "+++ Installing INSIGHT..."
+	@echo "+++ Installing Insight..."
 	rm -f $@
 	$(MAKE) -C build-insight-$(insight_ver) install DESTDIR=$(DESTDIR) $(to_log)
 	touch $@
@@ -309,7 +309,7 @@ clean:
 	-rm -rf build-gcc-$(arm_target)-$(gcc_ver)
 	-rm -rf build-binutils-$(sh_target)-$(binutils_ver)
 	-rm -rf build-binutils-$(arm_target)-$(binutils_ver)
-	-rm -rf build-gdb-$(gdb_ver) install_gdb_stamp build_gdb_stamp 
+	-rm -rf build-gdb-$(gdb_ver) install_gdb_stamp build_gdb_stamp
 	-rm -rf build-insight-$(gdb_ver) install_insight_stamp build_insight_stamp
 
 logdir:
