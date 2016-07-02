@@ -309,8 +309,8 @@ clean:
 	-rm -rf build-gcc-$(arm_target)-$(gcc_ver)
 	-rm -rf build-binutils-$(sh_target)-$(binutils_ver)
 	-rm -rf build-binutils-$(arm_target)-$(binutils_ver)
-	-rm -rf build-gdb-$(gdb_ver) install_gdb_stamp build_gdb_stamp
-	-rm -rf build-insight-$(gdb_ver) install_insight_stamp build_insight_stamp
+	-rm -rf build-gdb-$(gdb_ver) install_gdb_stamp build_gdb_stamp unpack_gdb_stamp
+	-rm -rf build-insight-$(insight_ver) install_insight_stamp build_insight_stamp unpack_insight_stamp
 
 logdir:
 	@mkdir -p $(logdir)
