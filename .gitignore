@@ -37,4 +37,6 @@ utils/dc-chain/*.tar.gz
 utils/dc-chain/binutils-*
 utils/dc-chain/gcc-*
 utils/dc-chain/newlib-*
+utils/dc-chain/gdb-*
+utils/dc-chain/insight-*
 utils/scramble/scramble
