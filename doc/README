@@ -189,7 +189,7 @@ In addition, for those used to working with pull requests on GitHub, I accept
 those as well. I assume you know how to make things work that way if you wish
 to go that route. The mirror of the repository at GitHub is currently at the
 following url:
-        https://github.com/ljsebald/KallistiOS
+        https://github.com/KallistiOS/KallistiOS
 
 I don't guarantee that any patch will get included (especially if your patch
 contains a lot of reformatting, sloppy coding, things at cross-purposes with
