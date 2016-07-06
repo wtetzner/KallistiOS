@@ -89,6 +89,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Patched the GCC patch so that GCC 4.7.x compiles cleanly with a newer host
       GCC version [Luke Benstead == LB]
 - *** Fixed GCC version detection in the environ script for some locales [LS]
+- DC  Made it so that PVR register access is done through a volatile pointer,
+      as it should be to ensure GCC doesn't mess with it any [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

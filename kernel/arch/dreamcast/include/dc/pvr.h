@@ -962,7 +962,7 @@ Striplength set to 2 */
     \param  REG             The register to fetch
     \return                 The value of that register (32-bits)
 */
-#define PVR_GET(REG) (* ( (uint32*)( 0xa05f8000 + (REG) ) ) )
+#define PVR_GET(REG) (* ( (vuint32*)( 0xa05f8000 + (REG) ) ) )
 
 /** \brief  Set a PVR register value
     \param  REG             The register to set
