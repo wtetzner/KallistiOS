@@ -5,8 +5,6 @@ versions (where they are missing from early versions, assume that they
 should be attributed to Dan Potter).
 
 KallistiOS version 2.1.0 -----------------------------------------------
-- DC  Copy function data from maple device during hot-swap poll if already
-      attached [Joe Fenton = JF]
 - *** Cleaned up generated stubs files on a make clean [Lawrence Sebald = LS]
 - DC  Added a function to detect if the program is being run on a retail
       Dreamcast or a Set5.xx device [LS]
@@ -93,6 +91,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Fixed GCC version detection in the environ script for some locales [LS]
 - DC  Made it so that PVR register access is done through a volatile pointer,
       as it should be to ensure GCC doesn't mess with it any [LS]
+- DC  Copy function data from maple device during hot-swap poll if already
+      attached [Joe Fenton = JF]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
