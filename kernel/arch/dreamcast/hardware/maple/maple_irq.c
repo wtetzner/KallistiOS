@@ -3,6 +3,7 @@
    maple_irq.c
    Copyright (C) 2002 Dan Potter
    Copyright (C) 2015 Lawrence Sebald
+   Copyright (C) 2016 Joe Fenton
  */
 
 #include <malloc.h>
@@ -130,6 +131,16 @@ static void vbl_autodet_callback(maple_frame_t * frm) {
             if(maple_driver_attach(frm) >= 0) {
                 assert(maple_state.ports[p].units[u].valid);
             }
+        }
+        else {
+            maple_devinfo_t     *devinfo;
+            maple_device_t      *dev;
+            /* Device already connected, update function data (caps) */
+            devinfo = (maple_devinfo_t *)resp->data;
+            dev = &maple_state.ports[p].units[u];
+            dev->info.function_data[0] = devinfo->function_data[0];
+            dev->info.function_data[1] = devinfo->function_data[1];
+            dev->info.function_data[2] = devinfo->function_data[2];
         }
 
         /* If this is a top-level port, then also check any
