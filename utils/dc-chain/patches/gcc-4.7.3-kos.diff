@@ -1,6 +1,6 @@
 diff -ruN gcc-4.7.3/gcc/configure gcc-4.7.3-kos/gcc/configure
 --- gcc-4.7.3/gcc/configure	2013-02-06 10:23:55.000000000 -0500
-+++ gcc-4.7.3-kos/gcc/configure	2013-05-17 21:30:40.000000000 -0400
++++ gcc-4.7.3-kos/gcc/configure	2016-12-10 20:52:47.000000000 -0500
 @@ -11338,7 +11338,7 @@
      target_thread_file='single'
      ;;
@@ -10,9 +10,46 @@ diff -ruN gcc-4.7.3/gcc/configure gcc-4.7.3-kos/gcc/configure
      target_thread_file=${enable_threads}
      ;;
    *)
+diff -ruN gcc-4.7.3/gcc/cp/cfns.h gcc-4.7.3-kos/gcc/cp/cfns.h
+--- gcc-4.7.3/gcc/cp/cfns.h	2009-04-21 15:03:23.000000000 -0400
++++ gcc-4.7.3-kos/gcc/cp/cfns.h	2016-12-10 20:52:48.000000000 -0500
+@@ -53,6 +53,9 @@
+ static unsigned int hash (const char *, unsigned int);
+ #ifdef __GNUC__
+ __inline
++#ifdef __GNUC_STDC_INLINE__
++__attribute__ ((__gnu_inline__))
++#endif
+ #endif
+ const char * libc_name_p (const char *, unsigned int);
+ /* maximum key range = 391, duplicates = 0 */
+@@ -96,7 +99,7 @@
+       400, 400, 400, 400, 400, 400, 400, 400, 400, 400,
+       400, 400, 400, 400, 400, 400, 400
+     };
+-  register int hval = len;
++  register int hval = (int)len;
+ 
+   switch (hval)
+     {
+diff -ruN gcc-4.7.3/gcc/doc/gcc.texi gcc-4.7.3-kos/gcc/doc/gcc.texi
+--- gcc-4.7.3/gcc/doc/gcc.texi	2010-06-09 19:46:33.000000000 -0400
++++ gcc-4.7.3-kos/gcc/doc/gcc.texi	2016-12-10 20:54:56.000000000 -0500
+@@ -86,9 +86,9 @@
+ @item GNU Press
+ @tab Website: www.gnupress.org
+ @item a division of the
+-@tab General: @tex press@@gnu.org @end tex
++@tab General: @email{press@@gnu.org}
+ @item Free Software Foundation
+-@tab Orders:  @tex sales@@gnu.org @end tex
++@tab Orders:  @email{sales@@gnu.org}
+ @item 51 Franklin Street, Fifth Floor
+ @tab Tel 617-542-5942
+ @item Boston, MA 02110-1301 USA
 diff -ruN gcc-4.7.3/libgcc/config/sh/crt1.S gcc-4.7.3-kos/libgcc/config/sh/crt1.S
 --- gcc-4.7.3/libgcc/config/sh/crt1.S	2011-11-02 10:33:56.000000000 -0400
-+++ gcc-4.7.3-kos/libgcc/config/sh/crt1.S	2013-05-17 21:34:42.000000000 -0400
++++ gcc-4.7.3-kos/libgcc/config/sh/crt1.S	2016-12-10 20:52:47.000000000 -0500
 @@ -1,1369 +1,202 @@
 -/* Copyright (C) 2000, 2001, 2003, 2004, 2005, 2006, 2009, 2011
 -   Free Software Foundation, Inc.
@@ -1566,7 +1603,7 @@ diff -ruN gcc-4.7.3/libgcc/config/sh/crt1.S gcc-4.7.3-kos/libgcc/config/sh/crt1.
 -#endif /* ! __SH5__ */
 diff -ruN gcc-4.7.3/libgcc/config/sh/fake-kos.S gcc-4.7.3-kos/libgcc/config/sh/fake-kos.S
 --- gcc-4.7.3/libgcc/config/sh/fake-kos.S	1969-12-31 19:00:00.000000000 -0500
-+++ gcc-4.7.3-kos/libgcc/config/sh/fake-kos.S	2013-05-17 21:34:42.000000000 -0400
++++ gcc-4.7.3-kos/libgcc/config/sh/fake-kos.S	2016-12-10 20:52:47.000000000 -0500
 @@ -0,0 +1,75 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1646,7 +1683,7 @@ diff -ruN gcc-4.7.3/libgcc/config/sh/fake-kos.S gcc-4.7.3-kos/libgcc/config/sh/f
 \ No newline at end of file
 diff -ruN gcc-4.7.3/libgcc/config/sh/gthr-kos.h gcc-4.7.3-kos/libgcc/config/sh/gthr-kos.h
 --- gcc-4.7.3/libgcc/config/sh/gthr-kos.h	1969-12-31 19:00:00.000000000 -0500
-+++ gcc-4.7.3-kos/libgcc/config/sh/gthr-kos.h	2013-05-17 21:36:10.000000000 -0400
++++ gcc-4.7.3-kos/libgcc/config/sh/gthr-kos.h	2016-12-10 20:52:47.000000000 -0500
 @@ -0,0 +1,355 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012 Lawrence Sebald */
 +
@@ -2005,7 +2042,7 @@ diff -ruN gcc-4.7.3/libgcc/config/sh/gthr-kos.h gcc-4.7.3-kos/libgcc/config/sh/g
 +#endif /* ! GCC_GTHR_KOS_H */
 diff -ruN gcc-4.7.3/libgcc/config/sh/t-sh gcc-4.7.3-kos/libgcc/config/sh/t-sh
 --- gcc-4.7.3/libgcc/config/sh/t-sh	2011-11-07 12:14:32.000000000 -0500
-+++ gcc-4.7.3-kos/libgcc/config/sh/t-sh	2013-05-17 21:33:11.000000000 -0400
++++ gcc-4.7.3-kos/libgcc/config/sh/t-sh	2016-12-10 20:52:47.000000000 -0500
 @@ -24,6 +24,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -2017,7 +2054,7 @@ diff -ruN gcc-4.7.3/libgcc/config/sh/t-sh gcc-4.7.3-kos/libgcc/config/sh/t-sh
  
 diff -ruN gcc-4.7.3/libgcc/configure gcc-4.7.3-kos/libgcc/configure
 --- gcc-4.7.3/libgcc/configure	2012-08-06 10:34:27.000000000 -0400
-+++ gcc-4.7.3-kos/libgcc/configure	2013-05-17 21:32:08.000000000 -0400
++++ gcc-4.7.3-kos/libgcc/configure	2016-12-10 20:52:47.000000000 -0500
 @@ -4480,6 +4480,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -2026,26 +2063,3 @@ diff -ruN gcc-4.7.3/libgcc/configure gcc-4.7.3-kos/libgcc/configure
  esac
  
  # Substitute configuration variables
-
-diff -ruN gcc-4.7.3/gcc/cp/cfns.h gcc-4.7.3-kos/gcc/cp/cfns.h
---- gcc-4.7.3/gcc/cp/cfns.h
-+++ gcc-4.7.3-kos/gcc/cp/cfns.h
-@@ -53,6 +53,9 @@ __inline
- static unsigned int hash (const char *, unsigned int);
- #ifdef __GNUC__
- __inline
-+#ifdef __GNUC_STDC_INLINE__
-+__attribute__ ((__gnu_inline__))
-+#endif
- #endif
- const char * libc_name_p (const char *, unsigned int);
- /* maximum key range = 391, duplicates = 0 */
-@@ -96,7 +99,7 @@ hash (register const char *str, register
-       400, 400, 400, 400, 400, 400, 400, 400, 400, 400,
-       400, 400, 400, 400, 400, 400, 400
-     };
--  register int hval = len;
-+  register int hval = (int)len;
-
-   switch (hval)
-     {
