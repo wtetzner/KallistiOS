@@ -9,11 +9,10 @@
     \brief  Main sockets header.
 
     This file contains the standard definitions (as directed by the POSIX 2008
-    standard) for socket-related functionality in the AF_INET address family.
-    This does not include anything related to AF_INET6 (as IPv6 is not currently
-    implemented in KOS) nor UNIX domain sockets, and is not guaranteed to have
-    everything that one might have in a fully-standard compliant implementation
-    of the POSIX standard.
+    spec) for socket-related functionality in the AF_INET and AF_INET6 address
+    families. This does not include anything related to UNIX domain sockets
+    and is not guaranteed to have everything that one might have in a
+    fully-standards compliant implementation of the POSIX spec.
 
     \author Lawrence Sebald
 */
