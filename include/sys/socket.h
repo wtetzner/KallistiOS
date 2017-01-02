@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    sys/socket.h
-   Copyright (C)2006, 2010, 2012 Lawrence Sebald
+   Copyright (C) 2006, 2010, 2012, 2017 Lawrence Sebald
 
 */
 
@@ -23,6 +23,7 @@
 
 #include <sys/cdefs.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 
 __BEGIN_DECLS
 
