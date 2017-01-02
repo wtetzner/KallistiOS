@@ -1,35 +1,19 @@
 /* KallistiOS ##version##
 
    kos/iovec.h
-   Copyright (C)2001 Dan Potter
+   Copyright (C) 2001 Dan Potter
 
 */
 
 /** \file   kos/iovec.h
-    \brief  Scatter/Gather arrays.
+    \brief  Deprecated header file for I/O scatter/gather arrays.
 
-    This file contains the definition of a scatter/gather array.
-
-    \author Dan Potter
+    See <sys/uio.h> for what used to be here.
 */
 
 #ifndef __KOS_IOVEC_H
 #define __KOS_IOVEC_H
 
-#include <sys/cdefs.h>
-__BEGIN_DECLS
-
-#include <stddef.h>
-
-/** \brief  Scatter/Gather array.
-    \headerfile kos/iovec.h
-*/
-typedef struct iovec {
-    char    *iov_base;  /**< \brief Base address */
-    size_t  iov_len;    /**< \brief Length */
-} iovec_t;
-
-__END_DECLS
+#include <sys/uio.h>
 
 #endif  /* __KOS_IOVEC_H */
-

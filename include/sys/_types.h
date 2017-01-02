@@ -122,6 +122,11 @@ typedef void *_iconv_t;
 #define AT_REMOVEDIR            8
 #endif
 
+#ifndef IOV_MAX
+/** \brief  Maximum length of an iovec, in elements. */
+#define IOV_MAX                 1024
+#endif
+
 // And this is for old KOS source compatability.
 #include <arch/types.h>
 
