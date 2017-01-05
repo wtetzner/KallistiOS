@@ -403,8 +403,8 @@ int mmu_copyin(mmucontext_t *context, uint32 srcaddr, uint32 srccnt, void *buffe
    This routine is pretty nasty.. this is completely platform
    generic but should probably be replaced by a nice assembly
    routine for each platform as appropriate. */
-int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
-              mmucontext_t *context2, iovec_t *iov2, int iovcnt2) {
+int mmu_copyv(mmucontext_t *context1, struct iovec *iov1, int iovcnt1,
+              mmucontext_t *context2, struct iovec *iov2, int iovcnt2) {
     mmupage_t *srcpage, *dstpage;
     int srciov, dstiov;
     uint32 srccnt, dstcnt;

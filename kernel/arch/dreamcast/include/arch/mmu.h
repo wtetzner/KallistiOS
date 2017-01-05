@@ -48,7 +48,7 @@
 __BEGIN_DECLS
 
 #include <arch/types.h>
-#include <kos/iovec.h>
+#include <sys/uio.h>
 
 /* Since the software has to handle TLB misses on the SH-4, we have freedom
    to use any page table format we want (and thus save space), but we must
@@ -286,8 +286,8 @@ int mmu_copyin(mmucontext_t *context, uint32 srcaddr, uint32 srccnt,
     \param  iov2            The scatter/gather array to copy to.
     \param  iovcnt2         The number of entries in iov2.
 */
-int mmu_copyv(mmucontext_t *context1, iovec_t *iov1, int iovcnt1,
-              mmucontext_t *context2, iovec_t *iov2, int iovcnt2);
+int mmu_copyv(mmucontext_t *context1, struct iovec *iov1, int iovcnt1,
+              mmucontext_t *context2, struct iovec *iov2, int iovcnt2);
 
 /** \brief  MMU mapping handler.
 
