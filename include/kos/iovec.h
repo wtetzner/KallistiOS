@@ -16,4 +16,7 @@
 
 #include <sys/uio.h>
 
+/** \brief  Compatibility typedef for old code. */
+typedef struct iovec iovec_t;
+
 #endif  /* __KOS_IOVEC_H */
