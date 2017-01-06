@@ -36,4 +36,6 @@ struct iovec {
 /** \brief  Old alias for the maximum length of an iovec. */
 #define UIO_MAXIOV IOV_MAX
 
+__END_DECLS
+
 #endif /* __SYS_UIO_H */
