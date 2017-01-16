@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    kos/cdefs.h
-   Copyright (C)2002,2004 Dan Potter
+   Copyright (C) 2002, 2004 Dan Potter
 
    Based loosely around some stuff in BSD's sys/cdefs.h
 */
@@ -46,7 +46,7 @@
 /** \brief  Alias for \ref __noreturn. For BSD compatibility. */
 #define __dead2     __noreturn  /* BSD compat */
 
-/** \brief  Alias for \ref __pure. Fore BSD compatibility. */
+/** \brief  Alias for \ref __pure. For BSD compatibility. */
 #define __pure2     __pure      /* ditto */
 
 /* Printf/Scanf-like declaration */
@@ -76,5 +76,3 @@
 /* #if __GNUC__ ==  */
 
 #endif  /* __KOS_CDEFS_H */
-
-
