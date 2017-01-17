@@ -99,16 +99,16 @@ patch-newlib: $(newlib_patches)
 patch-kos: $(kos_patches)
 
 $(newlib_patches):
-	patch -d $(newlib_dir) -p1 < $@
+	patch -N -d $(newlib_dir) -p1 < $@
 
 $(binutils_patches):
-	patch -d $(binutils_dir) -p1 < $@
+	patch -N -d $(binutils_dir) -p1 < $@
 
 $(gcc_patches):
-	patch -d $(gcc_dir) -p1 < $@
+	patch -N -d $(gcc_dir) -p1 < $@
 
 $(kos_patches):
-	patch -d $(kos_root) -p1 < $@
+	patch -N -d $(kos_root) -p1 < $@
 
 # ---- }}}
 
