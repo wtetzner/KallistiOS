@@ -360,7 +360,7 @@ void main(int argc, char **argv) {
     void *out;
     int sz;
 
-    f = fopen(argv[1], "r");
+    f = fopen(argv[1], "rb");
 
     if(!f) {
         perror("Can't open input file");
@@ -369,8 +369,7 @@ void main(int argc, char **argv) {
 
     out = elf_load(f, 0x8c010000, &sz);
 
-    f = fopen(argv[2], "w");
+    f = fopen(argv[2], "wb");
     fwrite(out, sz, 1, f);
     fclose(f);
 }
-

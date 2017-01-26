@@ -461,7 +461,7 @@ void init() {
     FILE *f;
     int  size;
 
-    f = fopen("romdisk2.img", "r");
+    f = fopen("romdisk2.img", "rb");
 
     if(!f) return;
 
@@ -535,14 +535,3 @@ int main() {
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-

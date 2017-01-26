@@ -58,7 +58,7 @@ int get_image_png(const char * filename, image_t * image) {
 
     assert(image != NULL);
 
-    if((infile = fopen(filename, "r")) == 0) {
+    if((infile = fopen(filename, "rb")) == 0) {
         printf("png_to_texture: can't open %s\n", filename);
         return -1;
     }
@@ -92,4 +92,3 @@ int get_image_png(const char * filename, image_t * image) {
     /* And we're done! */
     return 0;
 }
-
