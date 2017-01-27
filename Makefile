@@ -9,7 +9,7 @@
 # compiling all of KOS proper.
 # I expect everyone to keep their code warning free. Don't make me add -Werror
 # here too. ;-)
-KOS_CFLAGS += -Wextra
+KOS_CFLAGS += -Wextra -Wno-deprecated
 
 # Add stuff to DIRS to auto-compile it with the big tree.
 DIRS = utils
