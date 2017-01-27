@@ -49,6 +49,19 @@
 /** \brief  Alias for \ref __pure. For BSD compatibility. */
 #define __pure2     __pure      /* ditto */
 
+/** \brief  Mark something as deprecated.
+    This should be used to warn users that a function/type/etc will be removed
+    in a future version of KOS. */
+#define __deprecated    __attribute__((deprecated))
+
+/** \brief  Mark something as deprecated, with an informative message.
+    This should be used to warn users that a function/type/etc will be removed
+    in a future version of KOS and to suggest an alternative that they can use
+    instead.
+    \param  m       A string literal that is included with the warning message
+                    at compile time. */
+#define __depr(m) __attribute__((deprecated(m)))
+
 /* Printf/Scanf-like declaration */
 /** \brief  Identify a function as accepting formatting like printf().
 
