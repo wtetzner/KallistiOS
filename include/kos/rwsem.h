@@ -25,7 +25,7 @@
 #ifndef __KOS_RWSEM_H
 #define __KOS_RWSEM_H
 
-#include <sys/cdefs.h>
+#include <kos/cdefs.h>
 
 __BEGIN_DECLS
 
@@ -70,7 +70,7 @@ typedef struct rw_semaphore {
     \par    Error Conditions:
     \em     ENOMEM - out of memory
 */
-rw_semaphore_t *rwsem_create() __attribute__((deprecated));
+rw_semaphore_t *rwsem_create() __depr("Use rwsem_init or RWSEM_INITIALIZER.");
 
 /** \brief  Initialize a reader/writer semaphore.
 
@@ -95,7 +95,7 @@ int rwsem_init(rw_semaphore_t *s);
 int rwsem_destroy(rw_semaphore_t *s);
 
 /** \brief  Lock a reader/writer semaphore for reading (with a timeout).
- 
+
     This function attempts to lock the r/w semaphore for reading. If the
     semaphore is locked for writing, this function will block until it is
     possible to obtain the lock for reading or the timeout expires. This
@@ -132,7 +132,7 @@ int rwsem_read_lock_timed(rw_semaphore_t *s, int timeout);
 int rwsem_read_lock(rw_semaphore_t *s);
 
 /** \brief  Lock a reader/writer semaphore for writing (with a timeout).
- 
+
     This function attempts to lock the r/w semaphore for writing. If the
     semaphore is locked for reading or writing, this function will block until
     it is possible to obtain the lock for writing or the timeout expires. This
@@ -191,7 +191,7 @@ int rwsem_read_unlock(rw_semaphore_t *s);
     \retval -1      On error, errno will be set as appropriate.
 
     \par    Error Conditions:
-    \em     EPERM - the write lock is not currently held by the calling 
+    \em     EPERM - the write lock is not currently held by the calling
                     thread \n
     \em     EINVAL - the semaphore is not initialized
 */

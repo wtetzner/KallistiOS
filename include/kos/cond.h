@@ -44,7 +44,7 @@
 #ifndef __KOS_COND_H
 #define __KOS_COND_H
 
-#include <sys/cdefs.h>
+#include <kos/cdefs.h>
 __BEGIN_DECLS
 
 #include <arch/types.h>
@@ -80,7 +80,7 @@ typedef struct condvar {
     \par    Error Conditions:
     \em     ENOMEM - out of memory
 */
-condvar_t *cond_create() __attribute__((deprecated));
+condvar_t *cond_create() __depr("Use cond_init or COND_INTIALIZER.");
 
 /** \brief  Initialize a condition variable.
 
@@ -184,4 +184,3 @@ int cond_broadcast(condvar_t *cv);
 __END_DECLS
 
 #endif  /* __KOS_COND_H */
-

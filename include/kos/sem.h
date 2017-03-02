@@ -22,7 +22,7 @@
 #ifndef __KOS_SEM_H
 #define __KOS_SEM_H
 
-#include <sys/cdefs.h>
+#include <kos/cdefs.h>
 
 __BEGIN_DECLS
 
@@ -59,7 +59,7 @@ typedef struct semaphore {
     \em     ENOMEM - out of memory \n
     \em     EINVAL - the semaphore's value is invalid (less than 0)
 */
-semaphore_t *sem_create(int value) __attribute__((deprecated));
+semaphore_t *sem_create(int value) __depr("Use sem_init or SEM_INITAILZER.");
 
 /** \brief  Initialize a semaphore for use.
 

@@ -23,7 +23,7 @@
 #ifndef __KOS_RECURSIVE_LOCK_H
 #define __KOS_RECURSIVE_LOCK_H
 
-#include <sys/cdefs.h>
+#include <kos/cdefs.h>
 
 __BEGIN_DECLS
 
@@ -45,7 +45,7 @@ typedef mutex_t recursive_lock_t;
     \return The created lock, or NULL on failure (errno will be set to ENOMEM to
             indicate that the system appears to be out of memory).
 */
-recursive_lock_t *rlock_create() __attribute__((deprecated));
+recursive_lock_t *rlock_create() __depr("Use mutexes instead.");
 
 /** \brief  Destroy a recursive lock.
 
@@ -54,7 +54,7 @@ recursive_lock_t *rlock_create() __attribute__((deprecated));
 
     \param  l       The recursive lock to destroy. It must be unlocked.
 */
-void rlock_destroy(recursive_lock_t *l) __attribute__((deprecated));
+void rlock_destroy(recursive_lock_t *l) __depr("Use mutexes instead.");
 
 /** \brief  Lock a recursive lock.
 
@@ -68,7 +68,7 @@ void rlock_destroy(recursive_lock_t *l) __attribute__((deprecated));
     \sa rlock_trylock
     \sa rlock_lock_timed
 */
-int rlock_lock(recursive_lock_t *l) __attribute__((deprecated));
+int rlock_lock(recursive_lock_t *l) __depr("Use mutexes instead.");
 
 /** \brief  Lock a recursive lock (with a timeout).
 
@@ -87,7 +87,7 @@ int rlock_lock(recursive_lock_t *l) __attribute__((deprecated));
     \sa rlock_lock_timed
 */
 int rlock_lock_timed(recursive_lock_t *l, int timeout)
-    __attribute__((deprecated));
+    __depr("Use mutexes instead.");
 
 /** \brief  Unlock a recursive lock.
 
@@ -98,7 +98,7 @@ int rlock_lock_timed(recursive_lock_t *l, int timeout)
                     by the calling thread.
     \retval 0       On success.
 */
-int rlock_unlock(recursive_lock_t *l) __attribute__((deprecated));
+int rlock_unlock(recursive_lock_t *l) __depr("Use mutexes instead.");
 
 /** \brief  Attempt to lock a recursive lock without blocking.
 
@@ -113,7 +113,7 @@ int rlock_unlock(recursive_lock_t *l) __attribute__((deprecated));
     \sa rlock_lock
     \sa rlock_lock_timed
 */
-int rlock_trylock(recursive_lock_t *l) __attribute__((deprecated));
+int rlock_trylock(recursive_lock_t *l) __depr("Use mutexes instead.");
 
 /** \brief  Check if a recursive lock is currently held by any thread.
 
@@ -125,7 +125,7 @@ int rlock_trylock(recursive_lock_t *l) __attribute__((deprecated));
     \retval TRUE    If the lock is held by any thread.
     \retval FALSE   If the lock is not currently held by any thread.
 */
-int rlock_is_locked(recursive_lock_t *l) __attribute__((deprecated));
+int rlock_is_locked(recursive_lock_t *l) __depr("Use mutexes instead.");
 
 __END_DECLS
 

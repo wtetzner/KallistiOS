@@ -54,7 +54,7 @@
 #ifndef __KOS_MUTEX_H
 #define __KOS_MUTEX_H
 
-#include <sys/cdefs.h>
+#include <kos/cdefs.h>
 
 __BEGIN_DECLS
 
@@ -110,7 +110,7 @@ typedef struct kos_mutex {
                             be used in any future code, and may be removed in
                             the future. You should instead use mutex_init().
 */
-mutex_t *mutex_create() __attribute__((deprecated));
+mutex_t *mutex_create() __depr("Use mutex_init or an initializer.");
 
 /** \brief  Initialize a new mutex.
 
