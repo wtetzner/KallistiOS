@@ -526,17 +526,33 @@ dirent_t *fs_readdir(file_t fd) {
     return h->handler->readdir(h->hnd);
 }
 
-int fs_ioctl(file_t fd, void *data, size_t size) {
+int fs_vioctl(file_t fd, int cmd, va_list ap) {
     fs_hnd_t *h = fs_map_hnd(fd);
+    int rv;
 
-    if(h == NULL) return -1;
+    if(!h) {
+        errno = EBADF;
+        return -1;
+    }
 
-    if(h->handler == NULL || h->handler->ioctl == NULL) {
+    if(!h->handler || !h->handler->ioctl) {
         errno = EINVAL;
         return -1;
     }
 
-    return h->handler->ioctl(h->hnd, data, size);
+    rv = h->handler->ioctl(h->hnd, cmd, ap);
+
+    return rv;
+}
+
+int fs_ioctl(file_t fd, int cmd, ...) {
+    va_list ap;
+    int rv;
+
+    va_start(ap, cmd);
+    rv = fs_vioctl(fd, cmd, ap);
+    va_end(ap);
+    return rv;
 }
 
 static vfs_handler_t * fs_verify_handler(const char * fn) {

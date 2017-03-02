@@ -129,7 +129,7 @@ typedef struct vfs_handler {
     dirent_t *(*readdir)(void *hnd);
 
     /** \brief Execute a device-specific call on a previously opened file */
-    int (*ioctl)(void *hnd, void *data, size_t size);
+    int (*ioctl)(void *hnd, int cmd, va_list ap);
 
     /** \brief Rename/move a file on the given VFS */
     int (*rename)(struct vfs_handler *vfs, const char *fn1, const char *fn2);
@@ -373,12 +373,12 @@ dirent_t *fs_readdir(file_t hnd);
     are not documented here. Each filesystem may define any commands that are
     specific to it with its implementation of this function.
 
-    \param  hnd             The file descriptor to operate on.
-    \param  data            The command to send.
-    \param  size            The size of the command, in bytes.
-    \return                 -1 on failure.
+    \param  fd              The file descriptor to use.
+    \param  cmd             The command to run.
+    \param  ...             Arguments for the command specified.
+    \return                 -1 on error.
 */
-int fs_ioctl(file_t hnd, void *data, size_t size);
+int fs_ioctl(file_t hnd, int cmd, ...);
 
 /** \brief  Rename the specified file to the given filename.
 
