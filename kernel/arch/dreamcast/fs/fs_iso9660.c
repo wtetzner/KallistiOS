@@ -945,18 +945,6 @@ static void iso_vblank(uint32 evt) {
     }
 }
 
-/* There's only one ioctl at the moment (re-initialize caches) but you should
-   always clear data and size. */
-static int iso_ioctl(void * hnd, void *data, size_t size) {
-    (void)hnd;
-    (void)data;
-    (void)size;
-
-    iso_reset();
-
-    return 0;
-}
-
 static int iso_fcntl(void *h, int cmd, va_list ap) {
     file_t fd = (file_t)h;
     int rv = -1;
@@ -1042,7 +1030,7 @@ static vfs_handler_t vh = {
     iso_tell,
     iso_total,
     iso_readdir,
-    iso_ioctl,
+    NULL,
     NULL,
     NULL,
     NULL,
