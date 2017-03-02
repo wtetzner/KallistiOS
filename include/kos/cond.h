@@ -14,7 +14,7 @@
 
     Basically, things work as follows (for the thread doing work):
     \li The associated mutex is locked.
-    \li A predicate is checked to see if its safe to do something.
+    \li A predicate is checked to see if it is safe to do something.
     \li If it is not safe, you call cond_wait(), which releases the mutex.
     \li When cond_wait() returns, the mutex is reaquired, and work can go on.
     \li Update any predicates so that we konw that the work is done, and unlock
