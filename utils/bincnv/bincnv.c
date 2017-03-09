@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define uint8 unsigned char
 #define uint16 unsigned short
@@ -132,89 +133,152 @@ int find_sym(char *name, struct elf_sym_t* table, int tablelen) {
     return -1;
 }
 
-/* There's a lot of shit in here that's not documented or very poorly
-   documented by Intel.. I hope that this works for future compilers. */
-void *elf_load(FILE *f, uint32 vma, int* outsz) {
-    char            *img, *imgout;
-    int         sz, i, j, sect;
-    struct elf_hdr_t    *hdr;
-    struct elf_shdr_t   *shdrs, *symtabhdr;
-    struct elf_sym_t    *symtab;
-    int         symtabsize;
-    struct elf_rela_t   *reltab;
-    int         reltabsize;
-    char            *stringtab;
+static int write_file_contents(char const * const filename, void * data, size_t size) {
+    FILE * f = fopen(filename, "wb");
+    int ret = f && fwrite(data, size, 1, f) == 1;
+    fclose(f);
+    return ret;
+}
 
-    /* Load the file */
+/**
+ * Helper function to load the raw texture data into an array.
+ * @param filename The filename of the texture.
+ * @param data A pointer to an array where the data should be stored.
+ * @param size A pointer to a variable where to size should be stored.
+ * @return 0 on success, non-zero on error.
+ */
+static int read_file_contents(char const * const filename, char **data, size_t *size) {
+    FILE *f = 0;
+
+    f = fopen(filename, "rb");
+
+    // Read texture from file
+    if(!f) {
+        return 1;
+    }
+
     fseek(f, 0, SEEK_END);
-    sz = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    img = malloc(sz);
-    fread(img, sz, 1, f);
+    long imageSize = ftell(f);
+    rewind(f);
+
+    *data = malloc(imageSize);
+    if(!*data) {
+        fclose(f);
+        return 2;
+    }
+
+    if(fread(*data, imageSize, 1, f) != 1) {
+        free(*data);
+        fclose(f);
+        return 3;
+    }
+
     fclose(f);
 
-    /* Header is at the front */
-    hdr = (struct elf_hdr_t *)(img + 0);
+    *size = imageSize;
 
-    if(hdr->ident[0] != 0x7f || strncmp(hdr->ident + 1, "ELF", 3)) {
-        printf("File is not a valid ELF file\n");
-        return NULL;
+    return 0;
+}
+
+static int build_memory_image(struct elf_shdr_t * shdrs, uint16 shnum) {
+    uint16 i;
+    size_t sz = 0;
+    for(i = 0; i < shnum; i++) {
+        if(shdrs[i].flags & SHF_ALLOC) {
+            shdrs[i].addr = sz;
+            sz += shdrs[i].size;
+
+            if(shdrs[i].addralign && (shdrs[i].addr % shdrs[i].addralign)) {
+                shdrs[i].addr = (shdrs[i].addr + shdrs[i].addralign)
+                    & ~(shdrs[i].addralign - 1);
+            }
+        }
+    }
+
+    return sz;
+}
+
+#define ERROR(...) { ret = 1; fprintf(stderr, __VA_ARGS__); goto cleanup; }
+
+/* There's a lot of shit in here that's not documented or very poorly
+   documented by Intel.. I hope that this works for future compilers. */
+static int elf_load(char ** out, size_t * outsz, char const * const filename, uint32 vma) {
+    int    ret = 0;
+    char   * img    = 0;
+    char   * imgout = 0;
+    size_t sz;
+    int    i;
+    int    j;
+    int    sect;
+    struct elf_hdr_t  * hdr;
+    struct elf_shdr_t * shdrs;
+    struct elf_shdr_t * symtabhdr;
+    struct elf_sym_t  * symtab;
+    int    symtabsize;
+    struct elf_rela_t * reltab;
+    int    reltabsize;
+    char   * stringtab;
+
+
+    if(read_file_contents(filename, &img, &sz)) {
+        ERROR("Cannot allocate memory.\n");
+    }
+
+    hdr = (struct elf_hdr_t*)img;
+
+    if(hdr->ident[0] != 0x7f || memcmp(hdr->ident + 1, "ELF", 3)) {
+        ERROR("File is not a valid ELF file\n");
     }
 
     if(hdr->ident[4] != 1 || hdr->ident[5] != 1) {
-        printf("Invalid architecture flags in ELF file\n");
-        return NULL;
+        ERROR("Invalid architecture flags in ELF file\n");
     }
 
     if(hdr->machine != 0x2a) {
-        printf("Invalid architecture %02x in ELF file\n", hdr->machine);
+        ERROR("Invalid architecture %02x in ELF file\n", hdr->machine);
     }
 
     /* Print some debug info */
-    printf("File size is %d bytes\n", sz);
-    printf("	entry point	%08x\n", hdr->entry);
-    printf("	ph offset	%08x\n", hdr->phoff);
-    printf("	sh offset	%08x\n", hdr->shoff);
-    printf("	flags		%08x\n", hdr->flags);
-    printf("	ehsize		%08x\n", hdr->ehsize);
-    printf("	phentsize	%08x\n", hdr->phentsize);
-    printf("	phnum		%08x\n", hdr->phnum);
-    printf("	shentsize	%08x\n", hdr->shentsize);
-    printf("	shnum		%08x\n", hdr->shnum);
-    printf("	shstrndx	%08x\n", hdr->shstrndx);
+    printf("File size is %zu bytes\n", sz);
+    printf(" entry point %08lx\n", hdr->entry);
+    printf(" ph offset   %08lx\n", hdr->phoff);
+    printf(" sh offset   %08lx\n", hdr->shoff);
+    printf(" flags       %08lx\n", hdr->flags);
+    printf(" ehsize      %08x\n",  hdr->ehsize);
+    printf(" phentsize   %08x\n",  hdr->phentsize);
+    printf(" phnum       %08x\n",  hdr->phnum);
+    printf(" shentsize   %08x\n",  hdr->shentsize);
+    printf(" shnum       %08x\n",  hdr->shnum);
+    printf(" shstrndx    %08x\n",  hdr->shstrndx);
 
     /* Locate the string table; SH elf files ought to have
        two string tables, one for section names and one for object
        string names. We'll look for the latter. */
     shdrs = (struct elf_shdr_t *)(img + hdr->shoff);
-    stringtab = NULL;
+    stringtab = 0;
 
     for(i = 0; i < hdr->shnum; i++) {
-        if(shdrs[i].type == SHT_STRTAB
-                && i != hdr->shstrndx) {
+        if(shdrs[i].type == SHT_STRTAB && i != hdr->shstrndx) {
             stringtab = (char*)(img + shdrs[i].offset);
         }
     }
 
     if(!stringtab) {
-        printf("ELF contains no object string table\n");
-        return NULL;
+        ERROR("ELF contains no object string table\n");
     }
 
     /* Locate the symbol table */
-    symtabhdr = NULL;
+    symtabhdr = 0;
 
     for(i = 0; i < hdr->shnum; i++) {
-        if(shdrs[i].type == SHT_SYMTAB
-                || shdrs[i].type == SHT_DYNSYM) {
+        if(shdrs[i].type == SHT_SYMTAB || shdrs[i].type == SHT_DYNSYM) {
             symtabhdr = shdrs + i;
             break;
         }
     }
 
     if(!symtabhdr) {
-        printf("ELF contains no symbol table\n");
-        return NULL;
+        ERROR("ELF contains no symbol table\n");
     }
 
     symtab = (struct elf_sym_t *)(img + symtabhdr->offset);
@@ -223,43 +287,33 @@ void *elf_load(FILE *f, uint32 vma, int* outsz) {
     /* Relocate symtab entries for quick access */
     for(i = 0; i < symtabsize; i++) {
         symtab[i].name = (uint32)(stringtab + symtab[i].name);
-        printf("SYM: %s / %08x / %08x / %d\r\n",
+        printf("SYM: %s / %08lx / %08lx / %d\r\n",
                (char*)symtab[i].name, symtab[i].value,
                symtab[i].size, symtab[i].shndx);
     }
 
     for(i = 0; i < hdr->shnum; i++) {
-        printf("  Section %d: (%08x/%08x)\n", i, shdrs[i].name, shdrs[i].type);
+        printf("  Section %d: (%08lx/%08lx)\n", i, shdrs[i].name, shdrs[i].type);
     }
 
     /* Build the final memory image */
-    sz = 0;
-
-    for(i = 0; i < hdr->shnum; i++) {
-        if(shdrs[i].flags & SHF_ALLOC) {
-            shdrs[i].addr = sz;
-            sz += shdrs[i].size;
-
-            if(shdrs[i].addralign && (shdrs[i].addr % shdrs[i].addralign)) {
-                shdrs[i].addr =
-                    (shdrs[i].addr + shdrs[i].addralign)
-                    & ~(shdrs[i].addralign - 1);
-            }
-        }
-    }
-
-    printf("Final image is %d bytes\n", sz);
+    sz = build_memory_image(shdrs, hdr->shnum);
+    printf("Final image is %zu bytes\n", sz);
     imgout = malloc(sz);
+    if(!imgout) {
+        ERROR("Cannot allocate image.\n");
+        goto cleanup;
+    }
 
     for(i = 0; i < hdr->shnum; i++) {
         if(shdrs[i].flags & SHF_ALLOC) {
             if(shdrs[i].type == SHT_NOBITS) {
-                printf("%d:  setting %d bytes of zeros at %08x\n",
+                printf("%d:  setting %ld bytes of zeros at %08lx\n",
                        i, shdrs[i].size, shdrs[i].addr);
                 memset(imgout + shdrs[i].addr, 0, shdrs[i].size);
             }
             else {
-                printf("%d:  copying %d bytes from %08x to %08x\n",
+                printf("%d:  copying %ld bytes from %08lx to %08lx\n",
                        i, shdrs[i].size, shdrs[i].offset, shdrs[i].addr);
                 memcpy(imgout + shdrs[i].addr,
                        img + shdrs[i].offset,
@@ -269,7 +323,7 @@ void *elf_load(FILE *f, uint32 vma, int* outsz) {
     }
 
     /* Find the RELA section; FIXME: More than one RELA section, REL sections */
-    reltab = NULL;
+    reltab = 0;
     /*for (i=0; i<hdr->shnum; i++) {
         if (shdrs[i].type == SHT_RELA) {
             reltab = (struct elf_rela_t *)(img + shdrs[i].offset);
@@ -278,7 +332,7 @@ void *elf_load(FILE *f, uint32 vma, int* outsz) {
     }
     if (!reltab) {
         printf("ELF contains no RELA section (did you use -r?)\n");
-        return NULL;
+        return 0;
     }
     reltabsize = shdrs[i].size / sizeof(struct elf_rela_t); */
 
@@ -296,13 +350,12 @@ void *elf_load(FILE *f, uint32 vma, int* outsz) {
             int sym;
 
             if(ELF32_R_TYPE(reltab[j].info) != R_SH_DIR32) {
-                printf("ELF contains unknown RELA type %02x\r\n",
+                ERROR("ELF contains unknown RELA type %02x\r\n",
                        ELF32_R_TYPE(reltab[j].info));
-                return NULL;
             }
 
             sym = ELF32_R_SYM(reltab[j].info);
-            printf("  Writing REL %08x(%08x+%08x+%08x+%08x) -> %08x\r\n",
+            printf("  Writing REL %08lx(%08lx+%08lx+%08lx+%08lx) -> %08lx\r\n",
                    vma + shdrs[symtab[sym].shndx].addr + symtab[sym].value + reltab[j].addend,
                    vma, shdrs[symtab[sym].shndx].addr, symtab[sym].value, reltab[j].addend,
                    vma + shdrs[sect].addr + reltab[j].offset);
@@ -323,22 +376,19 @@ void *elf_load(FILE *f, uint32 vma, int* outsz) {
         mainsym = find_sym("_ko_main", symtab, symtabsize);
 
         if(mainsym < 0) {
-            printf("ELF contains no _ko_main\n");
-            return NULL;
+            ERROR("ELF contains no _ko_main\n");
         }
 
         getsvcsym = find_sym("_ko_get_svc", symtab, symtabsize);
 
         if(mainsym < 0) {
-            printf("ELF contains no _ko_get_svc\n");
-            return NULL;
+            ERROR("ELF contains no _ko_get_svc\n");
         }
 
         notifysym = find_sym("_ko_notify", symtab, symtabsize);
 
         if(notifysym < 0) {
-            printf("ELF contains no _ko_notify\n");
-            return NULL;
+            ERROR("ELF contains no _ko_notify\n");
         }
 
         /* Patch together getsvc and notify for now */
@@ -350,26 +400,38 @@ void *elf_load(FILE *f, uint32 vma, int* outsz) {
           + symtab[notifysym].value;
     }
 
-    free(img);
-    *outsz = sz;
-    return (void*)imgout;
-}
-
-void main(int argc, char **argv) {
-    FILE *f;
-    void *out;
-    int sz;
-
-    f = fopen(argv[1], "rb");
-
-    if(!f) {
-        perror("Can't open input file");
-        return;
+cleanup:
+    if(!ret) {
+        *outsz = sz;
+        *out = imgout;
+    }
+    else if(imgout) {
+        free(imgout);
     }
 
-    out = elf_load(f, 0x8c010000, &sz);
+    if(img) free(img);
 
-    f = fopen(argv[2], "wb");
-    fwrite(out, sz, 1, f);
-    fclose(f);
+    return ret;
+}
+
+int main(int argc, char **argv) {
+    char * out;
+    size_t sz;
+
+    if(argc != 3) {
+        puts("Usage: <infile> <outfile>");
+        return 0;
+    }
+
+    if(elf_load(&out, &sz, argv[1], 0x8c010000)) {
+        fprintf(stderr, "Cannot load ELF file.\n");
+        return 1;
+    }
+
+    if(write_file_contents(argv[2], out, sz)) {
+        fprintf(stderr, "Cannot write image.\n");
+        return 2;
+    }
+
+    return 0;
 }
