@@ -190,12 +190,16 @@ int wav2adpcm(const char *infile, const char *outfile) {
 
     in = fopen(infile, "rb");
 
-    if(in == NULL)  {
+    if(!in)  {
         printf("can't open %s\n", infile);
         return -1;
     }
 
-    fread(&wavhdr, 1, sizeof(wavhdr), in);
+    if(fread(&wavhdr, sizeof(wavhdr), 1, in) != 1) {
+        fprintf(stderr, "Cannot read header.\n");
+        fclose(in);
+        return -1;
+    }
 
     if(memcmp(wavhdr.hdr1, "RIFF", 4)
             || memcmp(wavhdr.hdr2, "WAVEfmt ", 8)
@@ -204,7 +208,7 @@ int wav2adpcm(const char *infile, const char *outfile) {
             || wavhdr.format != 1
             || (wavhdr.channels != 1 && wavhdr.channels != 2)
             || wavhdr.bits != 16) {
-        printf("unsupport format\n");
+        fprintf(stderr, "Unsupported format.\n");
         fclose(in);
         return -1;
     }
@@ -215,7 +219,11 @@ int wav2adpcm(const char *infile, const char *outfile) {
     pcmbuf = malloc(pcmsize);
     adpcmbuf = malloc(adpcmsize);
 
-    fread(pcmbuf, 1, pcmsize, in);
+    if(fread(pcmbuf, pcmsize, 1, in) != 1) {
+        fprintf(stderr, "Cannot read data.\n");
+        fclose(in);
+        return -1;
+    }
     fclose(in);
 
     if(wavhdr.channels == 1) {
@@ -229,13 +237,18 @@ int wav2adpcm(const char *infile, const char *outfile) {
         pcm2adpcm(adpcmbuf + adpcmsize / 2, pcmbuf + pcmsize / 4, pcmsize / 2);
     }
 
-    out = fopen(outfile, "wb");
     wavhdr.datasize = adpcmsize;
     wavhdr.format = 20; /* ITU G.723 ADPCM (Yamaha) */
     wavhdr.bits = 4;
     wavhdr.totalsize = wavhdr.datasize + sizeof(wavhdr) - 8;
-    fwrite(&wavhdr, 1, sizeof(wavhdr), out);
-    fwrite(adpcmbuf, 1, adpcmsize, out);
+
+    out = fopen(outfile, "wb");
+    if(fwrite(&wavhdr, sizeof(wavhdr), 1, out) != 1
+            || fwrite(adpcmbuf, adpcmsize, 1, out) != 1) {
+        fprintf(stderr, "Cannot write ADPCM data.\n");
+        fclose(out);
+        return -1;
+    }
     fclose(out);
 
     return 0;
@@ -250,12 +263,16 @@ int adpcm2wav(const char *infile, const char *outfile) {
 
     in = fopen(infile, "rb");
 
-    if(in == NULL)  {
-        printf("can't open %s\n", infile);
+    if(!in)  {
+        fprintf(stderr, "Cannot open %s\n", infile);
         return -1;
     }
 
-    fread(&wavhdr, 1, sizeof(wavhdr), in);
+    if(fread(&wavhdr, sizeof(wavhdr), 1, in) != 1) {
+        fprintf(stderr, "Cannot read header.\n");
+        fclose(in);
+        return -1;
+    }
 
     if(memcmp(wavhdr.hdr1, "RIFF", 4)
             || memcmp(wavhdr.hdr2, "WAVEfmt ", 8)
@@ -264,7 +281,7 @@ int adpcm2wav(const char *infile, const char *outfile) {
             || wavhdr.format != 20
             || (wavhdr.channels != 1 && wavhdr.channels != 2)
             || wavhdr.bits != 4) {
-        printf("unsupport format\n");
+        fprintf(stderr, "Unsupported format.\n");
         fclose(in);
         return -1;
     }
@@ -274,7 +291,11 @@ int adpcm2wav(const char *infile, const char *outfile) {
     adpcmbuf = malloc(adpcmsize);
     pcmbuf = malloc(pcmsize);
 
-    fread(adpcmbuf, 1, adpcmsize, in);
+    if(fread(adpcmbuf, adpcmsize, 1, in) != 1) {
+        fprintf(stderr, "Cannot read data.\n");
+        fclose(in);
+        return -1;
+    }
     fclose(in);
 
     if(wavhdr.channels == 1) {
@@ -294,8 +315,13 @@ int adpcm2wav(const char *infile, const char *outfile) {
     wavhdr.bits = 16;
 
     out = fopen(outfile, "wb");
-    fwrite(&wavhdr, 1, sizeof(wavhdr), out);
-    fwrite(pcmbuf, 1, pcmsize, out);
+    if(fwrite(&wavhdr, sizeof(wavhdr), 1, out) != 1
+            || fwrite(pcmbuf, pcmsize, 1, out) != 1) {
+        fprintf(stderr, "Cannot write WAV data.\n");
+        fclose(out);
+        return -1;
+    }
+
     fclose(out);
 
     return 0;
