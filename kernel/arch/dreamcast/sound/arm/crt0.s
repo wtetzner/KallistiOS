@@ -129,9 +129,3 @@ data_abort:
 irq:
 rsrvd:
 	sub	pc,r14,#4
-
-
-
-
-
-

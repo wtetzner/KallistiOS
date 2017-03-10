@@ -234,5 +234,3 @@ int spu_shutdown() {
     spu_memset(0, 0, 0x200000);
     return 0;
 }
-
-
