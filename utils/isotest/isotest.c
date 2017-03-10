@@ -748,7 +748,7 @@ int main() {
             printf("%s\t%d\n", de->name, de->size);
 
             if(!strcmp(de->name, "R_WAR.ZIP")) {
-                // what's this test for?
+                /* what's this test for? */
             }
         }
 
