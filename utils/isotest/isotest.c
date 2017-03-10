@@ -20,6 +20,7 @@ In Linux, accessing the /dev device on a single-session CD puts the
 /****************************** LINUX SPECIFIC CODE ***********************************/
 
 #include <stdio.h>
+#include <ctype.h>
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
@@ -29,7 +30,7 @@ typedef signed short int16;
 typedef signed long int32;
 
 /* Low-level sector read (for Linux to emulate hardware/cd.c) */
-static int cdrom_read_sectors(char *buffer, uint32 sector, uint32 cnt) {
+static int cdrom_read_sectors(void *buffer, uint32 sector, uint32 cnt) {
     FILE *f;
 
     /* Subtract out DC's LBA offset */
@@ -40,7 +41,10 @@ static int cdrom_read_sectors(char *buffer, uint32 sector, uint32 cnt) {
     if(!f) return -1;
 
     fseek(f, sector * 2048, SEEK_SET);
-    fread(buffer, cnt * 2048, 1, f);
+    if(fread(buffer, cnt * 2048, 1, f) != 1) {
+        fclose(f);
+        return 1;
+    }
 
     fclose(f);
     return 0;
@@ -49,13 +53,15 @@ static int cdrom_read_sectors(char *buffer, uint32 sector, uint32 cnt) {
 /* Linux emulation of various other KOS CD prims */
 typedef int CDROM_TOC;
 
-int cdrom_reinit() {
+static int cdrom_reinit() {
     return 0;
 }
-int cdrom_read_toc(CDROM_TOC *toc, int session) {
+
+static int cdrom_read_toc(CDROM_TOC *toc, int session) {
     return 0;
 }
-uint32 cdrom_locate_data_track(CDROM_TOC *toc) {
+
+static uint32 cdrom_locate_data_track(CDROM_TOC *toc) {
     return 150;
 }
 
@@ -72,18 +78,21 @@ typedef struct {
 } dirent_t;
 
 typedef void *vfs_handler[];
-int fs_handler_add(char *fn, void *p) {
+
+static int fs_handler_add(char *fn, void *p) {
     return 0;
 }
-int fs_handler_remove(void *p) {
+
+static int fs_handler_remove(void *p) {
     return 0;
 }
 
 /* Thread prims */
 typedef int thd_mutex_t;
-void thd_mutex_reset(int *p) { }
-void thd_mutex_lock(int *p) { }
-void thd_mutex_unlock(int *p) { }
+
+static void thd_mutex_reset(int *p) { }
+static void thd_mutex_lock(int *p) { }
+static void thd_mutex_unlock(int *p) { }
 
 /* iso9660 defines */
 #define MAX_ISO_FILES 8
@@ -115,11 +124,13 @@ typedef struct {
     char    name[1];
 } iso_dirent_t;
 
+#if 0
 /* Util function to reverse the byte order of a uint32 */
 static uint32 ntohl_32(void *data) {
     uint8 *d = (uint8*)data;
     return (d[0] << 24) | (d[1] << 16) | (d[2] << 8) | (d[3] << 0);
 }
+#endif
 
 /* This seems kinda silly, but it's important since it allows us
    to do unaligned accesses on a buffer */
@@ -128,10 +139,12 @@ static uint32 htohl_32(void *data) {
     return (d[0] << 0) | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
 }
 
+#if 0
 /* Read red-book section 7.1.1 number (8 bit) */
 static uint8 iso_711(uint8 *from) {
     return (*from & 0xff);
 }
+#endif
 
 /* Read red-book section 7.3.3 number (32 bit LE / 32 bit BE) */
 static uint32 iso_733(uint8 *from) {
@@ -193,7 +206,7 @@ static void bgrad(int block) {
 /* Pulls the requested sector into a cache block and returns the cache
    block index. Note that the sector in question may already be in the
    cache, in which case it just returns the containing block. */
-static int bread(uint32 sector) {
+static int bread(int32 sector) {
     int i, rv = -1;
 
     thd_mutex_lock(&cache_mutex);
@@ -240,10 +253,10 @@ bread_exit:
 /* Higher-level ISO9660 primitives */
 
 /* Root FS session location (in sectors) */
-static uint32 session_base = 0;
+static int32 session_base = 0;
 
 /* Root directory extent and size in bytes */
-static uint32 root_extent = 0, root_size = 0;
+static int32 root_extent = 0, root_size = 0;
 
 /* Root dirent */
 static iso_dirent_t root_dirent;
@@ -313,10 +326,9 @@ static int fncompare(const char *isofn, int isosize, const char *normalfn) {
    expect this buffer to stay around much longer than the call itself).
  */
 static iso_dirent_t *find_object(const char *fn, int dir,
-                                 uint32 dir_extent, uint32 dir_size) {
-    int     i;
-    char        *p1;
-    iso_dirent_t    *de;
+                                 int32 dir_extent, int32 dir_size) {
+    int32         i;
+    iso_dirent_t * de;
 
     while(dir_size > 0) {
         int c = bread(dir_extent);
@@ -393,10 +405,10 @@ static iso_dirent_t *find_object_path(const char *fn, int dir, iso_dirent_t *sta
 /* File handles.. I could probably do this with a linked list, but I'm just
    too lazy right now. =) */
 static struct {
-    uint32      first_extent;   /* First sector */
+    int32      first_extent;   /* First sector */
     int     dir;        /* >0 if a directory */
-    uint32      ptr;        /* Current read position in bytes */
-    uint32      size;       /* Length of file in bytes */
+    int32      ptr;        /* Current read position in bytes */
+    int32      size;       /* Length of file in bytes */
     dirent_t    dirent;     /* A static dirent to pass back to clients */
 } fh[MAX_ISO_FILES];
 
@@ -404,8 +416,8 @@ static struct {
 static thd_mutex_t fh_mutex;
 
 /* Open a file or directory */
-uint32 iso_open(const char *fn, int mode) {
-    uint32      fd;
+static int32 iso_open(const char *fn, int mode) {
+    int32      fd;
     iso_dirent_t    *de;
 
     /* Make sure they don't want to open things as writeable */
@@ -446,7 +458,7 @@ uint32 iso_open(const char *fn, int mode) {
 }
 
 /* Close a file or directory */
-void iso_close(uint32 fd) {
+static void iso_close(uint32 fd) {
     /* Check that the fd is valid */
     if(fd < MAX_ISO_FILES) {
         /* No need to lock the mutex: this is an atomic op */
@@ -455,8 +467,9 @@ void iso_close(uint32 fd) {
 }
 
 /* Read from a file */
-ssize_t iso_read(uint32 fd, void *buf, size_t bytes) {
-    int rv = 0, toread, thissect, c;
+static ssize_t iso_read(uint32 fd, char *buf, size_t bytes) {
+    int rv = 0, c;
+    size_t toread, thissect;
 
     /* Check that the fd is valid */
     if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0)
@@ -465,8 +478,8 @@ ssize_t iso_read(uint32 fd, void *buf, size_t bytes) {
     /* Read zero or more sectors into the buffer from the current pos */
     while(bytes > 0) {
         /* Figure out how much we still need to read */
-        toread = (bytes > (fh[fd].size - fh[fd].ptr)) ?
-                 fh[fd].size - fh[fd].ptr : bytes;
+        toread = (bytes > (size_t)(fh[fd].size - fh[fd].ptr)) ?
+                 (size_t)(fh[fd].size - fh[fd].ptr) : bytes;
 
         if(toread == 0) break;
 
@@ -492,7 +505,7 @@ ssize_t iso_read(uint32 fd, void *buf, size_t bytes) {
 }
 
 /* Seek elsewhere in a file */
-off_t iso_seek(uint32 fd, off_t offset, int whence) {
+static off_t iso_seek(uint32 fd, off_t offset, int whence) {
     /* Check that the fd is valid */
     if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0)
         return -1;
@@ -510,15 +523,13 @@ off_t iso_seek(uint32 fd, off_t offset, int whence) {
     }
 
     /* Check bounds */
-    if(fh[fd].ptr < 0) fh[fd].ptr = 0;
-
     if(fh[fd].ptr > fh[fd].size) fh[fd].ptr = fh[fd].size;
 
     return fh[fd].ptr;
 }
 
 /* Tell where in the file we are */
-off_t iso_tell(uint32 fd) {
+static off_t iso_tell(uint32 fd) {
     if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0)
         return -1;
 
@@ -526,7 +537,7 @@ off_t iso_tell(uint32 fd) {
 }
 
 /* Tell how big the file is */
-size_t iso_total(uint32 fd) {
+static size_t iso_total(uint32 fd) {
     if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0)
         return -1;
 
@@ -545,8 +556,8 @@ static void fn_postprocess(char *fn) {
 }
 
 /* Read a directory entry */
-dirent_t *iso_readdir(uint32 fd) {
-    int     i, c;
+static dirent_t *iso_readdir(uint32 fd) {
+    int     c;
     iso_dirent_t    *de;
 
     if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || !fh[fd].dir)
@@ -611,7 +622,7 @@ static vfs_handler vh = {
 };
 
 /* Initialize the file system */
-int fs_iso9660_init() {
+static int fs_iso9660_init() {
     int i;
 
     /* Reset fd's */
@@ -635,7 +646,7 @@ int fs_iso9660_init() {
 }
 
 /* De-init the file system */
-int fs_iso9660_shutdown() {
+static int fs_iso9660_shutdown() {
     int i;
 
     /* Dealloc cache block space */
@@ -651,7 +662,8 @@ int fs_iso9660_shutdown() {
 
 /********************************************************************************/
 
-void read_dir(uint32 extent, uint32 size) {
+#if 0
+static void read_dir(uint32 extent, uint32 size) {
     int     i;
     iso_dirent_t    *de;
     char        fn[32];
@@ -681,9 +693,10 @@ void read_dir(uint32 extent, uint32 size) {
         size -= 2048;
     }
 }
+#endif
 
 
-void main() {
+int main() {
     fs_iso9660_init();
 
     /*
@@ -695,7 +708,7 @@ void main() {
     fd = iso_open("/escape.txt", O_RDONLY);
     if (fd == 0) {
         printf("Couldn't open file\n");
-        return;
+        return 1;
     }
     size = iso_total(fd);
     printf("fd is %d, size is %08lx\n", fd, size);
@@ -705,7 +718,7 @@ void main() {
         r = iso_read(fd, buf, 666);
         if (r < 0) {
             printf("Read error\n");
-            return;
+            return 1;
         }
         buf[r] = 0;
         printf("%s", buf);
@@ -718,7 +731,7 @@ void main() {
     iso_close(fd); */
 
     {
-        uint32      fd, t;
+        uint32      fd;
         dirent_t    *de;
 
         printf("Opening /demos");
@@ -726,7 +739,7 @@ void main() {
 
         if(fd == 0) {
             printf("Couldn't open file\n");
-            return;
+            return 1;
         }
 
         printf("Scanning dir:\n");
@@ -735,21 +748,14 @@ void main() {
             printf("%s\t%d\n", de->name, de->size);
 
             if(!strcmp(de->name, "R_WAR.ZIP")) {
-                t = 0;
+                // what's this test for?
             }
         }
 
         iso_close(fd);
     }
+
+    fs_iso9660_shutdown();
+
+    return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
