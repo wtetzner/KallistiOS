@@ -25,7 +25,7 @@ void readpng_version_info(void) {
 }
 
 
-/* return value = 0 for success, 1 for bad sig, 2 for bad IHDR, 4 for no mem */
+/* return value = 0 for success, 1 for bad sig, 2 for bad IHDR, 3 for io, 4 for no mem */
 
 uint32 readpng_init(FILE *infile) {
     uint8 sig[8];
@@ -33,7 +33,9 @@ uint32 readpng_init(FILE *infile) {
     /* first do a quick check that the file really is a PNG image; could
      * have used slightly more general png_sig_cmp() function instead */
 
-    fread(sig, 1, 8, infile);
+    if(fread(sig, 8, 1, infile) != 1) {
+        return 3;
+    }
 
     if(!png_check_sig(sig, 8))
         return 1;   /* bad signature */
@@ -62,7 +64,7 @@ uint32 readpng_init(FILE *infile) {
     return 0;
 }
 
-uint8 *readpng_get_image(uint32 *pChannels, uint32 *pRowbytes, uint32 *pWidth, uint32 *pHeight) {
+uint8 *readpng_get_image(uint32 *pChannels, uint32 *pRowbytes, int *pWidth, int *pHeight) {
     png_uint_32  width, height;
     int  bit_depth, color_type;
     uint8  *image_data = NULL;
@@ -77,8 +79,8 @@ uint8 *readpng_get_image(uint32 *pChannels, uint32 *pRowbytes, uint32 *pWidth, u
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
                  NULL, NULL, NULL);
 
-    *pWidth = width;
-    *pHeight = height;
+    *pWidth = (int)width;
+    *pHeight = (int)height;
 
     /* expand palette images to RGB, low-bit-depth grayscale images to 8 bits,
      * transparency chunks to full alpha channel; strip 16-bit-per-sample

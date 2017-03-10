@@ -25,7 +25,7 @@ void readpng_version_info(void) {
 }
 
 
-/* return value = 0 for success, 1 for bad sig, 2 for bad IHDR, 4 for no mem */
+/* return value = 0 for success, 1 for bad sig, 2 for bad IHDR, 3 for io, 4 for no mem */
 
 uint32 readpng_init(FILE *infile) {
     uint8 sig[8];
@@ -33,7 +33,9 @@ uint32 readpng_init(FILE *infile) {
     /* first do a quick check that the file really is a PNG image; could
      * have used slightly more general png_sig_cmp() function instead */
 
-    fread(sig, 1, 8, infile);
+    if(fread(sig, 8, 1, infile) != 1) {
+        return 3;
+    }
 
     if(!png_check_sig(sig, 8))
         return 1;   /* bad signature */

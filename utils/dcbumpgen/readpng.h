@@ -2,9 +2,11 @@
 typedef unsigned short uint16;
 typedef unsigned char uint8; */
 
-#define uint32 unsigned int
-#define uint16 unsigned short
-#define uint8 unsigned char
+#include <stdint.h>
+
+#define uint32 uint32_t
+#define uint16 uint16_t
+#define uint8 uint8_t
 
 #ifndef TRUE
 #  define TRUE 1
@@ -33,6 +35,6 @@ uint32 readpng_init(FILE *infile);
  * The caller is responsible for freeing the memory
  */
 uint8 *readpng_get_image(uint32 *pNumChannels,
-                       uint32 *pRowBytes, uint32 *pWidth, uint32 *pHeight);
+                         uint32 *pRowBytes, int *pWidth, int *pHeight);
 
 void readpng_cleanup(void);

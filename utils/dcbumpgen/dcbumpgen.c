@@ -35,10 +35,15 @@
  */
 #include "get_image.h"
 
-void printUsage() {
+static void printUsage() {
 	printf("dcbumpgen - Dreamcast bumpmap generator v0.1\n");
 	printf("Copyright (c) 2005 Fredrik Ehnbom\n");
 	printf("usage: dcbumpgen <infile.png/.jpg> <outfile.raw>\n");
+}
+
+static int isPowerOfTwo(unsigned x)
+{
+	return x && !(x & (x-1));
 }
 
 /* twiddling stuff copied from kmgenc.c */
@@ -47,29 +52,44 @@ void printUsage() {
 #define TWIDOUT(x, y) ( TWIDTAB((y)) | (TWIDTAB((x)) << 1) )
 #define MIN(a, b) ( (a)<(b)? (a):(b) )
 
+#define ERROR(...) { ret = 1; fprintf(stderr, __VA_ARGS__); goto cleanup; }
+
 int main(int argc, char **argv) {
-	image_t img;
-	FILE *fp;
+	int ret = 0;
 	int y, x;
-	unsigned char *buffer;
 	int imgpos, dest;
+	image_t img = {0};
+	FILE *fp = 0;
+	unsigned char *buffer = 0;
+	short * twidbuffer    = 0;
 
 	if (argc != 3) {
 		printUsage();
-		exit(1);
+		return 0;
 	}
 
 	if (get_image(argv[1], &img) < 0) {
-		fprintf(stderr, "couldn't open %s\n", argv[1]);
-		return -1;
+		ERROR("Cannot open %s\n", argv[1]);
 	}
 
-	/* TODO:
-	 * - error-checking for missing files and other file failures
-	 * - check that image is power of two
-	 */
 	fp = fopen(argv[2], "wb");
+	if(!fp) {
+		ERROR("Cannot open file %s!\n", argv[2]);
+	}
+
 	buffer = malloc(2 * img.w * img.h);
+	if(!buffer) {
+		ERROR("Cannot allocate memory for image data!\n");
+	}
+
+	twidbuffer = malloc(2 * img.w * img.h);
+	if(!buffer) {
+		ERROR("Cannot allocate memory for twiddle buffer!\n");
+	}
+
+	if(!isPowerOfTwo(img.w) || !isPowerOfTwo(img.h)) {
+		ERROR("Image dimensions %ux%u are not a power of two!\n", img.w, img.h);
+	}
 
 	imgpos = 1; /* 1 to skip the alpha-channel */
 	dest = 0;
@@ -101,7 +121,6 @@ int main(int argc, char **argv) {
 	int min = MIN(img.w, img.h);
 	int mask = min-1;
 	short *sbuffer = (short*) buffer;
-	short *twidbuffer = malloc(2 * img.w * img.h);
 	for (y=0; y<img.h; y++) {
 		int yout = y;
 		for (x=0; x<img.w; x++) {
@@ -110,14 +129,16 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	fwrite(twidbuffer, 1, 2* img.w * img.h, fp);
-	fclose(fp);
-
-	free(buffer);
-	free(twidbuffer);
-	if (img.data) {
-		free(img.data);
+	if(fwrite(twidbuffer, 2* img.w * img.h, 1, fp) != 1) {
+		ERROR("Cannot write twiddle buffer!\n");
 	}
-	return 0;
+
+cleanup:
+	if(fp) fclose(fp);
+	if(buffer) free(buffer);
+	if(twidbuffer) free(twidbuffer);
+	if(img.data) free(img.data);
+
+	return ret;
 }
 

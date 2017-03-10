@@ -320,7 +320,7 @@ void dumpri(struct romfh *ri, struct filenode *n, FILE *f) {
 #endif
 }
 
-void dumpnode(struct filenode *node, FILE *f) {
+int dumpnode(struct filenode *node, FILE *f) {
     struct romfh ri;
     struct filenode *p;
 
@@ -362,7 +362,9 @@ void dumpnode(struct filenode *node, FILE *f) {
         ri.nextfh |= htonl(ROMFH_LNK);
         dumpri(&ri, node, f);
         memset(bigbuf, 0, sizeof(bigbuf));
-        readlink(node->realname, bigbuf, node->size);
+        if(readlink(node->realname, bigbuf, node->size) < 0) {
+            return 1;
+        }
         dumpdataa(bigbuf, node->size, f);
     }
     else if(S_ISREG(node->modes)) {
@@ -424,12 +426,16 @@ void dumpnode(struct filenode *node, FILE *f) {
     p = node->dirlist.head;
 
     while(p->next) {
-        dumpnode(p, f);
+        if(dumpnode(p, f)) {
+            return 1;
+        }
         p = p->next;
     }
+
+    return 0;
 }
 
-void dumpall(struct filenode *node, int lastoff, FILE *f) {
+int dumpall(struct filenode *node, int lastoff, FILE *f) {
     struct romfh ri;
     struct filenode *p;
 
@@ -441,13 +447,17 @@ void dumpall(struct filenode *node, int lastoff, FILE *f) {
     p = node->dirlist.head;
 
     while(p->next) {
-        dumpnode(p, f);
+        if(dumpnode(p, f)) {
+            return 1;
+        }
         p = p->next;
     }
 
     /* Align the whole bunch to ROMBSIZE boundary */
     if(lastoff & 1023)
         dumpzero(1024 - (lastoff & 1023), f);
+
+    return 0;
 }
 
 /* Node manipulating functions */
@@ -634,7 +644,9 @@ int processdir(int level, const char *base, const char *dirname, struct stat *sb
                 /* this is a link to follow at build time */
                 n->name = n->name + 1; /* strip off the leading @ */
                 memset(bigbuf, 0, sizeof(bigbuf));
-                readlink(n->realname, bigbuf, sizeof(bigbuf));
+                if(readlink(n->realname, bigbuf, sizeof(bigbuf))) {
+                    return -1;
+                }
                 n->realname = strdup(bigbuf);
 
                 if(lstat(n->realname, sb)) {
@@ -735,6 +747,9 @@ int processdir(int level, const char *base, const char *dirname, struct stat *sb
                 curroffset = processdir(level + 1, n->realname, dp->d_name,
                                         sb, n, root, curroffset);
             }
+
+            if(curroffset < 0)
+                return -1;
         }
     }
 
@@ -876,11 +891,18 @@ int main(int argc, char *argv[]) {
     root = newnode(dir, volname, 0);
     root->parent = root;
     lastoff = processdir(1, dir, dir, &sb, root, root, spaceneeded(root));
+    if(lastoff < 0) {
+        fprintf(stderr, "Error while processing directory.\n");
+        return 1;
+    }
 
     if(verbose)
         shownode(0, root, stderr);
 
-    dumpall(root, lastoff, f);
+    if(dumpall(root, lastoff, f)) {
+        fprintf(stderr, "Error while dumping!\n");
+        return 1;
+    }
 
-    exit(0);
+		return 0;
 }

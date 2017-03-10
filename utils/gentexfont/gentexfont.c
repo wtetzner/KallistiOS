@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -51,8 +52,7 @@ int gap = 1;
 #define MAX_GLYPHS_PER_GRAB 512  /* this is big enough for 2^9 glyph
 character sets */
 
-FontInfoPtr
-SuckGlyphsFromServer(Display * dpy, Font font) {
+static FontInfoPtr SuckGlyphsFromServer(Display * dpy, Font font) {
     Pixmap offscreen;
     XFontStruct *fontinfo;
     XImage *image;
@@ -61,12 +61,14 @@ SuckGlyphsFromServer(Display * dpy, Font font) {
     int numchars;
     int width, height, pixwidth;
     int i, j;
-    XCharStruct *charinfo;
+    XCharStruct *charinfo = 0;
     XChar2b character;
     unsigned char *bitmapData;
     int x, y;
-    int spanLength;
-    int charWidth, charHeight, maxSpanLength;
+    int spanLength = 0;
+    int charWidth = 0;
+    int charHeight = 0;
+    int maxSpanLength;
     int grabList[MAX_GLYPHS_PER_GRAB];
     int glyphsPerGrab = MAX_GLYPHS_PER_GRAB;
     int numToGrab, thisglyph;
@@ -245,8 +247,9 @@ FreeFontAndReturn:
     return NULL;
 }
 
-void
-printGlyph(FontInfoPtr font, int c) {
+
+#if 0
+static void printGlyph(FontInfoPtr font, int c) {
     PerGlyphInfoPtr glyph;
     unsigned char *bitmapData;
     int width, height, spanLength;
@@ -279,9 +282,9 @@ printGlyph(FontInfoPtr font, int c) {
         }
     }
 }
+#endif
 
-void
-getMetric(FontInfoPtr font, int c, TexGlyphInfo * tgi) {
+static void getMetric(FontInfoPtr font, int c, TexGlyphInfo * tgi) {
     PerGlyphInfoPtr glyph;
     unsigned char *bitmapData;
 
@@ -317,8 +320,7 @@ getMetric(FontInfoPtr font, int c, TexGlyphInfo * tgi) {
     tgi->advance = glyph->advance;
 }
 
-int
-glyphCompare(const void *a, const void *b) {
+static int glyphCompare(const void *a, const void *b) {
     unsigned char *c1 = (unsigned char *) a;
     unsigned char *c2 = (unsigned char *) b;
     TexGlyphInfo tgi1;
@@ -329,13 +331,11 @@ glyphCompare(const void *a, const void *b) {
     return tgi2.height - tgi1.height;
 }
 
-int
-getFontel(unsigned char *bitmapData, int spanLength, int i, int j) {
+static int getFontel(unsigned char *bitmapData, int spanLength, int i, int j) {
     return bitmapData[i * spanLength + j / 8] & (1 << (j & 7)) ? 255 : 0;
 }
 
-void
-placeGlyph(FontInfoPtr font, int c, unsigned char *texarea, int stride, int x, int y) {
+static void placeGlyph(FontInfoPtr font, int c, unsigned char *texarea, int stride, int x, int y) {
     PerGlyphInfoPtr glyph;
     unsigned char *bitmapData;
     int width, height, spanLength;
@@ -363,8 +363,7 @@ placeGlyph(FontInfoPtr font, int c, unsigned char *texarea, int stride, int x, i
     }
 }
 
-char *
-nodupstring(char *s) {
+static char * nodupstring(char *s) {
     int len, i, p;
     char *new;
 
@@ -383,13 +382,12 @@ nodupstring(char *s) {
     return new;
 }
 
-void
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     int texw, texh;
     unsigned char *texarea, *texbitmap;
     FILE *file;
     int len, stride;
-    unsigned char *glist;
+    char *glist;
     int width, height;
     int px, py, maxheight;
     TexGlyphInfo tgi;
@@ -426,7 +424,7 @@ main(int argc, char *argv[]) {
         }
         else if(!strcmp(argv[i], "-glist")) {
             i++;
-            glist = (unsigned char *) argv[i];
+            glist = argv[i];
         }
         else if(!strcmp(argv[i], "-fn")) {
             i++;
@@ -447,8 +445,8 @@ main(int argc, char *argv[]) {
         printf(" -w #          textureWidth (def=%d)\n", texw);
         printf(" -h #          textureHeight (def=%d)\n", texh);
         printf(" -gap #        gap between glyphs (def=%d)\n", gap);
-        printf(" -bitmap       use a bitmap encoding (default)\n", gap);
-        printf(" -byte         use a byte encoding (less compact)\n", gap);
+        printf(" -bitmap       use a bitmap encoding (default)\n");
+        printf(" -byte         use a byte encoding (less compact)\n");
         printf(" -glist ABC    glyph list (def=%s)\n", glist);
         printf(" -fn name      X font name (def=%s)\n", fontname);
         printf(" -file name    output file for textured font (def=%s)\n", fontname);
@@ -457,7 +455,7 @@ main(int argc, char *argv[]) {
     }
 
     texarea = calloc(texw * texh, sizeof(unsigned char));
-    glist = (unsigned char *) nodupstring((char *) glist);
+    glist = nodupstring((char *) glist);
 
     dpy = XOpenDisplay(NULL);
 
@@ -507,7 +505,7 @@ main(int argc, char *argv[]) {
                remaining space on the current row. */
 
             int foundWidthFit = 0;
-            int c;
+            int c = 0;
 
             getMetric(fontinfo, glist[i], &tgi);
             width = tgi.width;

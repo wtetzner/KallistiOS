@@ -32,18 +32,18 @@ typedef struct {
 } dirent_t;
 
 typedef void *vfs_handler[];
-int fs_handler_add(char *fn, void *p) {
+static int fs_handler_add(char *fn, void *p) {
     return 0;
 }
-int fs_handler_remove(void *p) {
+static int fs_handler_remove(void *p) {
     return 0;
 }
 
 /* Thread prims */
 typedef int thd_mutex_t;
-void thd_mutex_reset(int *p) { }
-void thd_mutex_lock(int *p) { }
-void thd_mutex_unlock(int *p) { }
+static void thd_mutex_reset(int *p) { }
+static void thd_mutex_lock(int *p) { }
+static void thd_mutex_unlock(int *p) { }
 
 /* romdisk defines */
 #define MAX_RD_FILES 8
@@ -242,7 +242,7 @@ static uint32 romdisk_find(const char *fn) {
 #endif
 
 /* Open a file or directory */
-uint32 romdisk_open(const char *fn, int mode) {
+static uint32 romdisk_open(const char *fn, int mode) {
     uint32      fd;
     uint32      filehdr;
     romdisk_file_t  *fhdr;
@@ -286,7 +286,7 @@ uint32 romdisk_open(const char *fn, int mode) {
 }
 
 /* Close a file or directory */
-void romdisk_close(uint32 fd) {
+static void romdisk_close(uint32 fd) {
     /* Check that the fd is valid */
     if(fd < MAX_RD_FILES) {
         /* No need to lock the mutex: this is an atomic op */
@@ -295,9 +295,7 @@ void romdisk_close(uint32 fd) {
 }
 
 /* Read from a file */
-ssize_t romdisk_read(uint32 fd, void *buf, size_t bytes) {
-    int rv = 0, toread, thissect, c;
-
+static ssize_t romdisk_read(uint32 fd, void *buf, size_t bytes) {
     /* Check that the fd is valid */
     if(fd >= MAX_RD_FILES || fh[fd].index == 0)
         return -1;
@@ -314,7 +312,7 @@ ssize_t romdisk_read(uint32 fd, void *buf, size_t bytes) {
 }
 
 /* Seek elsewhere in a file */
-off_t romdisk_seek(uint32 fd, off_t offset, int whence) {
+static off_t romdisk_seek(uint32 fd, off_t offset, int whence) {
     /* Check that the fd is valid */
     if(fd >= MAX_RD_FILES || fh[fd].index == 0)
         return -1;
@@ -332,15 +330,13 @@ off_t romdisk_seek(uint32 fd, off_t offset, int whence) {
     }
 
     /* Check bounds */
-    if(fh[fd].ptr < 0) fh[fd].ptr = 0;
-
     if(fh[fd].ptr > fh[fd].size) fh[fd].ptr = fh[fd].size;
 
     return fh[fd].ptr;
 }
 
 /* Tell where in the file we are */
-off_t romdisk_tell(uint32 fd) {
+static off_t romdisk_tell(uint32 fd) {
     if(fd >= MAX_RD_FILES || fh[fd].index == 0)
         return -1;
 
@@ -348,7 +344,7 @@ off_t romdisk_tell(uint32 fd) {
 }
 
 /* Tell how big the file is */
-size_t romdisk_total(uint32 fd) {
+static size_t romdisk_total(uint32 fd) {
     if(fd >= MAX_RD_FILES || fh[fd].index == 0)
         return -1;
 
@@ -382,7 +378,7 @@ static vfs_handler vh = {
 };
 
 /* Initialize the file system */
-int fs_romdisk_init(uint8 *img) {
+static int fs_romdisk_init(uint8 *img) {
     int i, ni;
     romdisk_file_t *fhdr;
 
@@ -392,21 +388,21 @@ int fs_romdisk_init(uint8 *img) {
     /* Check and print some info about it */
     romdisk_hdr = (romdisk_hdr_t *)romdisk_image;
 
-    if(strncmp(romdisk_image, "-rom1fs-", 8)) {
-        printf("Rom disk image at 0x%x is not a ROMFS image\r\n", img);
+    if(strncmp((char*)romdisk_image, "-rom1fs-", 8)) {
+        printf("Rom disk image at 0x%p is not a ROMFS image\r\n", img);
         return -1;
     }
 
-    printf("ROMFS image recognized. Full size is 0x%x bytes\r\n",
+    printf("ROMFS image recognized. Full size is 0x%lx bytes\r\n",
            ntohl_32(&romdisk_hdr->full_size));
-    printf("  Checksum is 0x%x\r\n",
+    printf("  Checksum is 0x%lx\r\n",
            ntohl_32(&romdisk_hdr->checksum));
     printf("  Volume ID is ``%s''\r\n",
            romdisk_hdr->volume_name);
 
     romdisk_files = sizeof(romdisk_hdr_t)
                     + (strlen(romdisk_hdr->volume_name) / 16) * 16;
-    printf("  File entries begin at offset 0x%x\r\n",
+    printf("  File entries begin at offset 0x%lx\r\n",
            romdisk_files);
 
     printf("Files:\r\n");
@@ -420,11 +416,11 @@ int fs_romdisk_init(uint8 *img) {
         printf("next=%x, ", ni & 0xfffffff0);
         printf("type=%x, ", ni & 0x0f);
         ni &= 0xfffffff0;
-        printf("spec_info=%x, ", ntohl_32(&fhdr->spec_info));
-        printf("size=%x, ", ntohl_32(&fhdr->size));
-        printf("checksum=%x ", ntohl_32(&fhdr->checksum));
+        printf("spec_info=%lx, ", ntohl_32(&fhdr->spec_info));
+        printf("size=%lx, ", ntohl_32(&fhdr->size));
+        printf("checksum=%lx ", ntohl_32(&fhdr->checksum));
         printf("filename='%s'\r\n", fhdr->filename);
-        printf("  File data starts at %x\r\n",
+        printf("  File data starts at %lx\r\n",
                i + sizeof(romdisk_file_t)
                + (strlen(fhdr->filename) / 16) * 16);
 
@@ -446,7 +442,7 @@ int fs_romdisk_init(uint8 *img) {
 }
 
 /* De-init the file system */
-int fs_romdisk_shutdown() {
+static int fs_romdisk_shutdown() {
     return fs_handler_remove(&vh);
 }
 
@@ -456,27 +452,68 @@ int fs_romdisk_shutdown() {
 
 /********************************************************************************/
 
-void init() {
-    char *img;
-    FILE *f;
-    int  size;
+/**
+ * Helper function to load the raw texture data into an array.
+ * @param filename The filename of the texture.
+ * @param data A pointer to an array where the data should be stored.
+ * @param size A pointer to a variable where to size should be stored.
+ * @return 0 on success, non-zero on error.
+ */
+static int read_file_contents(char const * const filename, char **data, size_t *size) {
+    FILE *f = 0;
 
-    f = fopen("romdisk2.img", "rb");
+    f = fopen(filename, "rb");
 
-    if(!f) return;
+    // Read texture from file
+    if(!f) {
+        return 1;
+    }
 
     fseek(f, 0, SEEK_END);
-    size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    img = malloc(size);
-    fread(img, size, 1, f);
+    long imageSize = ftell(f);
+    rewind(f);
+
+    *data = malloc(imageSize);
+    if(!*data) {
+        fclose(f);
+        return 2;
+    }
+
+    if(fread(*data, imageSize, 1, f) != 1) {
+        free(*data);
+        fclose(f);
+        return 3;
+    }
+
     fclose(f);
 
+    *size = imageSize;
+
+    return 0;
+}
+
+static int init() {
+    uint8 *img;
+    size_t  size;
+
+    if(read_file_contents("romdisk2.img", (char**)&img, &size)) {
+        fprintf(stderr, "Cannot read romdisk2.img.\n");
+        return 1;
+    }
+
     fs_romdisk_init(img);
+    fs_romdisk_shutdown();
+
+    free(img);
+
+    return 0;
 }
 
 int main() {
-    init();
+    if(init()) {
+        fprintf(stderr, "Cannot init.\n");
+        return 1;
+    }
 
     {
         uint32  fd, size;
@@ -487,11 +524,11 @@ int main() {
 
         if(fd == 0) {
             printf("Couldn't open file\n");
-            return;
+            return 1;
         }
 
         size = romdisk_total(fd);
-        printf("fd is %d, size is %08lx\n", fd, size);
+        printf("fd is %ld, size is %08lx\n", fd, size);
 
         while(size > 0) {
             int r;
@@ -499,7 +536,7 @@ int main() {
 
             if(r < 0) {
                 printf("Read error\n");
-                return;
+                return 1;
             }
 
             buf[r] = 0;
