@@ -63,7 +63,7 @@ static void twiddle(image_t * src, uint16 * output) {
     int x, y, yout;
 
     for(y = 0; y < h; y++) {
-        // yout = ((h - 1) - y);
+        /* yout = ((h - 1) - y); */
         yout = y;
 
         for(x = 0; x < w; x++) {
@@ -177,11 +177,11 @@ static void banner(const char *progname) {
     printf("Usage: %s [options] image1 [image2..]\n", progname);
     printf("\n");
     printf("Options:\n");
-    // printf("\t-t, --twiddle\tcreate twiddled textures\n");
-    // printf("\t-m, --mipmap\tcreate mipmapped textures (EXPERIMENTAL)\n");
+    /* printf("\t-t, --twiddle\tcreate twiddled textures\n"); */
+    /* printf("\t-m, --mipmap\tcreate mipmapped textures (EXPERIMENTAL)\n"); */
     printf("\t-v, --verbose\tverbose\n");
     printf("\t-d, --debug\tshow debug information\n");
-    // printf("\t-q, --highq\thigher quality (much slower)\n");
+    /* printf("\t-q, --highq\thigher quality (much slower)\n"); */
     printf("\t-a4, --argb4444\tuse alpha channel (and output ARGB4444)\n");
     printf("\t-a1, --argb1555\tuse alpha channel (and output ARGB1555)\n");
 }

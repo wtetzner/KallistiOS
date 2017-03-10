@@ -152,7 +152,6 @@ static int read_file_contents(char const * const filename, char **data, size_t *
 
     f = fopen(filename, "rb");
 
-    // Read texture from file
     if(!f) {
         return 1;
     }

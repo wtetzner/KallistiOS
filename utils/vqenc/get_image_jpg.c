@@ -103,7 +103,7 @@ int get_image_jpg(const char *filename, image_t *image) {
             image->data[offs + i * 4 + 3] = buffer[0][i * 3 + 2];
         }
 
-        // memcpy(image->data + (cinfo.output_scanline-1) * image->stride, buffer[0], image->stride);
+        /* memcpy(image->data + (cinfo.output_scanline-1) * image->stride, buffer[0], image->stride); */
     }
 
     /* Step 7: Finish decompression */

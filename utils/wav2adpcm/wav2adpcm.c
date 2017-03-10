@@ -26,7 +26,7 @@ static int diff_lookup[16] = {
 
 static int index_scale[16] = {
     0x0e6, 0x0e6, 0x0e6, 0x0e6, 0x133, 0x199, 0x200, 0x266,
-    0x0e6, 0x0e6, 0x0e6, 0x0e6, 0x133, 0x199, 0x200, 0x266 //same value for speedup
+    0x0e6, 0x0e6, 0x0e6, 0x0e6, 0x133, 0x199, 0x200, 0x266 /* same value for speedup */
 };
 
 static inline int limit(int val, int min, int max) {
@@ -40,7 +40,7 @@ void pcm2adpcm(unsigned char *dst, const short *src, size_t length) {
     signal = 0;
     step = 0x7f;
 
-    // length/=4;
+    /* length /= 4; */
     length = (length + 3) / 4;
 
     do {

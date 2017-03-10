@@ -1,7 +1,6 @@
 #ifndef __KMGENC_H
 #define __KMGENC_H
 
-// Some useful global headers
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -10,11 +9,10 @@
 #include <unistd.h>
 #include <errno.h>
 
-// For outputting KMG files
+/* For outputting KMG files */
 #define NEED_KOS_TYPES
 #include "kmg.h"
 
-// A single color value
 typedef struct fcolor {
     float a;
     float r;
@@ -22,7 +20,7 @@ typedef struct fcolor {
     float b;
 } fcolor_t;
 
-// A few useful macros for color manipulation
+
 #define PACK4444(a, r, g, b) ( \
                                ( (((int)((a)*15))) << 12) | \
                                ( (((int)((r)*15))) << 8) | \
@@ -62,7 +60,7 @@ static inline void get_fcolor_32(fcolor_t *c, uint8 *pixels) {
     c->b = pixels[3] / 255.0f;
 }
 
-// Endian fixing
+/* Endian fixing */
 static int is_le = -1;
 
 static inline int le_detect() {
@@ -100,8 +98,8 @@ static inline int le32(int x) {
                ((val >> 24) & 0x000000ff);
 }
 
-// Internal includes
+/* Internal includes */
 #include "get_image.h"
 
 
-#endif // __KMGENC_H
+#endif
