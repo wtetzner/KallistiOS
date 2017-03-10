@@ -85,17 +85,18 @@ static inline int calc_aica_pan(int x) {
    This routine (and the similar ones) owe a lot to Marcus' sound example --
    I hadn't gotten quite this far into dissecting the individual regs yet. */
 void aica_play(int ch, int delay) {
-    unsigned long smpptr    = chans[ch].base;
-    int mode        = chans[ch].type;
-    int loopst      = chans[ch].loopstart;
-    int loopend     = chans[ch].loopend;
-    int freq        = chans[ch].freq;
-    int vol         = chans[ch].vol;
-    int pan         = chans[ch].pan;
-    int loopflag        = chans[ch].loop;
-    unsigned long freq_lo, freq_base = 5644800;
+    uint32 smpptr   = chans[ch].base;
+    uint32 mode     = chans[ch].type;
+    uint32 loopst   = chans[ch].loopstart;
+    uint32 loopend  = chans[ch].loopend;
+    uint32 freq     = chans[ch].freq;
+    uint32 vol      = chans[ch].vol;
+    uint32 pan      = chans[ch].pan;
+    uint32 loopflag = chans[ch].loop;
+
+    uint32 freq_lo, freq_base = 5644800;
     int freq_hi = 7;
-    int i;
+    uint32 i;
     uint32 playCont;
 
     /* Stop the channel (if it's already playing) */
@@ -200,8 +201,8 @@ void aica_pan(int ch) {
 
 /* Set channel frequency */
 void aica_freq(int ch) {
-    int freq = chans[ch].freq;
-    unsigned long freq_lo, freq_base = 5644800;
+    uint32 freq = chans[ch].freq;
+    uint32 freq_lo, freq_base = 5644800;
     int freq_hi = 7;
 
     while(freq < freq_base && freq_hi > -8) {

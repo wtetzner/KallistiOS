@@ -17,8 +17,8 @@
 
 #define timer (*((volatile uint32 *)AICA_MEM_CLOCK))
 
-void timer_wait(int jiffies) {
-    int fin = timer + jiffies;
+void timer_wait(uint32 jiffies) {
+    uint32 fin = timer + jiffies;
 
     while(timer <= fin)
         ;
