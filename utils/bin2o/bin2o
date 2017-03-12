@@ -9,7 +9,7 @@ if [ $# != 3 ]; then
 	exit 0
 fi
 
-for i in KOS_ARCH KOS_AS KOS_ASFLAGS KOS_LD; do
+for i in KOS_ARCH KOS_AS KOS_AFLAGS KOS_LD; do
 	if [ -z "$(eval "echo \"\$$i\"")" ]; then
 		echo "Environment variable $i is undefined."
 		error=1
@@ -45,4 +45,3 @@ elif [ "$KOS_ARCH" = ps2 ]; then
 fi
 
 rm -f /tmp/script.ld
-
