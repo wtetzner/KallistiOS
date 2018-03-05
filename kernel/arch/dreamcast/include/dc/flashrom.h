@@ -13,10 +13,8 @@
     utilities to make it easier to use the flashrom info. Note that because the
     flash writing can be such a dangerous thing potentially (I haven't deleted
     my flash to see what happens, but given the info stored here it sounds like
-    a Bad Idea(tm)) the syscalls for the WRITE and DELETE operations are not
-    enabled by default. If you are 100% sure you really want to be writing to
-    the flash and you know what you're doing, then you can edit flashrom.c and
-    re-enable them there.
+    a Bad Idea(tm)), extreme care should be taken if you choose to use these
+    functions!
 
     \author Dan Potter
     \author Lawrence Sebald
@@ -133,7 +131,10 @@ int flashrom_write(int offset, void * buffer, int bytes);
     offset, that entire partition of the flashrom will be deleted and all data
     will be reset to 0xFF bytes.
 
-    \param  offset          The partition to erase.
+    \note This does not rewrite the magic block to the start of the partition.
+    It is your responsibility to do this after running this function.
+
+    \param  offset          The offset of the start of the partition to erase.
     \retval 0               On success.
     \retval -1              On error.
 */
