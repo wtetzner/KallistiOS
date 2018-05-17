@@ -3,6 +3,7 @@
    dc/matrix.h
    Copyright (C) 2000 Dan Potter
    Copyright (C) 2013, 2014 Josh "PH3NOM" Pearson
+   Copyright (C) 2018 Lawrence Sebald
 
 */
 
@@ -220,7 +221,8 @@ void mat_transform_sq(void *input, void *output, int veccnt);
                               "fldi1 fr15\n" \
                               "ftrv  xmtrx, fv12\n" \
                               : "=f" (__x), "=f" (__y), "=f" (__z) \
-                              : "0" (__x), "1" (__y), "2" (__z) ); \
+                              : "0" (__x), "1" (__y), "2" (__z) \
+                              : "fr15" ); \
         x = __x; y = __y; z = __z; \
     }
 
@@ -281,7 +283,8 @@ void mat_transform_sq(void *input, void *output, int veccnt);
                               "fldi1 fr15\n" \
                               "ftrv  xmtrx, fv12\n" \
                               : "=f" (__x), "=f" (__y), "=f" (__z) \
-                              : "0" (__x), "1" (__y), "2" (__z) ); \
+                              : "0" (__x), "1" (__y), "2" (__z) \
+                              : "fr15" ); \
         x2 = __x; y2 = __y; z2 = __z; \
     }
 
@@ -303,12 +306,11 @@ void mat_transform_sq(void *input, void *output, int veccnt);
         register float __x __asm__("fr12") = (x); \
         register float __y __asm__("fr13") = (y); \
         register float __z __asm__("fr14") = (z); \
-        register float __w __asm__("fr15"); \
+        register float __w __asm__("fr15") = 1.0f; \
         __asm__ __volatile__( \
-                              "fldi1 fr15\n" \
                               "ftrv  xmtrx, fv12\n" \
-                              : "=f" (__x), "=f" (__y), "=f" (__z) \
-                              : "0" (__x), "1" (__y), "2" (__z) ); \
+                              : "=f" (__x), "=f" (__y), "=f" (__z), "=f" (__w) \
+                              : "0" (__x), "1" (__y), "2" (__z), "3" (__w) ); \
         x = __x; y = __y; z = __z; w = __w; \
     }
 
@@ -351,8 +353,10 @@ void mat_transform_sq(void *input, void *output, int veccnt);
                               "fdiv    fr7, fr6\n" \
                               "fmul    fr6, fr4\n" \
                               "fmul    fr6, fr5\n" \
-                              : "=f" (__x), "=f" (__y), "=f" (__z) \
-                              : "0" (__x), "1" (__y), "2" (__z) ); \
+                              : "=f" (__x), "=f" (__y), "=f" (__z), \
+                                "=f" (__xd), "=f" (__yd), "=f" (__zd) \
+                              : "0" (__x), "1" (__y), "2" (__z) \
+                              : "fr3" ); \
         x = __x; y = __y; z = __z; xd = __xd; yd = __yd; zd = __zd; \
     }
 
@@ -376,7 +380,8 @@ void mat_transform_sq(void *input, void *output, int veccnt);
                               "fldi0 fr11\n" \
                               "ftrv  xmtrx, fv8\n" \
                               : "=f" (__x), "=f" (__y), "=f" (__z) \
-                              : "0" (__x), "1" (__y), "2" (__z) ); \
+                              : "0" (__x), "1" (__y), "2" (__z) \
+                              : "fr11" ); \
         x = __x; y = __y; z = __z; \
     }
 
@@ -403,7 +408,8 @@ void mat_transform_sq(void *input, void *output, int veccnt);
                               "fldi0 fr11\n" \
                               "ftrv  xmtrx, fv8\n" \
                               : "=f" (__x), "=f" (__y), "=f" (__z) \
-                              : "0" (__x), "1" (__y), "2" (__z) ); \
+                              : "0" (__x), "1" (__y), "2" (__z) \
+                              : "fr11" ); \
         x2 = __x; y2 = __y; z2 = __z; \
     }
 

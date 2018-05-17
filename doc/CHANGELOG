@@ -93,6 +93,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
       as it should be to ensure GCC doesn't mess with it any [LS]
 - DC  Copy function data from maple device during hot-swap poll if already
       attached [Joe Fenton = JF]
+- DC  Fixed the clobber list of several matrix-related assembly blobs. Thanks to
+      kazade at DCEmulation for pointing out the issue [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
