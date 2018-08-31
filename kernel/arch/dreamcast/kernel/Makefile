@@ -20,7 +20,7 @@ SUBDIRS =
 
 myall: $(OBJS)
 	-cp $(COPYOBJS) $(KOS_BASE)/kernel/build/
-	-rm banner.h authors.h
+	-rm banner.h authors.h banner.o uname.o
 
 include $(KOS_BASE)/Makefile.prefab
 
