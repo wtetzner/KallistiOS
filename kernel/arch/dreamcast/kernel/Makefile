@@ -14,20 +14,25 @@ COPYOBJS += rtc.o timer.o
 COPYOBJS += init_flags_default.o init_romdisk_default.o
 COPYOBJS += mmu.o itlb.o
 COPYOBJS += exec.o execasm.o stack.o gdb_stub.o thdswitch.o arch_exports.o
+COPYOBJS += uname.o
 OBJS = $(COPYOBJS) startup.o
-SUBDIRS = 
+SUBDIRS =
 
 myall: $(OBJS)
 	-cp $(COPYOBJS) $(KOS_BASE)/kernel/build/
-	-rm banner.h banner.o authors.h
+	-rm banner.h authors.h
 
 include $(KOS_BASE)/Makefile.prefab
+
+uname.o: uname.c
+
+uname.c: banner.h
 
 banner.o: banner.c
 
 banner.c: banner.h authors.h
 
-banner.h: make_banner.sh 
+banner.h: make_banner.sh
 	./make_banner.sh
 
 authors.h: make_authors.awk
