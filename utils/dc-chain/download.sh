@@ -2,7 +2,7 @@
 
 # These version numbers are all that should ever have to be changed.
 export GCC_VER=4.7.3
-export BINUTILS_VER=2.27
+export BINUTILS_VER=2.31.1
 export NEWLIB_VER=2.0.0
 export GMP_VER=4.3.2
 export MPFR_VER=2.4.2
@@ -36,7 +36,7 @@ done
 # Download everything.
 if command -v wget >/dev/null 2>&1; then
     echo "Downloading binutils-$BINUTILS_VER..."
-    wget -c ftp://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.bz2 || exit 1
+    wget -c ftp://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
     echo "Downloading GCC $GCC_VER..."
     wget -c ftp://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.bz2 || exit 1
     echo "Downloading Newlib $NEWLIB_VER..."
@@ -58,7 +58,7 @@ if command -v wget >/dev/null 2>&1; then
     fi
 elif command -v curl >/dev/null 2>&1; then
     echo "Downloading Binutils $BINUTILS_VER..."
-    curl -C - -O ftp://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.bz2 || exit 1
+    curl -C - -O ftp://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
     echo "Downloading GCC $GCC_VER..."
     curl -C - -O ftp://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.bz2 || exit 1
     echo "Downloading Newlib $NEWLIB_VER..."

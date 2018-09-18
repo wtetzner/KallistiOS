@@ -2,7 +2,7 @@
 
 # These version numbers are all that should ever have to be changed.
 export GCC_VER=4.7.3
-export BINUTILS_VER=2.27
+export BINUTILS_VER=2.31.1
 export NEWLIB_VER=2.0.0
 export GMP_VER=4.3.2
 export MPFR_VER=2.4.2
@@ -35,7 +35,7 @@ done
 
 # Clean up downloaded tarballs...
 echo "Deleting downloaded packages..."
-rm -f binutils-$BINUTILS_VER.tar.bz2
+rm -f binutils-$BINUTILS_VER.tar.xz
 rm -f gcc-$GCC_VER.tar.bz2
 rm -f newlib-$NEWLIB_VER.tar.gz
 

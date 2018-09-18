@@ -2,7 +2,7 @@
 
 # These version numbers are all that should ever have to be changed.
 export GCC_VER=4.7.3
-export BINUTILS_VER=2.27
+export BINUTILS_VER=2.31.1
 export NEWLIB_VER=2.0.0
 export GMP_VER=4.3.2
 export MPFR_VER=2.4.2
@@ -38,9 +38,9 @@ rm -rf binutils-$BINUTILS_VER gcc-$GCC_VER newlib-$NEWLIB_VER
 rm -rf gmp-$GMP_VER mpfr-$MPFR_VER mpc-$MPC_VER
 
 # Unpack everything.
-tar jxf binutils-$BINUTILS_VER.tar.bz2 || exit 1
-tar jxf gcc-$GCC_VER.tar.bz2 || exit 1
-tar zxf newlib-$NEWLIB_VER.tar.gz || exit 1
+tar xf binutils-$BINUTILS_VER.tar.xz || exit 1
+tar xf gcc-$GCC_VER.tar.bz2 || exit 1
+tar xf newlib-$NEWLIB_VER.tar.gz || exit 1
 
 # Unpack the GCC dependencies and move them into their required locations.
 if [ -n "$GMP_VER" ]; then

@@ -28,7 +28,7 @@ arm_prefix := /opt/toolchains/dc/$(arm_target)
 kos_root=$(CURDIR)/../../..
 # kos_base: equivalent of KOS_BASE (contains include/ and kernel/)
 kos_base=$(CURDIR)/../..
-binutils_ver=2.27
+binutils_ver=2.31.1
 gcc_ver=4.7.3
 newlib_ver=2.0.0
 gdb_ver=7.11.1
@@ -148,8 +148,6 @@ $(build_binutils): src_dir = binutils-$(binutils_ver)
 $(build_binutils): log = $(logdir)/$(build).log
 $(build_binutils): logdir
 	@echo "+++ Building $(src_dir) to $(build)..."
-	sed -e 's/ @colophon/ @@colophon/' -e 's/doc@cygnus.com/doc@@cygnus.com/' $(src_dir)/bfd/doc/bfd.texinfo > $(src_dir)/bfd/doc/bfd.texinfo2
-	mv $(src_dir)/bfd/doc/bfd.texinfo2 $(src_dir)/bfd/doc/bfd.texinfo
 	-mkdir -p $(build)
 	> $(log)
 	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --disable-werror CXX=$(CXX) $(to_log)
