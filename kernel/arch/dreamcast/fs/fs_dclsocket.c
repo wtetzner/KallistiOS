@@ -125,7 +125,7 @@ static void dcls_handle_sbin(command_t *cmd) {
 
     left = ntohl(cmd->size);
     ptr = (uint8 *)ntohl(cmd->address);
-    count = left + 1023 / 1024;
+    count = (left + 1023) / 1024;
 
     memcpy(resp->id, "SBIN", 4);
 
