@@ -3,11 +3,13 @@
    keyboard.c
    Copyright (C) 2002 Dan Potter
    Copyright (C) 2012 Lawrence Sebald
+   Copyright (C) 2018 Donald Haase
 */
 
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <arch/timer.h>
 #include <dc/maple.h>
 #include <dc/maple/keyboard.h>
 
@@ -19,6 +21,13 @@ as you poll often enough. The only thing missing currently is key
 repeat handling.
 
 */
+
+/* These are global timings for key repeat. It would be possible to put 
+    them in the state, but I don't see a reason to. 
+    It seems unreasonable that one might want different repeat 
+    timings set on each keyboard. 
+    The values are arbitrary based off a survey of common values. */
+uint16 kbd_repeat_start = 600, kbd_repeat_interval = 20;
 
 /* Built-in keymaps. */
 #define KBD_NUM_KEYMAPS 8
@@ -438,35 +447,76 @@ int kbd_queue_pop(maple_device_t *dev, int xlat) {
 static void kbd_check_poll(maple_frame_t *frm) {
     kbd_state_t *state;
     kbd_cond_t *cond;
-    int i, p;
+    int i;
     int mods;
 
     state = (kbd_state_t *)frm->dev->status;
     cond = (kbd_cond_t *)&state->cond;
 
-    /* Check the shift state */
+    /* If the modifier keys have changed, end the key repeating. */
+    if( state->shift_keys != cond->modifiers ) {
+        state->kbd_repeat_key = KBD_KEY_NONE;
+        state->kbd_repeat_timer = 0;
+    }
+    
+    /* Update modifiers and LEDs */
     state->shift_keys = cond->modifiers;
     mods = cond->modifiers | (cond->leds << 8);
 
     /* Process all pressed keys */
-    for(i = 0; i < 6; i++) {
-        if(cond->keys[i] > 1) {
-            p = state->matrix[cond->keys[i]];
-            state->matrix[cond->keys[i]] = 2;   /* 2 == currently pressed */
-
-            if(p == 0)
-                kbd_enqueue(state, cond->keys[i], mods);
+    for(i = 0; i < MAX_PRESSED_KEYS; i++) {
+        
+        /* Once we get to a 'none', the rest will be 'none' */
+		if (cond->keys[i] == KBD_KEY_NONE){
+			/* This could be used to indicate how many keys are pressed by setting it to ~i or i+1 
+				or similar. This could be useful, but would make it a weird exception. */
+			/* If the first key in the key array is none, there are no non-modifer keys pressed at all. */			
+			if (i==0)state->matrix[KBD_KEY_NONE] = KEY_STATE_PRESSED; 
+			break;
+		}
+        /* Between None and A are error indicators. This would be a good place to do... something. If an error occurs the whole array will be error.*/
+		else if (cond->keys[i]>KBD_KEY_NONE && cond->keys[i]<KBD_KEY_A) {
+            state->matrix[cond->keys[i]] = KEY_STATE_PRESSED; 
+            break;
+        }
+        /* The rest of the keys are treated normally */
+        else {
+            /* If the key hadn't been pressed. */
+			if (state->matrix[cond->keys[i]] == KEY_STATE_NONE){
+				state->matrix[cond->keys[i]] = KEY_STATE_PRESSED;
+				kbd_enqueue(state, cond->keys[i], mods);
+				state->kbd_repeat_key = cond->keys[i];
+				state->kbd_repeat_timer = timer_ms_gettime64() + kbd_repeat_start;
+			}
+			/* If the key was already being pressed and was our one allowed repeating key, then... */
+			else if (state->matrix[cond->keys[i]] == KEY_STATE_WAS_PRESSED){
+				state->matrix[cond->keys[i]] = KEY_STATE_PRESSED;
+				if (state->kbd_repeat_key == cond->keys[i]){
+					uint64 time = timer_ms_gettime64();
+					/* We have passed the prescribed amount of time, and will repeat the key */
+					if(time >= (state->kbd_repeat_timer)){
+						kbd_enqueue(state, cond->keys[i], mods);
+						state->kbd_repeat_timer = time + kbd_repeat_interval;
+					}				
+				}
+			}
+			else assert_msg(0, "invalid key matrix array detected");
         }
     }
 
     /* Now normalize the key matrix */
-    for(i = 0; i < 256; i++) {
-        if(state->matrix[i] == 1)
-            state->matrix[i] = 0;
-        else if(state->matrix[i] == 2)
-            state->matrix[i] = 1;
-        else if(state->matrix[i] != 0) {
-            assert_msg(0, "invalid key matrix array detected");
+    /* If it was determined no keys are pressed, wipe the matrix */
+	if (state->matrix[KBD_KEY_NONE] == KEY_STATE_PRESSED) 
+        memset (state->matrix, KEY_STATE_NONE, MAX_KBD_KEYS);
+    /* Otherwise, walk through the whole matrix */
+    else    {
+        for(i = 0; i < MAX_KBD_KEYS; i++) {
+            if (state->matrix[i] == KEY_STATE_NONE) continue;
+            
+           else if (state->matrix[i] == KEY_STATE_WAS_PRESSED) state->matrix[i] = KEY_STATE_NONE;
+            
+            else if (state->matrix[i] == KEY_STATE_PRESSED)	state->matrix[i] = KEY_STATE_WAS_PRESSED;
+            else assert_msg(0, "invalid key matrix array detected");
         }
     }
 }
@@ -495,7 +545,7 @@ static void kbd_reply(maple_frame_t *frm) {
     if(frm->dev) {
         state = (kbd_state_t *)frm->dev->status;
         cond = (kbd_cond_t *)&state->cond;
-        memcpy(cond, respbuf + 1, (resp->data_len - 1) * 4);
+        memcpy(cond, respbuf + 1, (resp->data_len - 1) * sizeof(*respbuf));
         frm->dev->status_valid = 1;
         kbd_check_poll(frm);
     }
@@ -527,27 +577,16 @@ static void kbd_periodic(maple_driver_t *drv) {
 
 static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
     kbd_state_t *state = (kbd_state_t *)dev->status;
-    uint32 f = dev->info.functions, tmp = MAPLE_FUNC_KEYBOARD;
     int d = 0;
 
     (void)drv;
-
-    /* Figure out which function data we want to look at. This is borrowed from
-       the maple_enum_type_ex function and isn't really pretty... */
-    while(tmp != 0x80000000) {
-        if(f & 0x80000000) {
-            ++d;
-        }
-
-        f <<= 1;
-        tmp <<= 1;
-    }
-
-    if(d > 2)
-        /* Punt. */
-        state->region = KBD_REGION_US;
-    else
-        state->region = dev->info.function_data[d] & 0xFF;
+    /* Maple functions are enumerated, from MSB, to determine which functions
+       are on each device. The only one above the keyboard function is lightgun.
+       Only if it is ALSO a lightgun, will the keyboard function be second. */
+    if(dev->info.functions&MAPLE_FUNC_LIGHTGUN) d = 1;
+    
+    /* Retrieve the region data */
+    state->region = dev->info.function_data[d] & 0xFF;
 
     if (state->region > KBD_NUM_KEYMAPS)
         /* Unrecognized keyboards will appear as US keyboards... */
@@ -555,6 +594,10 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
 
     /* Make sure all the queue variables are set up properly... */
     state->queue_tail = state->queue_head = state->queue_len = 0;
+    
+    /* Make sure all the key repeat variables are set up properly too */
+    state->kbd_repeat_key = KBD_KEY_NONE;
+    state->kbd_repeat_timer = 0;
 
     return 0;
 }
