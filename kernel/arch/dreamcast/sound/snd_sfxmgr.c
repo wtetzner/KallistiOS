@@ -29,7 +29,7 @@ typedef struct snd_effect {
     uint32  len;
     uint32  rate;
     uint32  used;
-    int stereo;
+    uint16  stereo;
     uint32  fmt;
 
     LIST_ENTRY(snd_effect)  list;
@@ -37,10 +37,10 @@ typedef struct snd_effect {
 
 struct selist snd_effects;
 
-// The next channel we'll use to play sound effects.
+/* The next channel we'll use to play sound effects. */
 static int sfx_nextchan = 0;
 
-// Our channel-in-use mask.
+/* Our channel-in-use mask. */
 static uint64 sfx_inuse = 0;
 
 /* Unload all loaded samples and free their SPU RAM */
@@ -68,7 +68,12 @@ void snd_sfx_unload_all() {
 /* Unload a single sample */
 void snd_sfx_unload(sfxhnd_t idx) {
     snd_effect_t * t = (snd_effect_t *)idx;
-
+    
+    if(idx == SFXHND_INVALID) {
+        dbglog(DBG_WARNING, "snd_sfx: can't unload an invalid SFXHND\n");
+        return;
+    }
+    
     snd_mem_free(t->locl);
 
     if(t->stereo)
@@ -91,8 +96,9 @@ void snd_sfx_unload(sfxhnd_t idx) {
 
 /* Load a sound effect from a WAV file and return a handle to it */
 sfxhnd_t snd_sfx_load(const char *fn) {
-    uint32  fd, len, hz;
-    uint16  *tmp, chn, bitsize, fmt;
+    file_t  fd;
+    uint32  len, hz;
+    uint16  *tmp, stereo, bitsize, fmt;
     snd_effect_t *t;
     int ownmem;
 
@@ -100,26 +106,26 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
     fd = fs_open(fn, O_RDONLY);
 
-    if(fd == 0) {
+    if(fd <= FILEHND_INVALID) {
         dbglog(DBG_WARNING, "snd_sfx: can't open sfx %s\n", fn);
-        return 0;
+        return SFXHND_INVALID;
     }
 
     /* Check file magic */
     hz = 0;
-    fs_seek(fd, 8, SEEK_SET);
+    fs_seek(fd, 0x08, SEEK_SET);
     fs_read(fd, &hz, 4);
 
     if(strncmp((char*)&hz, "WAVE", 4)) {
         dbglog(DBG_WARNING, "snd_sfx: file is not RIFF WAVE\n");
         fs_close(fd);
-        return 0;
+        return SFXHND_INVALID;
     }
 
     /* Read WAV header info */
     fs_seek(fd, 0x14, SEEK_SET);
     fs_read(fd, &fmt, 2);
-    fs_read(fd, &chn, 2);
+    fs_read(fd, &stereo, 2);
     fs_read(fd, &hz, 4);
     fs_seek(fd, 0x22, SEEK_SET);
     fs_read(fd, &bitsize, 2);
@@ -129,7 +135,7 @@ sfxhnd_t snd_sfx_load(const char *fn) {
     fs_read(fd, &len, 4);
 
     dbglog(DBG_DEBUG, "WAVE file is %s, %luHZ, %d bits/sample, %lu bytes total,"
-           " format %d\n", chn == 1 ? "mono" : "stereo", hz, bitsize, len, fmt);
+           " format %d\n", stereo == 1 ? "mono" : "stereo", hz, bitsize, len, fmt);
 
     /* Try to mmap it and if that works, no need to copy it again */
     ownmem = 0;
@@ -148,12 +154,15 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
     t = malloc(sizeof(snd_effect_t));
     memset(t, 0, sizeof(snd_effect_t));
+    
+    /* Common characteristics not impacted by stream type */
+    t->rate = hz;
+    t->stereo = stereo - 1;
 
-    if(chn == 1) {
+    if(stereo == 1) {
         /* Mono PCM/ADPCM */
         t->len = len / 2; /* 16-bit samples */
         t->rate = hz;
-        t->used = 1;
         t->locl = snd_mem_malloc(len);
 
         if(t->locl)
@@ -169,7 +178,7 @@ sfxhnd_t snd_sfx_load(const char *fn) {
         else
             t->fmt = AICA_SM_16BIT;
     }
-    else if(chn == 2 && fmt == 1) {
+    else if(stereo == 2 && fmt == 1) {
         /* Stereo PCM */
         uint32 i;
         uint16 * sepbuf;
@@ -186,7 +195,6 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
         t->len = len / 4; /* Two stereo, 16-bit samples */
         t->rate = hz;
-        t->used = 1;
         t->locl = snd_mem_malloc(len / 2);
         t->locr = snd_mem_malloc(len / 2);
 
@@ -201,7 +209,7 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
         free(sepbuf);
     }
-    else if(chn == 2 && fmt == 20) {
+    else if(stereo == 2 && fmt == 20) {
         /* Stereo ADPCM */
 
         /* We have to be careful here, because the second sample might not
@@ -212,7 +220,6 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
         t->len = len;   /* Two stereo, 4-bit samples */
         t->rate = hz;
-        t->used = 1;
         t->locl = snd_mem_malloc(len / 2);
         t->locr = snd_mem_malloc(len / 2);
 
@@ -229,15 +236,14 @@ sfxhnd_t snd_sfx_load(const char *fn) {
     }
     else {
         free(t);
-        t = NULL;
+        t = SFXHND_INVALID;
     }
 
     if(ownmem)
         free(tmp);
 
-    if(t) {
+    if(t != SFXHND_INVALID) 
         LIST_INSERT_HEAD(&snd_effects, t, list);
-    }
 
     return (sfxhnd_t)t;
 }
@@ -251,37 +257,25 @@ int snd_sfx_play_chn(int chn, sfxhnd_t idx, int vol, int pan) {
 
     if(size >= 65535) size = 65534;
 
-    if(!t->stereo) {
-        cmd->cmd = AICA_CMD_CHAN;
-        cmd->timestamp = 0;
-        cmd->size = AICA_CMDSTR_CHANNEL_SIZE;
-        cmd->cmd_id = chn;
-        chan->cmd = AICA_CH_CMD_START;
-        chan->base = t->locl;
-        chan->type = t->fmt;
-        chan->length = size;
-        chan->loop = 0;
-        chan->loopstart = 0;
-        chan->loopend = size;
-        chan->freq = t->rate;
-        chan->vol = vol;
+    cmd->cmd = AICA_CMD_CHAN;
+    cmd->timestamp = 0;
+    cmd->size = AICA_CMDSTR_CHANNEL_SIZE;
+    cmd->cmd_id = chn;
+    chan->cmd = AICA_CH_CMD_START;
+    chan->base = t->locl;
+    chan->type = t->fmt;
+    chan->length = size;
+    chan->loop = 0;
+    chan->loopstart = 0;
+    chan->loopend = size;
+    chan->freq = t->rate;
+    chan->vol = vol;
+    
+    if(!t->stereo) {        
         chan->pan = pan;
         snd_sh4_to_aica(tmp, cmd->size);
     }
-    else {
-        cmd->cmd = AICA_CMD_CHAN;
-        cmd->timestamp = 0;
-        cmd->size = AICA_CMDSTR_CHANNEL_SIZE;
-        cmd->cmd_id = chn;
-        chan->cmd = AICA_CH_CMD_START;
-        chan->base = t->locl;
-        chan->type = t->fmt;
-        chan->length = size;
-        chan->loop = 0;
-        chan->loopstart = 0;
-        chan->loopend = size;
-        chan->freq = t->rate;
-        chan->vol = vol;
+    else {        
         chan->pan = 0;
 
         snd_sh4_to_aica_stop();
@@ -300,7 +294,7 @@ int snd_sfx_play_chn(int chn, sfxhnd_t idx, int vol, int pan) {
 int snd_sfx_play(sfxhnd_t idx, int vol, int pan) {
     int chn, moved, old;
 
-    // This isn't perfect.. but it should be good enough.
+    /* This isn't perfect.. but it should be good enough. */
     old = irq_disable();
     chn = sfx_nextchan;
     moved = 0;
