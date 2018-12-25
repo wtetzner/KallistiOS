@@ -525,7 +525,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 
     dbglog(DBG_INFO, "vid_set_mode: %ix%i%s %s%s\n", mode->width, mode->height,
            (mode->flags & VID_INTERLACE) ? "IL" : "",
-           (mode->flags & VID_PAL) ? "PAL" : "NTSC",
+           (mode->cable_type == CT_VGA) ? "VGA" : (mode->flags & VID_PAL) ? "PAL" : "NTSC",
            (mode->generic & DM_MULTIBUFFER) ? " multi-buffered" : "");
 
     vid_border_color(0, 0, 0);
