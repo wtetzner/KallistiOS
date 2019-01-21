@@ -15,7 +15,6 @@
 #include <dc/flashrom.h>
 #include <dc/net/lan_adapter.h>
 #include <arch/irq.h>
-#include <arch/timer.h>
 #include <kos/net.h>
 
 /*
@@ -262,15 +261,8 @@ static void la_strobe_eeprom() {
     la_write(BMPR16, BMPR16_ECS);
 }
 static void la_read_eeprom(uint8 *data) {
-    //uint8 save16, save17
     uint8 val;
     int n, bit;
-
-#if 0
-    /* Save the current value of the EEPROM registers */
-    save16 = la_read(BMPR16);
-    save17 = la_read(BMPR17);
-#endif
 
     /* Read bytes from EEPROM, two per iteration */
     for(n = 0; n < 3; n++) {
@@ -331,7 +323,7 @@ static int la_detect() {
     g2_write_8(G2_8BP_RST, 0);
 
     /* Give it a few ms to come back */
-    timer_spin_sleep(100);
+    thd_sleep(100);
 
     /* Read the chip type and verify it */
     type = DLCR7_IDENT(la_read(DLCR7));
@@ -357,19 +349,19 @@ static int la_hw_init() {
     la_write(DLCR1, DLCR0_CLEARALL);
 
     /* Power down chip */
-    timer_spin_sleep(2);
+    thd_sleep(2);
     la_write(DLCR7, la_read(DLCR7) & ~DLCR7_NSTBY);
-    timer_spin_sleep(2);
+    thd_sleep(2);
 
     /* Reset Data Link Control */
-    timer_spin_sleep(2);
+    thd_sleep(2);
     la_write(DLCR6, la_read(DLCR6) | DLCR6_DLCRST);
-    timer_spin_sleep(2);
+    thd_sleep(2);
 
     /* Power up the chip */
-    timer_spin_sleep(2);
+    thd_sleep(2);
     la_write(DLCR7, la_read(DLCR7) | DLCR7_NSTBY);
-    timer_spin_sleep(2);
+    thd_sleep(2);
 
     /* Read the EEPROM data */
     la_read_eeprom(la_mac);
@@ -428,7 +420,7 @@ static void la_stop() {
 
     /* Make sure we aren't transmitting currently */
     while(BMPR10_PKTCNT(la_read(BMPR10)) > 0 && (--timeout) > 0)
-        timer_spin_sleep(2);
+        thd_sleep(2);
 
     /* Disable all receive */
     la_write(DLCR5, (la_read(DLCR5) & ~DLCR5_AM_MASK) | DLCR5_AM_OFF);
@@ -438,9 +430,9 @@ static void la_stop() {
 /* Shut it down for good */
 static void la_hw_shutdown() {
     /* Power down chip */
-    timer_spin_sleep(2);
+    thd_sleep(2);
     la_write(DLCR7, la_read(DLCR7) & ~DLCR7_NSTBY);
-    timer_spin_sleep(2);
+    thd_sleep(2);
 
     la_started = LA_NOT_STARTED;
 
@@ -466,7 +458,7 @@ static int la_tx(const uint8 * pkt, int len, int blocking) {
     timeout = 50;
 
     while(BMPR10_PKTCNT(la_read(BMPR10)) > 0 && (--timeout) > 0)
-        timer_spin_sleep(2);
+        thd_sleep(2);
 
     if(timeout == 0) {
         dbglog(DBG_ERROR, "la_tx timed out waiting for previous tx\n");
@@ -486,7 +478,7 @@ static int la_tx(const uint8 * pkt, int len, int blocking) {
         la_write(BMPR8, pkt[i]);
 
     /* Start the transmitter */
-    timer_spin_sleep(2);
+    thd_sleep(2);
     la_write(BMPR10, 1 | BMPR10_TX);    /* 1 Packet, Start */
 
     total_pkts_tx++;
@@ -517,7 +509,7 @@ static int la_rx() {
 
         /* Check for errors */
         if((status & 0xF0) != 0x20) {
-            dbglog(DBG_ERROR, "la_rx: receive error occured (status %02x)\n", status);
+            dbglog(DBG_ERROR, "la_rx: receive error occurred (status %02x)\n", status);
             return -1;
         }
 
@@ -618,11 +610,11 @@ static int la_if_start(netif_t * self) {
     if(!(self->flags & NETIF_INITIALIZED))
         return -1;
 
-    /* The Lan adapter seems a bit picky if you try to send packets too soonly
+    /* The Lan adapter seems a bit picky if you try to send packets too soon
        after initialization (or at least mine is). 3 seconds seems to be enough
        of a delay, but 2 seconds certainly is not. Give it 4 seconds, just in
        case its in a bad mood this run. */
-    timer_spin_sleep(4000);
+    thd_sleep(4000);
 
     self->flags |= NETIF_RUNNING;
 
@@ -646,12 +638,12 @@ static int la_if_stop(netif_t * self) {
 
 static int la_if_tx(netif_t * self, const uint8 * data, int len, int blocking) {
     if(!(self->flags & NETIF_RUNNING))
-        return -1;
+        return NETIF_TX_ERROR;
 
     if(la_tx(data, len, blocking) != 1)
-        return -1;
+        return NETIF_TX_ERROR;
 
-    return 0;
+    return NETIF_TX_OK;
 }
 
 /* We'll auto-commit for now */
@@ -677,9 +669,9 @@ static int la_if_set_mc(netif_t *self, const uint8 *list, int count) {
     (void)self;
 
     /* Reset Data Link Control */
-    timer_spin_sleep(2);
+    thd_sleep(2);
     la_write(DLCR6, la_read(DLCR6) | DLCR6_DLCRST);
-    timer_spin_sleep(2);
+    thd_sleep(2);
 
     if(count == 0) {
         /* Clear the multicast address filter */

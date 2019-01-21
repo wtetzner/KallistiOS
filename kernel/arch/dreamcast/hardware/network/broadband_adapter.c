@@ -28,16 +28,23 @@
 
 #define RTL_MEM                 (0x1840000)
 
+#define RX_NOWRAP               1 /* 1 for no wrapping or 0 to use wrapping mode (Ignored for 64Kb buffer length) */
+#define RX_MAX_DMA_BURST        6 /* 2^(4+n) bytes from 0-6 (16b - 1Kb) or 7 for unlimited */
 #define RX_BUFFER_LEN_SHIFT     1 /* 0 : 8Kb, 1 : 16Kb, 2 : 32Kb, 3 : 64Kb */
+#define RX_FIFO_THRESHOLD       0 /* 2^(4+n) bytes from 0-6 (16b - 1Kb) or 7 for none */
+#define RX_EARLY_THRESHOLD      0 /* Early RX Threshold multiplier n/16 or 0 for none */
 
-#define RX_NOWRAP               (1<<7) /* or 0 to use wrapping mode */
-#define RX_CONFIG               RX_NOWRAP | (0<<24) | (0<<13) | (6<<8) | (RX_BUFFER_LEN_SHIFT<<11)
+#define RX_CONFIG               (RX_EARLY_THRESHOLD<<24) | (RX_FIFO_THRESHOLD<<13) | \
+                                (RX_BUFFER_LEN_SHIFT<<11) | (RX_MAX_DMA_BURST<<8) | \
+                                (RX_NOWRAP<<7)
+                                
+#define TX_MAX_DMA_BURST        6 /* 2^(4+n) bytes from 0-7 (16b - 2Kb) */
+#define TX_CONFIG               (TX_MAX_DMA_BURST<<8)
 
-#define TX_CONFIG               (6<<8) /* 0x00000600 */
-
-#define RX_BUFFER_LEN       (8192<<RX_BUFFER_LEN_SHIFT)
+#define RX_BUFFER_LEN           (0x2000<<RX_BUFFER_LEN_SHIFT)
 
 #define TX_BUFFER_OFFSET        (RX_BUFFER_LEN + 0x2000)
+#define TX_BUFFER_LEN           (0x800)
 #define TX_NB_BUFFERS           4
 
 /* original value */
@@ -260,11 +267,6 @@ static int bba_hw_init() {
     g2_write_8(NIC(RT_CHIPCMD), RT_CMD_RX_ENABLE | RT_CMD_TX_ENABLE);
 
     /* Set Rx FIFO threashold to 1K, Rx size to 16k+16, 1024 byte DMA burst */
-    /* nic32[RT_RXCONFIG/4] = 0x0000c600; */
-
-    /* Set Rx FIFO threashold to 1K, Rx size to 8k, 1024 byte DMA burst */
-    /*      g2_write_32(NIC(RT_RXCONFIG), 0x0000c600); */
-    //g2_write_32(NIC(RT_RXCONFIG), 0x00000e00);
     g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG);
 
     /* Set Tx 1024 byte DMA burst */
@@ -279,13 +281,12 @@ static int bba_hw_init() {
     /* Switch back to normal operation mode */
     g2_write_8(NIC(RT_CFG9346), 0);
 
-    /* Setup RX/TX buffers */
+    /* Setup RX buffer */
     g2_write_32(NIC(RT_RXBUF), RTL_MEM);
 
-    g2_write_32(NIC(RT_TXADDR0 + 0),  RTL_MEM + TX_BUFFER_OFFSET);
-    g2_write_32(NIC(RT_TXADDR0 + 4),  RTL_MEM + 0x0800 + TX_BUFFER_OFFSET);
-    g2_write_32(NIC(RT_TXADDR0 + 8),  RTL_MEM + 0x1000 + TX_BUFFER_OFFSET);
-    g2_write_32(NIC(RT_TXADDR0 + 12), RTL_MEM + 0x1800 + TX_BUFFER_OFFSET);
+    /* Setup TX buffers */
+    for(i=0; i<TX_NB_BUFFERS; i++)
+        g2_write_32(NIC(RT_TXADDR0 + (i*4)), RTL_MEM + (i* TX_BUFFER_LEN) + TX_BUFFER_OFFSET);
 
     /* Reset RXMISSED counter */
     g2_write_32(NIC(RT_RXMISSED), 0);
