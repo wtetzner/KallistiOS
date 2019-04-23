@@ -215,18 +215,19 @@ typedef struct {
 
 int flashrom_get_syscfg(flashrom_syscfg_t * out) {
     uint8 buffer[64];
+    int rv;
     syscfg_t *sc = (syscfg_t *)buffer;
 
     /* Get the system config block */
-    if(flashrom_load_syscfg(buffer) < 0)
-        return -1;
+    rv = flashrom_load_syscfg(buffer);
+    if(rv < 0)  return rv;
 
     /* Fill in values from it */
     out->language = sc->lang;
     out->audio = sc->mono == 1 ? 0 : 1;
     out->autostart = sc->autostart == 1 ? 0 : 1;
 
-    return 0;
+    return FLASHROM_ERR_NONE;
 }
 
 int flashrom_get_region() {
@@ -236,13 +237,13 @@ int flashrom_get_region() {
     /* Find the partition */
     if(flashrom_info(FLASHROM_PT_SYSTEM, &start, &size)) {
         dbglog(DBG_ERROR, "flashrom_get_region: can't find partition 0\n");
-        return -1;
+        return FLASHROM_ERR_NO_PARTITION;
     }
 
     /* Read the first 5 characters of that partition */
     if(flashrom_read(start, region, 5) < 0) {
         dbglog(DBG_ERROR, "flashrom_get_region: can't read partition 0\n");
-        return -1;
+        return FLASHROM_ERR_READ_PART;
     }
 
     /* Now compare against known codes */

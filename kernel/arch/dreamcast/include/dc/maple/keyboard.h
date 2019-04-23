@@ -66,6 +66,8 @@ __BEGIN_DECLS
 */
 #define KBD_KEY_NONE            0x00
 #define KBD_KEY_ERROR           0x01
+#define KBD_KEY_ERR2            0x02
+#define KBD_KEY_ERR3            0x03
 #define KBD_KEY_A               0x04
 #define KBD_KEY_B               0x05
 #define KBD_KEY_C               0x06
@@ -179,6 +181,32 @@ __BEGIN_DECLS
 #define KBD_REGION_ES       7           /**< \brief Spanish keyboard */
 /** @} */
 
+/** \defgroup   key_states States each key can be in.
+
+	These are the different 'states' each key can be in. They are stored in 
+	kbd_state_t->matrix, and manipulated/checked by kbd_check_poll.
+	
+	none-> pressed or none
+	was pressed-> pressed or none 
+	pressed-> was_pressed
+	@{
+*/
+
+#define KEY_STATE_NONE        0
+#define KEY_STATE_WAS_PRESSED 1 
+#define KEY_STATE_PRESSED     2	
+
+/** @} */
+/** \brief Maximum number of keys the DC can read simultaneously. 
+    This is a hardware constant. The define prevents the magic number '6' from appearing.
+**/
+#define MAX_PRESSED_KEYS 6
+
+/** \brief Maximum number of keys a DC keyboard can have.
+	This is a hardware constant. The define prevents the magic number '256' from appearing.
+**/
+#define MAX_KBD_KEYS 256
+
 /** \brief  Size of a keyboard queue.
 
     Each keyboard queue will hold this many elements. Once the queue fills, no
@@ -198,9 +226,9 @@ __BEGIN_DECLS
     \headerfile dc/maple/keyboard.h
 */
 typedef struct kbd_keymap {
-    uint8 base[256];
-    uint8 shifted[256];
-    uint8 alt[256];
+    uint8 base[MAX_KBD_KEYS];
+    uint8 shifted[MAX_KBD_KEYS];
+    uint8 alt[MAX_KBD_KEYS];
 } kbd_keymap_t;
 
 /** \brief  Keyboard raw condition structure.
@@ -212,7 +240,7 @@ typedef struct kbd_keymap {
 typedef struct {
     uint8 modifiers;    /**< \brief Bitmask of set modifiers. */
     uint8 leds;         /**< \brief Bitmask of set LEDs */
-    uint8 keys[6];      /**< \brief Key codes for currently pressed keys. */
+    uint8 keys[MAX_PRESSED_KEYS];      /**< \brief Key codes for currently pressed keys. */
 } kbd_cond_t;
 
 /** \brief  Keyboard status structure.
@@ -234,7 +262,7 @@ typedef struct kbd_state {
 
         \see    kbd_keys
     */
-    uint8 matrix[256];
+    uint8 matrix[MAX_KBD_KEYS];
 
     /** \brief  Modifier key status. */
     int shift_keys;
@@ -249,6 +277,9 @@ typedef struct kbd_state {
     int queue_tail;                     /**< \brief Key queue tail. */
     int queue_head;                     /**< \brief Key queue head. */
     int queue_len;                      /**< \brief Current length of queue. */
+    
+    uint8 kbd_repeat_key;           /**< \brief Key that is repeating. */
+    uint64 kbd_repeat_timer;        /**< \brief Time that the next repeat will trigger. */
 } kbd_state_t;
 
 /** \brief  Activate or deactivate global key queueing.
