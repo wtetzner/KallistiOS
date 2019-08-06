@@ -6,9 +6,6 @@
 
 */
 
-/* Other than the old function names, there's basically nothing left of the old
-   version of mutexes... */
-
 /** \file   kos/mutex.h
     \brief  Mutual exclusion locks.
 
@@ -135,8 +132,8 @@ int mutex_init(mutex_t *m, int mtype);
     allocated internally for it. It is your responsibility to make sure that all
     threads waiting on the mutex are taken care of before destroying the mutex.
 
-    This function can be called on statically initialized, as well as
-    dynamically initialized ones.
+    This function can be called on statically initialized as well as dyanmically
+    initialized mutexes.
 
     \retval 0               On success
     \retval -1              On error, errno will be set as appropriate
