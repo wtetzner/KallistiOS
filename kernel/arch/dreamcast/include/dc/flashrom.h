@@ -150,7 +150,8 @@ int flashrom_delete(int offset);
     \param  partid          The partition ID to look in.
     \param  blockid         The logical block ID to look for.
     \param  buffer_out      Space to store the data. Must be at least 60 bytes.
-    \return                 0 on success, <0 on error. \see fr_errs
+    \return                 0 on success, <0 on error.
+    \see    fr_errs
 */
 int flashrom_get_block(int partid, int blockid, uint8 * buffer_out);
 
@@ -188,7 +189,8 @@ typedef struct flashrom_syscfg {
 
 /** \brief  Retrieve the current system configuration settings.
     \param  out             Storage for the configuration.
-    \return                 0 on success, <0 on error. \see fr_errs
+    \return                 0 on success, <0 on error.
+    \see    fr_errs
 */
 int flashrom_get_syscfg(flashrom_syscfg_t * out);
 
@@ -210,7 +212,9 @@ int flashrom_get_syscfg(flashrom_syscfg_t * out);
     This function attempts to find the region of the Dreamcast. It may or may
     not work on 100% of Dreamcasts, apparently.
 
-    \return                 A region code (0>=) \see fr_region, or error (<0) \see fr_errs .
+    \return                 A region code (>=0), or error (<0).
+    \see    fr_region
+    \see    fr_errs
 */
 int flashrom_get_region();
 
