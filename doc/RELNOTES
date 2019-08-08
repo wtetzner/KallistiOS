@@ -1,6 +1,6 @@
 KallistiOS ##version##
 Copyright (C) 2002, 2003 Dan Potter
-Copyright (C) 2012-2016 Lawrence Sebald
+Copyright (C) 2012-2019 Lawrence Sebald
 
 RELEASE NOTES for 2.1.0
 -----------------------
@@ -82,6 +82,13 @@ this one is split into multiple libraries, mirroring how it is distributed. Opus
 and Opusfile are direct from Xiph.org. The libopusplay library links against
 those two libraries and adds in the KOS-specific interface, which should look
 very familiar to anyone who's used liboggvorbisplay.
+
+A new VFS driver for accessing FAT filesystems was added in libkosfat in the
+addons tree. This driver supports FAT12, FAT16, and FAT32, including proper
+long filename support. FAT isn't quite as robust of a filesystem as ext2 is,
+but it is probably a lot easier to work with on SD cards, considering how
+widely supported FAT is on pretty much every OS ever.
+
 
 RELEASE NOTES for 2.0.0
 -----------------------

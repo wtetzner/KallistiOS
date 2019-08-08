@@ -1,0 +1,69 @@
+/* KallistiOS ##version##
+
+   directory.h
+   Copyright (C) 2019 Lawrence Sebald
+*/
+
+#ifndef __FAT_DIRECTORY_H
+#define __FAT_DIRECTORY_H
+
+#include <sys/cdefs.h>
+__BEGIN_DECLS
+
+#include <stdint.h>
+
+#include "fatfs.h"
+
+typedef struct fat_dentry {
+    uint8_t name[11];
+    uint8_t attr;
+    uint8_t reserved;
+    uint8_t ctenth;
+    uint16_t ctime;
+    uint16_t cdate;
+    uint16_t adate;
+    uint16_t cluster_high;
+    uint16_t mtime;
+    uint16_t mdate;
+    uint16_t cluster_low;
+    uint32_t size;
+} __attribute__((packed)) fat_dentry_t;
+
+#define FAT_ENTRY_EOD           0x00
+#define FAT_ENTRY_FREE          0xE5
+
+#define FAT_ATTR_READ_ONLY      0x01
+#define FAT_ATTR_HIDDEN         0x02
+#define FAT_ATTR_SYSTEM         0x04
+#define FAT_ATTR_VOLUME_ID      0x08
+#define FAT_ATTR_DIRECTORY      0x10
+#define FAT_ATTR_ARCHIVE        0x20
+#define FAT_ATTR_LONG_NAME      0x0F
+
+#define FAT_ATTR_LONG_NAME_MASK 0x3F
+
+#define FAT_IS_LONG_NAME(ent) (((ent)->attr & FAT_ATTR_LONG_NAME_MASK) == \
+                                FAT_ATTR_LONG_NAME)
+
+typedef struct fat_longname {
+    uint8_t order;
+    uint8_t name1[10];
+    uint8_t attr;
+    uint8_t type;
+    uint8_t checksum;
+    uint8_t name2[12];
+    uint16_t cluster_low;
+    uint8_t name3[4];
+} __attribute__((packed)) fat_longname_t;
+
+#define FAT_ORDER_LAST  0x40
+
+int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
+                    uint32_t *rcl, uint32_t *roff);
+
+#ifdef FAT_DEBUG
+void fat_dentry_print(const fat_dentry_t *ent);
+void fat_directory_print(fat_fs_t *fs, uint32_t cluster);
+#endif
+
+#endif /* !__FAT_DIRECTORY_H */

@@ -1,6 +1,6 @@
 KallistiOS ##version## FAQ
 Copyright (C) 2001 Dan Potter
-Copyright (C) 2012-2015 Lawrence Sebald
+Copyright (C) 2012-2019 Lawrence Sebald
 
 Here you may find some answers to some common questions we hear
 regarding the usage of KOS. We will be adding more to this file over
@@ -223,8 +223,8 @@ support), and is slowly being worked out.
 
 Q) What VFS modules are available?
 
-A) Presently there are six that you might interact with on a semi-
-regular basis (and one in an addon library):
+A) Presently there are six in-kernel filesystems that you might interact with
+on a semi-regular basis (and two in addon libraries):
 
 - ISO9660 -- mounts on /cd, and is a decent implementation of the
 ISO9660 file system standard used on CDs. Note that because of the
@@ -259,10 +259,13 @@ VFS, so you can't use open() to access it.
 
 - ext2 -- mounts wherever you tell it to. This one is implemented in the
 libkosext2fs library in the addons tree. It was primarily added to provide a
-freely-usable (not patent-encumbered) filesystem that could be used on SD cards.
-It is usable with more than just SD cards though, if you want to provide a block
-device for using it with other things. There probably isn't much of a good
-reason to do so, however.
+freely-usable (not patent-encumbered) filesystem that could be used on SD cards
+and with g1ata. It is usable with more than just SD cards and hard drives
+though, if you want to provide a block device for using it with other things.
+There probably isn't much of a good reason to do so, however.
+
+- fat -- much like ext2, can be mounted wherever you tell it to. This is
+implemented in the libkosfat library in the addons tree.
 
 
 1.5
@@ -499,8 +502,7 @@ comment out the "FETCH_CMD = curl --progress-bar -O" line by putting a
 # in front of it, and uncomment the line below it to use wget instead.
 
 As for why curl is the default, well, it's installed by default on OS X,
-which is what I use for development currently. ;-) Plus, it's easily
-available on pretty much every *nix system.
+and is easily available on just about any *nix-like system.
 
 
 --- End ------------------------------------------------------------

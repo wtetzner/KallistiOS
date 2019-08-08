@@ -96,6 +96,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Fixed the clobber list of several matrix-related assembly blobs. Thanks to
       kazade at DCEmulation for pointing out the issue [LS]
 - *** Added the uname() function to retrieve the current kernel version [LS]
+- *** Added fs_fat for SD cards and g1ata devices [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
