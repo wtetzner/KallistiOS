@@ -190,6 +190,9 @@ int fat_read_boot(fat_superblock_t *sb, kos_blockdev_t *bd) {
             sb->last_alloc_cluster = fsinfo.last_alloc_cluster;
         }
     }
+    else {
+        sb->last_alloc_cluster = 2;
+    }
 
     return 0;
 }

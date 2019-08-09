@@ -58,9 +58,9 @@ typedef struct kos_blockdev {
     uint32_t l_block_size;
     int (*init)(struct kos_blockdev *d);
     int (*shutdown)(struct kos_blockdev *d);
-    int (*read_blocks)(struct kos_blockdev *d, uint32_t block, size_t count,
+    int (*read_blocks)(struct kos_blockdev *d, uint64_t block, size_t count,
                        void *buf);
-    int (*write_blocks)(struct kos_blockdev *d, uint32_t block, size_t count,
+    int (*write_blocks)(struct kos_blockdev *d, uint64_t block, size_t count,
                         const void *buf);
     uint32_t (*count_blocks)(struct kos_blockdev *d);
 } kos_blockdev_t;
@@ -109,13 +109,10 @@ int fat_fs_type(const fat_fs_t *fs);
 int fat_cluster_cache_wb(fat_fs_t *fs);
 int fat_fatblock_cache_wb(fat_fs_t *fs);
 
-#if 0
-uint8_t *ext2_block_alloc(ext2_fs_t *fs, uint32_t bg, uint32_t *bn, int *err);
-#endif
-
 uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err);
 int fat_write_fat(fat_fs_t *fs, uint32_t cl, uint32_t val);
 int fat_is_eof(fat_fs_t *fs, uint32_t cl);
+uint32_t fat_allocate_cluster(fat_fs_t *fs, int *err);
 
 __END_DECLS
 

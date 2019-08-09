@@ -122,14 +122,13 @@ int fat_fatblock_cache_wb(fat_fs_t *fs) {
     fat_cache_t **cache = fs->fcache;
 
     /* Don't even bother if we're mounted read-only. */
-    #if 0
     if(!(fs->mnt_flags & FAT_MNT_FLAG_RW))
         return 0;
-    #endif
 
     for(i = fs->fcache_size - 1; i >= 0; --i) {
         if(cache[i]->flags & FAT_CACHE_FLAG_DIRTY) {
-            if((err = fat_fatblock_write_nc(fs, cache[i]->block, cache[i]->data)))
+            if((err = fat_fatblock_write_nc(fs, cache[i]->block,
+                                            cache[i]->data)))
                 return err;
 
             cache[i]->flags &= ~FAT_CACHE_FLAG_DIRTY;
@@ -206,6 +205,7 @@ uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err) {
             break;
 
         default:
+            *err = EBADF;
             return 0xFFFFFFFF;
     }
 
@@ -216,6 +216,10 @@ int fat_write_fat(fat_fs_t *fs, uint32_t cl, uint32_t val) {
     uint32_t sn, off;
     uint8_t *blk, *blk2;
     int err;
+
+    /* Don't let us write to the FAT if we're on a read-only FS. */
+    if(!(fs->mnt_flags & FAT_MNT_FLAG_RW))
+        return -EROFS;
 
     /* Figure out what sector the value is on... */
     switch(fs->sb.fs_type) {
@@ -319,4 +323,169 @@ int fat_is_eof(fat_fs_t *fs, uint32_t cl) {
     }
 
     return -1;
+}
+
+uint32_t fat_allocate_cluster(fat_fs_t *fs, int *err) {
+    uint32_t sn, off, val;
+    uint8_t *blk;
+    uint32_t cl, i, cps, last;
+    int tries = 1;
+
+    /* Don't let us write to the FAT if we're on a read-only FS. */
+    if(!(fs->mnt_flags & FAT_MNT_FLAG_RW)) {
+        *err = EROFS;
+        return 0xFFFFFFFF;
+    }
+
+    i = fs->sb.last_alloc_cluster + 1;
+    last = fs->sb.num_clusters + 2;
+
+    /* Search for a free cluster in the FAT...
+       There are optimized versions here for FAT32 and FAT16. Perhaps I'll write
+       one for FAT12 at some point too... */
+    switch(fs->sb.fs_type) {
+        case FAT_FS_FAT32:
+retry_fat32:
+            cps = (fs->sb.bytes_per_sector >> 2) - 1;
+            cl = i << 2;
+            sn = fs->sb.reserved_sectors + (cl / fs->sb.bytes_per_sector);
+
+            if(!(blk = fat_read_fatblock(fs, sn, err)))
+                return 0xFFFFFFFF;
+
+            while(i < last) {
+                off = cl & (fs->sb.bytes_per_sector - 1);
+                val = blk[off] | (blk[off + 1] << 8) | (blk[off + 2] << 16) |
+                    (blk[off + 3] << 24);
+
+                /* Did we find a free cluster? */
+                if(val == 0) {
+                    /* Put an end of chain marker in to allocate it. */
+                    blk[off] = 0xFF;
+                    blk[off + 1] = 0xFF;
+                    blk[off + 2] = 0xFF;
+                    blk[off + 3] = (blk[off + 3] & 0xF0) | 0x0F;
+
+                    /* Mark the block as dirty so it can get flushed to the
+                       backing store at some point. */
+                    fat_fatblock_mark_dirty(fs, sn);
+
+                    fs->sb.last_alloc_cluster = i;
+                    return i;
+                }
+
+                ++i;
+                cl += 4;
+
+                /* Do we have to read a new block? */
+                if(!(i & cps) && i < fs->sb.num_clusters + 2) {
+                    ++sn;
+
+                    if(!(blk = fat_read_fatblock(fs, sn, err)))
+                        return 0xFFFFFFFF;
+                }
+            }
+
+            /* If we get here, then restart the search and try one more time.
+               If we get here a second time, then there really aren't any
+               clusters left. */
+            if(tries--) {
+                i = 2;
+                last = fs->sb.last_alloc_cluster;
+                goto retry_fat32;
+            }
+
+            *err = ENOSPC;
+            return 0xFFFFFFFF;
+
+        case FAT_FS_FAT16:
+retry_fat16:
+            cps = (fs->sb.bytes_per_sector >> 1) - 1;
+            cl = i << 1;
+            sn = fs->sb.reserved_sectors + (cl / fs->sb.bytes_per_sector);
+
+            if(!(blk = fat_read_fatblock(fs, sn, err)))
+                return 0xFFFFFFFF;
+
+            while(i < last) {
+                off = cl & (fs->sb.bytes_per_sector - 1);
+                val = blk[off] | (blk[off + 1] << 8);
+
+                /* Did we find a free cluster? */
+                if(val == 0) {
+                    /* Put an end of chain marker in to allocate it. */
+                    blk[off] = 0xFF;
+                    blk[off + 1] = 0xFF;
+
+                    /* Mark the block as dirty so it can get flushed to the
+                       backing store at some point. */
+                    fat_fatblock_mark_dirty(fs, sn);
+
+                    fs->sb.last_alloc_cluster = i;
+                    return i;
+                }
+
+                ++i;
+                cl += 2;
+
+                /* Do we have to read a new block? */
+                if(!(i & cps) && i < fs->sb.num_clusters + 2) {
+                    ++sn;
+
+                    if(!(blk = fat_read_fatblock(fs, sn, err)))
+                        return 0xFFFFFFFF;
+                }
+            }
+
+            /* If we get here, then restart the search and try one more time.
+               If we get here a second time, then there really aren't any
+               clusters left. */
+            if(tries--) {
+                i = 2;
+                last = fs->sb.last_alloc_cluster;
+                goto retry_fat16;
+            }
+
+            *err = ENOSPC;
+            return 0xFFFFFFFF;
+
+        case FAT_FS_FAT12:
+            /* Do this twice, so the search can loop around. */
+            for(i = fs->sb.last_alloc_cluster + 1; i < fs->sb.num_clusters + 2;
+                ++i) {
+                if(!(cl = fat_read_fat(fs, i, err))) {
+                    /* Allocate it by adding in an end of chain marker. */
+                    if((*err = fat_write_fat(fs, i, 0xFFF)) < 0)
+                        return 0xFFFFFFFF;
+
+                    fs->sb.last_alloc_cluster = i;
+                }
+                else if(cl == 0xFFFFFFFF) {
+                    return cl;
+                }
+            }
+
+            for(i = 2; i < fs->sb.last_alloc_cluster + 1; ++i) {
+                if(!(cl = fat_read_fat(fs, i, err))) {
+                    /* Allocate it by adding in an end of chain marker. */
+                    if((*err = fat_write_fat(fs, i, 0xFFF)) < 0)
+                        return 0xFFFFFFFF;
+
+                    fs->sb.last_alloc_cluster = i;
+                }
+                else if(cl == 0xFFFFFFFF) {
+                    return cl;
+                }
+            }
+
+            /* If we get here, there really wasn't anything left. */
+            *err = ENOSPC;
+            return 0xFFFFFFFF;
+
+        default:
+            *err = EBADF;
+            return 0xFFFFFFFF;
+    }
+
+    return val;
 }
