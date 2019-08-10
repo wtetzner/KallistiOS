@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "fatfs.h"
 #include "fatinternal.h"
@@ -152,7 +153,7 @@ uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err) {
             /* Read the FAT block. */
             blk = fat_read_fatblock(fs, sn, err);
             if(!blk)
-                return 0xFFFFFFFF;
+                return FAT_INVALID_CLUSTER;
 
             val = blk[off] | (blk[off + 1] << 8) | (blk[off + 2] << 16) |
                 (blk[off + 3] << 24);
@@ -166,7 +167,7 @@ uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err) {
             /* Read the FAT block. */
             blk = fat_read_fatblock(fs, sn, err);
             if(!blk)
-                return 0xFFFFFFFF;
+                return FAT_INVALID_CLUSTER;
 
             val = blk[off] | (blk[off + 1] << 8);
             break;
@@ -187,7 +188,7 @@ uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err) {
                 blk2 = fat_read_fatblock(fs, sn + 1, err);
 
                 if(!blk2)
-                    return 0xFFFFFFFF;
+                    return FAT_INVALID_CLUSTER;
 
                 /* The bright side here is that we at least know that the
                    cluster number is odd... */
@@ -206,7 +207,7 @@ uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err) {
 
         default:
             *err = EBADF;
-            return 0xFFFFFFFF;
+            return FAT_INVALID_CLUSTER;
     }
 
     return val;
@@ -313,13 +314,13 @@ int fat_write_fat(fat_fs_t *fs, uint32_t cl, uint32_t val) {
 int fat_is_eof(fat_fs_t *fs, uint32_t cl) {
     switch(fs->sb.fs_type) {
         case FAT_FS_FAT32:
-            return ((cl & 0x0FFFFFFF) >= 0x0FFFFFF8);
+            return ((cl & 0x0FFFFFFF) >= FAT_EOC_FAT32);
 
         case FAT_FS_FAT16:
-            return (cl >= 0xFFF8 && !(cl & 0x80000000));
+            return (cl >= FAT_EOC_FAT16 && !(cl & 0x80000000));
 
         case FAT_FS_FAT12:
-            return (cl >= 0x0FF8 && !(cl & 0x80000000));
+            return (cl >= FAT_EOC_FAT12 && !(cl & 0x80000000));
     }
 
     return -1;
@@ -334,7 +335,7 @@ uint32_t fat_allocate_cluster(fat_fs_t *fs, int *err) {
     /* Don't let us write to the FAT if we're on a read-only FS. */
     if(!(fs->mnt_flags & FAT_MNT_FLAG_RW)) {
         *err = EROFS;
-        return 0xFFFFFFFF;
+        return FAT_INVALID_CLUSTER;
     }
 
     i = fs->sb.last_alloc_cluster + 1;
@@ -351,7 +352,7 @@ retry_fat32:
             sn = fs->sb.reserved_sectors + (cl / fs->sb.bytes_per_sector);
 
             if(!(blk = fat_read_fatblock(fs, sn, err)))
-                return 0xFFFFFFFF;
+                return FAT_INVALID_CLUSTER;
 
             while(i < last) {
                 off = cl & (fs->sb.bytes_per_sector - 1);
@@ -371,6 +372,7 @@ retry_fat32:
                     fat_fatblock_mark_dirty(fs, sn);
 
                     fs->sb.last_alloc_cluster = i;
+                    --fs->sb.free_clusters;
                     return i;
                 }
 
@@ -382,7 +384,7 @@ retry_fat32:
                     ++sn;
 
                     if(!(blk = fat_read_fatblock(fs, sn, err)))
-                        return 0xFFFFFFFF;
+                        return FAT_INVALID_CLUSTER;
                 }
             }
 
@@ -396,7 +398,7 @@ retry_fat32:
             }
 
             *err = ENOSPC;
-            return 0xFFFFFFFF;
+            return FAT_INVALID_CLUSTER;
 
         case FAT_FS_FAT16:
 retry_fat16:
@@ -405,7 +407,7 @@ retry_fat16:
             sn = fs->sb.reserved_sectors + (cl / fs->sb.bytes_per_sector);
 
             if(!(blk = fat_read_fatblock(fs, sn, err)))
-                return 0xFFFFFFFF;
+                return FAT_INVALID_CLUSTER;
 
             while(i < last) {
                 off = cl & (fs->sb.bytes_per_sector - 1);
@@ -433,7 +435,7 @@ retry_fat16:
                     ++sn;
 
                     if(!(blk = fat_read_fatblock(fs, sn, err)))
-                        return 0xFFFFFFFF;
+                        return FAT_INVALID_CLUSTER;
                 }
             }
 
@@ -447,7 +449,7 @@ retry_fat16:
             }
 
             *err = ENOSPC;
-            return 0xFFFFFFFF;
+            return FAT_INVALID_CLUSTER;
 
         case FAT_FS_FAT12:
             /* Do this twice, so the search can loop around. */
@@ -455,12 +457,12 @@ retry_fat16:
                 ++i) {
                 if(!(cl = fat_read_fat(fs, i, err))) {
                     /* Allocate it by adding in an end of chain marker. */
-                    if((*err = fat_write_fat(fs, i, 0xFFF)) < 0)
-                        return 0xFFFFFFFF;
+                    if((*err = fat_write_fat(fs, i, 0x0FFF)) < 0)
+                        return FAT_INVALID_CLUSTER;
 
                     fs->sb.last_alloc_cluster = i;
                 }
-                else if(cl == 0xFFFFFFFF) {
+                else if(cl == FAT_INVALID_CLUSTER) {
                     return cl;
                 }
             }
@@ -468,24 +470,55 @@ retry_fat16:
             for(i = 2; i < fs->sb.last_alloc_cluster + 1; ++i) {
                 if(!(cl = fat_read_fat(fs, i, err))) {
                     /* Allocate it by adding in an end of chain marker. */
-                    if((*err = fat_write_fat(fs, i, 0xFFF)) < 0)
-                        return 0xFFFFFFFF;
+                    if((*err = fat_write_fat(fs, i, 0x0FFF)) < 0)
+                        return FAT_INVALID_CLUSTER;
 
                     fs->sb.last_alloc_cluster = i;
                 }
-                else if(cl == 0xFFFFFFFF) {
+                else if(cl == FAT_INVALID_CLUSTER) {
                     return cl;
                 }
             }
 
             /* If we get here, there really wasn't anything left. */
             *err = ENOSPC;
-            return 0xFFFFFFFF;
+            return FAT_INVALID_CLUSTER;
 
         default:
             *err = EBADF;
-            return 0xFFFFFFFF;
+            return FAT_INVALID_CLUSTER;
     }
 
     return val;
+}
+
+/* This function could be made better/more optimized... However, it takes the
+   simplest/most clear approach to this for now. */
+int fat_erase_chain(fat_fs_t *fs, uint32_t cluster) {
+    uint32_t next;
+    int err = 0;
+
+    /* Don't let us write to the FAT if we're on a read-only FS. */
+    if(!(fs->mnt_flags & FAT_MNT_FLAG_RW)) {
+        return -EROFS;
+    }
+
+    while(!fat_is_eof(fs, cluster)) {
+        next = fat_read_fat(fs, cluster, &err);
+        if(next == FAT_INVALID_CLUSTER) {
+            dbglog(DBG_WARNING, "Error reading FAT while erasing chain at "
+                   "cluster %" PRIu32 ": %s\n", cluster, strerror(err));
+            return -err;
+        }
+
+        if((err = fat_write_fat(fs, cluster, FAT_FREE_CLUSTER))) {
+            dbglog(DBG_WARNING, "Error writing to FAT while erasing chain at "
+                   "cluster %" PRIu32 ": %s\n", cluster, strerror(-err));
+        }
+
+        cluster = next;
+        ++fs->sb.free_clusters;
+    }
+
+    return 0;
 }

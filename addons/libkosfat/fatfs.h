@@ -109,10 +109,18 @@ int fat_fs_type(const fat_fs_t *fs);
 int fat_cluster_cache_wb(fat_fs_t *fs);
 int fat_fatblock_cache_wb(fat_fs_t *fs);
 
+#define FAT_FREE_CLUSTER    0x00000000
+#define FAT_INVALID_CLUSTER 0xFFFFFFFF
+
+#define FAT_EOC_FAT32       0x0FFFFFF8
+#define FAT_EOC_FAT16       0xFFF8
+#define FAT_EOC_FAT12       0x0FF8
+
 uint32_t fat_read_fat(fat_fs_t *fs, uint32_t cl, int *err);
 int fat_write_fat(fat_fs_t *fs, uint32_t cl, uint32_t val);
 int fat_is_eof(fat_fs_t *fs, uint32_t cl);
 uint32_t fat_allocate_cluster(fat_fs_t *fs, int *err);
+int fat_erase_chain(fat_fs_t *fs, uint32_t cluster);
 
 __END_DECLS
 
