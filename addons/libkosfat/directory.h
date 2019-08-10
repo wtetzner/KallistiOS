@@ -60,6 +60,8 @@ typedef struct fat_longname {
 
 int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
                     uint32_t *rcl, uint32_t *roff);
+int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
+                   fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff);
 
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent);

@@ -27,15 +27,25 @@ char *strdup(const char *);
 
 static uint16_t longname_buf[256], longname_buf2[256];
 
-static int fat_search_dir_reg(fat_fs_t *fs, const char *fn, uint32_t cluster,
-                              fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
+static int fat_search_dir(fat_fs_t *fs, const char *fn, uint32_t cluster,
+                          fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
     uint8_t *cl;
     int err, done = 0;
-    uint32_t i, max;
+    uint32_t i, j = 0, max;
     fat_dentry_t *ent;
 
-    /* Figure out how many directory entries there are in a cluster. */
-    max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+    /* Figure out how many directory entries there are in each cluster/block. */
+    if(fs->sb.fs_type == FAT_FS_FAT32 || !(cluster & 0x80000000)) {
+        /* Either we're working with a regular directory or we're working with
+           the root directory on FAT32 (which is the same as a normal
+           directory). We care about the number of entries per cluster. */
+        max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+    }
+    else {
+        /* We're working with the root directory on FAT12/FAT16, so we need to
+           look at the number of entries per sector. */
+        max = fs->sb.bytes_per_sector >> 5;
+    }
 
     while(!done) {
         if(!(cl = fat_cluster_read(fs, cluster, &err))) {
@@ -44,7 +54,7 @@ static int fat_search_dir_reg(fat_fs_t *fs, const char *fn, uint32_t cluster,
             return -EIO;
         }
 
-        for(i = 0; i < max && !done; ++i) {
+        for(i = 0; i < max && !done; ++i, ++j) {
             ent = (fat_dentry_t *)(cl + (i << 5));
 
             /* If name[0] is zero, then we've hit the end of the directory. */
@@ -71,19 +81,27 @@ static int fat_search_dir_reg(fat_fs_t *fs, const char *fn, uint32_t cluster,
             }
         }
 
-        cluster = fat_read_fat(fs, cluster, &err);
-        if(cluster == 0xFFFFFFFF)
-            return -err;
+        if(!(cluster & 0x80000000)) {
+            cluster = fat_read_fat(fs, cluster, &err);
+            if(cluster == 0xFFFFFFFF)
+                return -err;
 
-        if(fat_is_eof(fs, cluster))
-            done = 1;
+            if(fat_is_eof(fs, cluster))
+                done = 1;
+        }
+        else {
+            ++cluster;
+
+            if(j >= fs->sb.root_dir)
+                done = 1;
+        }
     }
 
     return -ENOENT;
 }
 
-static int read_longname(fat_fs_t *fs, uint32_t *cluster,
-                         uint32_t *offset, uint32_t max) {
+static int read_longname(fat_fs_t *fs, uint32_t *cluster, uint32_t *offset,
+                         uint32_t max, int32_t *max2) {
     int err, done = 0;
     uint32_t i, fnlen;
     fat_dentry_t *ent;
@@ -133,12 +151,21 @@ static int read_longname(fat_fs_t *fs, uint32_t *cluster,
             }
         }
 
-        *cluster = fat_read_fat(fs, *cluster, &err);
-        if(*cluster == 0xFFFFFFFF)
-            return -EIO;
+        if(!(*cluster & 0x80000000)) {
+            *cluster = fat_read_fat(fs, *cluster, &err);
+            if(*cluster == 0xFFFFFFFF)
+                return -EIO;
 
-        if(fat_is_eof(fs, *cluster))
-            done = 1;
+            if(fat_is_eof(fs, *cluster))
+                done = 1;
+        }
+        else {
+            ++*cluster;
+
+            *max2 -= max;
+            if(*max2 <= 0)
+                return -EIO;
+        }
     }
 
     return -EIO;
@@ -149,13 +176,26 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
     uint8_t *cl;
     int err, done = 0;
     uint32_t i, max, skip = 0;
+    int32_t max2;
     fat_dentry_t *ent;
     fat_longname_t *lent;
     size_t l = strlen(fn);
     uint32_t fnlen;
 
-    /* Figure out how many directory entries there are in a cluster. */
-    max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+    /* Figure out how many directory entries there are in each cluster/block. */
+    if(fs->sb.fs_type == FAT_FS_FAT32 || !(cluster & 0x80000000)) {
+        /* Either we're working with a regular directory or we're working with
+           the root directory on FAT32 (which is the same as a normal
+           directory). We care about the number of entries per cluster. */
+        max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+        max2 = 0xFFFFFFFF;
+    }
+    else {
+        /* We're working with the root directory on FAT12/FAT16, so we need to
+           look at the number of entries per sector. */
+        max = fs->sb.bytes_per_sector >> 5;
+        max2 = (int32_t)fs->sb.root_dir;
+    }
 
     fat_utf8_to_ucs2(longname_buf2, (const uint8_t *)fn, 256, l);
 
@@ -220,7 +260,7 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
 
             /* Is this the only long name entry needed? */
             if(lent->order != 0x41) {
-                if(read_longname(fs, &cluster, &i, max))
+                if(read_longname(fs, &cluster, &i, max, &max2))
                     return -EIO;
             }
 
@@ -240,12 +280,21 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                 else {
                     /* Ugh. The short entry is in another cluster, so read it
                        in to return it. */
-                    cluster = fat_read_fat(fs, cluster, &err);
-                    if(cluster == 0xFFFFFFFF)
-                        return -err;
+                    if(!(cluster & 0x80000000)) {
+                        cluster = fat_read_fat(fs, cluster, &err);
+                        if(cluster == 0xFFFFFFFF)
+                            return -err;
 
-                    if(fat_is_eof(fs, cluster))
-                        return -EIO;
+                        if(fat_is_eof(fs, cluster))
+                            return -EIO;
+                    }
+                    else {
+                        ++cluster;
+                        max2 -= max;
+
+                        if(max2 <= 0)
+                            return -EIO;
+                    }
 
                     if(!(cl = fat_cluster_read(fs, cluster, &err))) {
                         dbglog(DBG_ERROR, "Error reading directory at cluster %"
@@ -264,252 +313,21 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                 skip = 1;
         }
 
-        cluster = fat_read_fat(fs, cluster, &err);
-        if(cluster == 0xFFFFFFFF)
-            return -err;
+        if(!(cluster & 0x80000000)) {
+            cluster = fat_read_fat(fs, cluster, &err);
+            if(cluster == 0xFFFFFFFF)
+                return -err;
 
-        if(fat_is_eof(fs, cluster))
-            done = 1;
-    }
-
-    return -ENOENT;
-}
-
-static int fat_search_root(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
-                           uint32_t *rcl, uint32_t *roff) {
-    uint8_t cl[fs->sb.bytes_per_sector];
-    uint32_t i, max, max2, block;
-    fat_dentry_t *ent;
-
-    /* Figure out how many directory entries there are in a block. */
-    max = fs->sb.bytes_per_sector >> 5;
-    max2 = fs->sb.root_dir;
-    block = fs->sb.reserved_sectors + (fs->sb.num_fats * fs->sb.fat_size);
-
-    while(max2) {
-        if(fs->dev->read_blocks(fs->dev, block, 1, cl)) {
-            dbglog(DBG_ERROR, "Error reading directory at block %" PRIu32
-                   ": %s\n", block, strerror(EIO));
-            return -EIO;
+            if(fat_is_eof(fs, cluster))
+                done = 1;
         }
+        else {
+            ++cluster;
+            max2 -= max;
 
-        for(i = 0; i < max; ++i) {
-            ent = (fat_dentry_t *)(cl + (i << 5));
-
-            /* If name[0] is zero, then we've hit the end of the directory. */
-            if(ent->name[0] == FAT_ENTRY_EOD) {
-                return -ENOENT;
-            }
-            /* If name[0] == 0xE5, then this entry is empty (but there might
-               still be additional entries after it). */
-            else if(ent->name[0] == FAT_ENTRY_FREE) {
-                continue;
-            }
-            /* Ignore long name entries. */
-            else if(FAT_IS_LONG_NAME(ent)) {
-                continue;
-            }
-
-            /* We've got something useful, let's see if it's what we're looking
-               for... */
-            if(!memcmp(fn, ent->name, 11)) {
-                *rv = *ent;
-                *rcl = block | 0x80000000;
-                *roff = (i << 5);
-                return 0;
-            }
+            if(max2 <= 0)
+                done = 1;
         }
-
-        max2 -= max;
-        ++block;
-    }
-
-    return -ENOENT;
-}
-
-static int read_longnm16(fat_fs_t *fs, uint32_t *block, uint32_t *offset,
-                         uint32_t max, uint32_t *max2, uint8_t *cl) {
-    uint32_t i, fnlen;
-    fat_dentry_t *ent;
-    fat_longname_t *lent;
-
-    while(*max2) {
-        for(i = (*offset) + 1; i < max; ++i) {
-            ent = (fat_dentry_t *)(cl + (i << 5));
-
-            /* If name[0] is zero, then we've hit the end of the directory. */
-            if(ent->name[0] == FAT_ENTRY_EOD) {
-                return -EIO;
-            }
-            /* If name[0] == 0xE5, then this entry is empty (but there might
-               still be additional entries after it). */
-            else if(ent->name[0] == FAT_ENTRY_FREE) {
-                return -EIO;
-            }
-            /* Non-long name entries in the middle of a long name entry are
-               bad... */
-            else if(!FAT_IS_LONG_NAME(ent)) {
-                return -EIO;
-            }
-
-            lent = (fat_longname_t *)ent;
-
-            /* We've got our expected long name block... Deal with it. */
-            fnlen = ((lent->order - 1) & 0x3F) * 13;
-
-            /* Build out the filename component we have. */
-            memcpy(&longname_buf[fnlen], lent->name1, 10);
-            memcpy(&longname_buf[fnlen + 5], lent->name2, 12);
-            memcpy(&longname_buf[fnlen + 11], lent->name3, 4);
-
-            /* XXXX: Check the checksum here. */
-
-            if((lent->order & 0x3F) == 1) {
-                *offset = i;
-                return 0;
-            }
-        }
-
-        *max2 -= max;
-        ++*block;
-
-        if(max2) {
-            if(fs->dev->read_blocks(fs->dev, *block, 1, cl)) {
-                dbglog(DBG_ERROR, "Error reading directory at block %" PRIu32
-                       ": %s\n", *block, strerror(EIO));
-                return -EIO;
-            }
-        }
-    }
-
-    return -EIO;
-}
-
-static int fat_search_lnrt(fat_fs_t *fs, const char *fn,
-                           fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
-    uint8_t cl[fs->sb.bytes_per_sector];
-    uint32_t i, max, skip = 0, max2, block;
-    fat_dentry_t *ent;
-    fat_longname_t *lent;
-    size_t l = strlen(fn);
-    uint32_t fnlen;
-
-    /* Figure out how many directory entries there are in a block. */
-    max = fs->sb.bytes_per_sector >> 5;
-    max2 = fs->sb.root_dir;
-    block = fs->sb.reserved_sectors + (fs->sb.num_fats * fs->sb.fat_size);
-
-    fat_utf8_to_ucs2(longname_buf2, (const uint8_t *)fn, 256, l);
-
-    while(max2) {
-        if(fs->dev->read_blocks(fs->dev, block, 1, cl)) {
-            dbglog(DBG_ERROR, "Error reading directory at block %" PRIu32
-                   ": %s\n", block, strerror(EIO));
-            return -EIO;
-        }
-
-        for(i = 0; i < max; ++i) {
-            ent = (fat_dentry_t *)(cl + (i << 5));
-
-            /* Are we skipping this entry? */
-            if(skip) {
-                --skip;
-                continue;
-            }
-
-            /* If name[0] is zero, then we've hit the end of the directory. */
-            if(ent->name[0] == FAT_ENTRY_EOD) {
-                return -ENOENT;
-            }
-            /* If name[0] == 0xE5, then this entry is empty (but there might
-               still be additional entries after it). */
-            else if(ent->name[0] == FAT_ENTRY_FREE) {
-                continue;
-            }
-            /* Ignore entries that aren't long name entries... */
-            else if(!FAT_IS_LONG_NAME(ent)) {
-                continue;
-            }
-
-            lent = (fat_longname_t *)ent;
-
-            /* We've got a long name entry, see if we even care about it (i.e,
-               if the length is feasible and if the entry is sane). */
-            if(!(lent->order & FAT_ORDER_LAST))
-                continue;
-
-            fnlen = (lent->order & 0x3F) * 13;
-            if(l > fnlen) {
-                skip = (lent->order & 0x3F);
-                continue;
-            }
-
-            /* Build out the filename component we have. */
-            fnlen -= 13;
-            memcpy(&longname_buf[fnlen], lent->name1, 10);
-            memcpy(&longname_buf[fnlen + 5], lent->name2, 12);
-            memcpy(&longname_buf[fnlen + 11], lent->name3, 4);
-            longname_buf[fnlen + 14] = 0;
-
-            /* XXXX: Check the checksum here. */
-
-            /* Now, is the filename length *actually* right? */
-            fnlen += fat_strlen_ucs2(longname_buf + fnlen);
-            if(l > fnlen) {
-                skip = (lent->order & 0x3F);
-                continue;
-            }
-
-            /* Is this the only long name entry needed? */
-            if(lent->order != 0x41) {
-                if(read_longnm16(fs, &block, &i, max, &max2, cl))
-                    return -EIO;
-            }
-
-            fat_ucs2_tolower(longname_buf, fnlen);
-            fat_ucs2_tolower(longname_buf2, fnlen);
-
-            if(!memcmp(longname_buf, longname_buf2, fnlen)) {
-                /* The next entry should be the dentry we want (that is to say,
-                   the short name entry for this long name). */
-                if(i < max) {
-                    ent = (fat_dentry_t *)(cl + ((i + 1) << 5));
-                    *rv = *ent;
-                    *rcl = block | 0x80000000;
-                    *roff = (i << 5);
-                    return 0;
-                }
-                else {
-                    /* Ugh. The short entry is in another block, so read it
-                       in to return it. */
-                    max2 -= max;
-                    ++block;
-
-                    if(!max2) {
-                        dbglog(DBG_ERROR, "Short entry for long name outside "
-                               "of directory!\n");
-                        return -EIO;
-                    }
-
-                    if(fs->dev->read_blocks(fs->dev, block, 1, cl)) {
-                        dbglog(DBG_ERROR, "Error reading directory at block %"
-                               PRIu32 ": %s\n", block, strerror(EIO));
-                        return -EIO;
-                    }
-
-                    ent = (fat_dentry_t *)cl;
-                    *rv = *ent;
-                    *rcl = block | 0x80000000;
-                    *roff = 0;
-                    return 0;
-                }
-            }
-            else
-                skip = 1;
-        }
-
-        max2 -= max;
-        ++block;
     }
 
     return -ENOENT;
@@ -594,6 +412,27 @@ static int is_component_short(const char *fn) {
     return 1;
 }
 
+int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
+                   fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
+    char *fnc = strdup(fn), comp[11];
+    uint32_t cl;
+    int err;
+
+    cl = parent->cluster_low | (parent->cluster_high << 16);
+
+    if(is_component_short(fnc)) {
+        normalize_shortname(fnc, comp);
+
+        err = fat_search_dir(fs, fnc, cl, rv, rcl, roff);
+    }
+    else {
+        err = fat_search_long(fs, fnc, cl, rv, rcl, roff);
+    }
+
+    free(fnc);
+    return err;
+}
+
 int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
                     uint32_t *rcl, uint32_t *roff) {
     char *fnc = strdup(fn), comp[11], *tmp, *tok;
@@ -628,37 +467,26 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
 
     if(fs->sb.fs_type == FAT_FS_FAT32) {
         cl = fs->sb.root_dir;
-
-        if(is_component_short(tok)) {
-            normalize_shortname(tok, comp);
-
-            if((err = fat_search_dir_reg(fs, comp, cl, &cur, &cl, &off)) < 0)
-                goto out;
-        }
-        else {
-            if((err = fat_search_long(fs, tok, cl, &cur, &cl, &off)) < 0)
-                goto out;
-        }
-
-        tok = strtok_r(NULL, "/", &tmp);
-        cl = cur.cluster_low | (cur.cluster_high << 16);
     }
     else {
-        if(is_component_short(tok)) {
-            normalize_shortname(tok, comp);
-
-            if((err = fat_search_root(fs, comp, &cur, &cl, &off)) < 0) {
-                goto out;
-            }
-        }
-        else {
-            if((err = fat_search_lnrt(fs, tok, &cur, &cl, &off)) < 0)
-                goto out;
-        }
-
-        tok = strtok_r(NULL, "/", &tmp);
-        cl = cur.cluster_low | (cur.cluster_high << 16);
+        cl = 0x80000000 | (fs->sb.reserved_sectors + (fs->sb.num_fats *
+            fs->sb.fat_size));
     }
+
+    if(is_component_short(tok)) {
+        normalize_shortname(tok, comp);
+
+        if((err = fat_search_dir(fs, comp, cl, &cur, &cl, &off)) < 0)
+            goto out;
+    }
+    else {
+        if((err = fat_search_long(fs, tok, cl, &cur, &cl, &off)) < 0)
+            goto out;
+    }
+
+    tok = strtok_r(NULL, "/", &tmp);
+    cl = cur.cluster_low | (cur.cluster_high << 16);
+
 
     while(tok) {
         /* Make sure what we're looking at is a directory... */
@@ -670,7 +498,7 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
         if(is_component_short(tok)) {
             normalize_shortname(tok, comp);
 
-            if((err = fat_search_dir_reg(fs, comp, cl, &cur, &cl, &off)) < 0) {
+            if((err = fat_search_dir(fs, comp, cl, &cur, &cl, &off)) < 0) {
                 goto out;
             }
         }
