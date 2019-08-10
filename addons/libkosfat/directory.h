@@ -65,7 +65,6 @@ int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
 
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent);
-void fat_directory_print(fat_fs_t *fs, uint32_t cluster);
 #endif
 
 #endif /* !__FAT_DIRECTORY_H */
