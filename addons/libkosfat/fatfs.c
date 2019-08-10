@@ -360,18 +360,12 @@ int fat_fs_sync(fat_fs_t *fs) {
         frv = -2;
     }
 
-    if((fs->flags & FAT_FS_FLAG_SB_DIRTY)) {
-#if 0
-        /* Write the main superblock and the block group descriptors. */
-        if((rv = ext2_write_superblock(fs, 0))) {
-            dbglog(DBG_ERROR, "ext2_fs_sync: Error writing back the main "
-                   "superblock: %s.\n", strerror(-rv));
-            dbglog(DBG_ERROR, "              Your filesystem is possibly toast "
-                   "at this point... Run e2fsck ASAP.\n");
-            errno = -rv;
-            frv = -1;
-        }
-#endif
+    /* Write the FSinfo sector out... */
+    if((rv = fat_write_fsinfo(fs))) {
+        dbglog(DBG_ERROR, "fat_fs_sync: Error writing FSinfo sector: %s\n",
+               strerror(-rv));
+        errno = -rv;
+        frv = -3;
     }
 
     return frv;

@@ -106,6 +106,7 @@ typedef struct fat_superblock {
 #define FAT_MAX_FAT16_CLUSTERS  65524
 
 int fat_read_boot(fat_superblock_t *sb, kos_blockdev_t *bd);
+int fat_write_fsinfo(fat_fs_t *fs);
 
 #ifdef FAT_DEBUG
 void fat_print_superblock(const fat_superblock_t *sb);
