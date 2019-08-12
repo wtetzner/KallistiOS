@@ -51,6 +51,8 @@ static struct {
     fat_dentry_t dentry;
     uint32_t dentry_cluster;
     uint32_t dentry_offset;
+    uint32_t dentry_lcl;
+    uint32_t dentry_loff;
     uint32_t cluster;
     int mode;
     uint32_t ptr;
@@ -90,7 +92,8 @@ static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
 
     /* Find the object in question... */
     if((rv = fat_find_dentry(mnt->fs, fn, &fh[fd].dentry,
-                             &fh[fd].dentry_cluster, &fh[fd].dentry_offset))) {
+                             &fh[fd].dentry_cluster, &fh[fd].dentry_offset,
+                             &fh[fd].dentry_lcl, &fh[fd].dentry_loff))) {
         /* XXXX Handle creating files... */
         mutex_unlock(&fat_mutex);
         errno = -rv;
@@ -110,6 +113,7 @@ static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
     if((mode & O_DIR) && !(fh[fd].dentry.attr & FAT_ATTR_DIRECTORY)) {
         errno = ENOTDIR;
         fh[fd].dentry_cluster = fh[fd].dentry_offset = 0;
+        fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
         mutex_unlock(&fat_mutex);
         return NULL;
     }
@@ -136,6 +140,7 @@ static int fs_fat_close(void *h) {
     if(fd < MAX_FAT_FILES && fh[fd].mode) {
         fh[fd].opened = 0;
         fh[fd].dentry_offset = fh[fd].dentry_cluster = 0;
+        fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
     }
 
     mutex_unlock(&fat_mutex);
@@ -615,14 +620,15 @@ static int fs_fat_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
     uint32_t sz, bs;
     int irv = 0;
     fat_dentry_t ent;
-    uint32_t cl, off;
+    uint32_t cl, off, lcl, loff;
 
     (void)flag;
 
     mutex_lock(&fat_mutex);
 
     /* Find the object in question */
-    if((irv = fat_find_dentry(fs->fs, path, &ent, &cl, &off)) < 0) {
+    if((irv = fat_find_dentry(fs->fs, path, &ent, &cl, &off, &lcl,
+                              &loff)) < 0) {
         errno = -irv;
         mutex_unlock(&fat_mutex);
         return -1;

@@ -143,7 +143,7 @@ static int read_longname(fat_fs_t *fs, uint32_t *cluster, uint32_t *offset,
             memcpy(&longname_buf[fnlen + 5], lent->name2, 12);
             memcpy(&longname_buf[fnlen + 11], lent->name3, 4);
 
-            /* XXXX: Check the checksum here. */
+            /* XXXX: Calculate the checksum here. */
 
             if((lent->order & 0x3F) == 1) {
                 *offset = i;
@@ -172,7 +172,8 @@ static int read_longname(fat_fs_t *fs, uint32_t *cluster, uint32_t *offset,
 }
 
 static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
-                           fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
+                           fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff,
+                           uint32_t *rlcl, uint32_t *rloff) {
     uint8_t *cl;
     int err, done = 0;
     uint32_t i, max, skip = 0;
@@ -180,7 +181,7 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
     fat_dentry_t *ent;
     fat_longname_t *lent;
     size_t l = strlen(fn);
-    uint32_t fnlen;
+    uint32_t fnlen, lcl = 0, loff = 0;
 
     /* Figure out how many directory entries there are in each cluster/block. */
     if(fs->sb.fs_type == FAT_FS_FAT32 || !(cluster & 0x80000000)) {
@@ -249,7 +250,7 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
             memcpy(&longname_buf[fnlen + 11], lent->name3, 4);
             longname_buf[fnlen + 14] = 0;
 
-            /* XXXX: Check the checksum here. */
+            /* XXXX: Calculate the checksum here. */
 
             /* Now, is the filename length *actually* right? */
             fnlen += fat_strlen_ucs2(longname_buf + fnlen);
@@ -257,6 +258,9 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                 skip = (lent->order & 0x3F);
                 continue;
             }
+
+            lcl = cluster;
+            loff = i << 5;
 
             /* Is this the only long name entry needed? */
             if(lent->order != 0x41) {
@@ -272,9 +276,19 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                    the short name entry for this long name). */
                 if(i < max) {
                     ent = (fat_dentry_t *)(cl + ((i + 1) << 5));
+
+                    /* Make sure we got a valid short entry... */
+                    if(ent->name[0] == FAT_ENTRY_EOD ||
+                       ent->name[0] == FAT_ENTRY_FREE) {
+                        return -ENOENT;
+                    }
+
                     *rv = *ent;
                     *rcl = cluster;
                     *roff = (i << 5);
+                    *rlcl = lcl;
+                    *rloff = loff;
+
                     return 0;
                 }
                 else {
@@ -303,9 +317,18 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                     }
 
                     ent = (fat_dentry_t *)cl;
+
+                    /* Make sure we got a valid short entry... */
+                    if(ent->name[0] == FAT_ENTRY_EOD ||
+                       ent->name[0] == FAT_ENTRY_FREE) {
+                        return -ENOENT;
+                    }
+
                     *rv = *ent;
                     *rcl = cluster;
                     *roff = 0;
+                    *rlcl = lcl;
+                    *rloff = loff;
                     return 0;
                 }
             }
@@ -413,7 +436,8 @@ static int is_component_short(const char *fn) {
 }
 
 int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
-                   fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
+                   fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff,
+                   uint32_t *rlcl, uint32_t *rloff) {
     char *fnc = strdup(fn), comp[11];
     uint32_t cl;
     int err;
@@ -424,9 +448,11 @@ int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
         normalize_shortname(fnc, comp);
 
         err = fat_search_dir(fs, fnc, cl, rv, rcl, roff);
+        *rlcl = 0;
+        *rloff = 0;
     }
     else {
-        err = fat_search_long(fs, fnc, cl, rv, rcl, roff);
+        err = fat_search_long(fs, fnc, cl, rv, rcl, roff, rlcl, rloff);
     }
 
     free(fnc);
@@ -434,11 +460,12 @@ int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
 }
 
 int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
-                    uint32_t *rcl, uint32_t *roff) {
+                    uint32_t *rcl, uint32_t *roff, uint32_t *rlcl,
+                    uint32_t *rloff) {
     char *fnc = strdup(fn), comp[11], *tmp, *tok;
     int err = -ENOENT;
     fat_dentry_t cur;
-    uint32_t cl, off;
+    uint32_t cl, off, lcl = 0, loff = 0;
 
     /* First thing is first, tokenize the filename into components... */
     tok = strtok_r(fnc, "/", &tmp);
@@ -480,7 +507,8 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
             goto out;
     }
     else {
-        if((err = fat_search_long(fs, tok, cl, &cur, &cl, &off)) < 0)
+        if((err = fat_search_long(fs, tok, cl, &cur, &cl, &off, &lcl,
+                                  &loff)) < 0)
             goto out;
     }
 
@@ -497,13 +525,15 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
 
         if(is_component_short(tok)) {
             normalize_shortname(tok, comp);
+            lcl = loff = 0;
 
             if((err = fat_search_dir(fs, comp, cl, &cur, &cl, &off)) < 0) {
                 goto out;
             }
         }
         else {
-            if((err = fat_search_long(fs, tok, cl, &cur, &cl, &off)) < 0)
+            if((err = fat_search_long(fs, tok, cl, &cur, &cl, &off, &lcl,
+                                      &loff)) < 0)
                 goto out;
         }
 
@@ -521,6 +551,8 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
     *rv = cur;
     *rcl = cl;
     *roff = off;
+    *rlcl = lcl;
+    *rloff = loff;
 
 out:
     free(fnc);
