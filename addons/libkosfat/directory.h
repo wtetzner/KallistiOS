@@ -64,6 +64,9 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
 int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
                    fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff,
                    uint32_t *rlcl, uint32_t *rloff);
+int fat_erase_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, uint32_t lcl,
+                     uint32_t loff);
+int fat_is_dir_empty(fat_fs_t *fs, uint32_t cluster);
 
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent);

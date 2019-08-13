@@ -614,6 +614,62 @@ static int fs_fat_fcntl(void *h, int cmd, va_list ap) {
     return rv;
 }
 
+static int fs_fat_unlink(struct vfs_handler *vfs, const char *fn) {
+    fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
+    fat_dentry_t ent;
+    int irv = 0, err;
+    uint32_t cl, off, lcl, loff, cluster;
+
+    mutex_lock(&fat_mutex);
+
+    /* Make sure the filesystem isn't mounted read-only. */
+    if(!(fs->mount_flags & FS_FAT_MOUNT_READWRITE)) {
+        mutex_unlock(&fat_mutex);
+        errno = EROFS;
+        return -1;
+    }
+
+    /* Find the object in question */
+    if((irv = fat_find_dentry(fs->fs, fn, &ent, &cl, &off, &lcl, &loff)) < 0) {
+        mutex_unlock(&fat_mutex);
+        errno = -irv;
+        return -1;
+    }
+
+    /* Make sure that the user isn't trying to delete a directory. */
+    if((ent.attr & FAT_ATTR_DIRECTORY)) {
+        mutex_unlock(&fat_mutex);
+        errno = EISDIR;
+        return -1;
+    }
+
+    if((ent.attr & FAT_ATTR_VOLUME_ID)) {
+        mutex_unlock(&fat_mutex);
+        errno = ENOENT;
+        return -1;
+    }
+
+    /* First clean up the clusters of the file... */
+    cluster = ent.cluster_low | (ent.cluster_high << 16);
+    if((err = fat_erase_chain(fs->fs, cluster))) {
+        /* Uh oh... This is really bad... */
+        dbglog(DBG_ERROR, "fs_fat: Error erasing FAT chain for file %s\n", fn);
+        irv = -1;
+        errno = -err;
+    }
+
+    /* Next, erase the directory entry (and long name, if applicable). */
+    if((irv = fat_erase_dentry(fs->fs, cl, off, lcl, loff)) < 0) {
+        dbglog(DBG_ERROR, "fs_fat: Error erasing directory entry for file %s\n",
+               fn);
+        irv = -1;
+        errno = -err;
+    }
+
+    mutex_unlock(&fat_mutex);
+    return irv;
+}
+
 static int fs_fat_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
                        int flag) {
     fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
@@ -678,6 +734,78 @@ static int fs_fat_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
 
     mutex_unlock(&fat_mutex);
 
+    return irv;
+}
+
+static int fs_fat_rmdir(struct vfs_handler *vfs, const char *fn) {
+    fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
+    fat_dentry_t ent;
+    int irv = 0, err;
+    uint32_t cl, off, lcl, loff, cluster;
+
+    mutex_lock(&fat_mutex);
+
+    /* Make sure the filesystem isn't mounted read-only. */
+    if(!(fs->mount_flags & FS_FAT_MOUNT_READWRITE)) {
+        mutex_unlock(&fat_mutex);
+        errno = EROFS;
+        return -1;
+    }
+
+    /* Find the object in question */
+    if((irv = fat_find_dentry(fs->fs, fn, &ent, &cl, &off, &lcl, &loff)) < 0) {
+        mutex_unlock(&fat_mutex);
+        errno = -irv;
+        return -1;
+    }
+
+    /* Make sure that the user isn't trying to rmdir a file. */
+    if(!(ent.attr & FAT_ATTR_DIRECTORY)) {
+        mutex_unlock(&fat_mutex);
+        errno = ENOTDIR;
+        return -1;
+    }
+
+    /* Make sure they're not trying to delete the root directory... */
+    if(!cl) {
+        mutex_unlock(&fat_mutex);
+        errno = EPERM;
+        return -1;
+    }
+
+    /* Make sure the directory is empty... */
+    cluster = ent.cluster_low | (ent.cluster_high << 16);
+    irv = fat_is_dir_empty(fs->fs, cluster);
+
+    if(irv < 0) {
+        mutex_unlock(&fat_mutex);
+        errno = -irv;
+        return -1;
+    }
+    else if(irv == 0) {
+        mutex_unlock(&fat_mutex);
+        errno = ENOTEMPTY;
+        return -1;
+    }
+
+    /* First clean up the clusters of the directory... */
+    if((err = fat_erase_chain(fs->fs, cluster))) {
+        /* Uh oh... This is really bad... */
+        dbglog(DBG_ERROR, "fs_fat: Error erasing FAT chain for directory %s\n",
+               fn);
+        irv = -1;
+        errno = -err;
+    }
+
+    /* Next, erase the directory entry (and long name, if applicable). */
+    if((irv = fat_erase_dentry(fs->fs, cl, off, lcl, loff)) < 0) {
+        dbglog(DBG_ERROR, "fs_fat: Error erasing directory entry for directory "
+               "%s\n", fn);
+        irv = -1;
+        errno = -err;
+    }
+
+    mutex_unlock(&fat_mutex);
     return irv;
 }
 
@@ -791,12 +919,12 @@ static vfs_handler_t vh = {
     fs_fat_readdir,             /* readdir */
     NULL,                       /* ioctl */
     NULL,                       /* rename */
-    NULL,                       /* unlink */
+    fs_fat_unlink,              /* unlink */
     NULL,                       /* mmap */
     NULL,                       /* complete */
     fs_fat_stat,                /* stat */
     NULL,                       /* mkdir */
-    NULL,                       /* rmdir */
+    fs_fat_rmdir,               /* rmdir */
     fs_fat_fcntl,               /* fcntl */
     NULL,                       /* poll */
     NULL,                       /* link */

@@ -488,6 +488,8 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
 
         *rcl = 0;
         *roff = 0;
+        *rlcl = 0;
+        *rloff = 0;
         err = 0;
         goto out;
     }
@@ -557,6 +559,192 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
 out:
     free(fnc);
     return err;
+}
+
+int fat_erase_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, uint32_t lcl,
+                     uint32_t loff) {
+    fat_dentry_t *ent;
+    uint8_t *buf;
+    uint32_t max, max2, i;
+    int done = 0, err;
+
+    /* Read the cluster/block where the short name lives. */
+    if(!(buf = fat_cluster_read(fs, cl, &err))) {
+        dbglog(DBG_ERROR, "Error reading directory entry at cluster %" PRIu32
+               ", offset %" PRIu32 ": %s\n", cl, off, strerror(err));
+        return -EIO;
+    }
+
+    /* Mark the short entry as free. */
+    ent = (fat_dentry_t *)(buf + off);
+    ent->name[0] = FAT_ENTRY_FREE;
+
+    fat_cluster_mark_dirty(fs, cl);
+
+    /* If there is a long name chain, mark it all as free too... */
+    if(lcl) {
+        /* Figure out how many directory entries there are in each
+           cluster/block. */
+        if(fs->sb.fs_type == FAT_FS_FAT32 || !(lcl & 0x80000000)) {
+            /* Either we're working with a regular directory or we're working
+               with the root directory on FAT32 (which is the same as a normal
+               directory). We care about the number of entries per cluster. */
+            max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+            max2 = 0xFFFFFFFF;
+        }
+        else {
+            /* We're working with the root directory on FAT12/FAT16, so we need
+               to look at the number of entries per sector. */
+            max = fs->sb.bytes_per_sector >> 5;
+            max2 = (int32_t)fs->sb.root_dir;
+        }
+
+        while(!done) {
+            if(!(buf = fat_cluster_read(fs, lcl, &err))) {
+                dbglog(DBG_ERROR, "Error reading directory entry at cluster %"
+                       PRIu32 ", offst %" PRIu32 ": %s\n", lcl, loff,
+                       strerror(err));
+                return -EIO;
+            }
+
+            /* Just go ahead and do this now to save us the trouble later... */
+            fat_cluster_mark_dirty(fs, lcl);
+
+            for(i = loff >> 5; i < max; ++i) {
+                ent = (fat_dentry_t *)(buf + (i << 5));
+
+                /* If name[0] is zero, then we've hit the end of the
+                   directory. */
+                if(ent->name[0] == FAT_ENTRY_EOD) {
+                    dbglog(DBG_ERROR, "End of directory hit while reading long "
+                           "name entry for deletion at cluster %" PRIu32
+                           ", offset %" PRIu32 "\n", lcl, i << 5);
+                    return -EIO;
+                }
+                /* If name[0] == 0xE5, then this entry is empty. We previously
+                   marked the short name entry (which should be right after the
+                   long name chain) as empty, so this means we have finished
+                   deleting the long name.  */
+                else if(ent->name[0] == FAT_ENTRY_FREE) {
+                    done = 1;
+                    break;
+                }
+                /* We shouldn't have any entries that aren't long names in the
+                   middle of a long name chain... */
+                else if(!FAT_IS_LONG_NAME(ent)) {
+                    dbglog(DBG_ERROR, "Invalid dentry hit while reading long "
+                           "name entry for deletion at cluster %" PRIu32
+                           ", offset %" PRIu32 "\n", lcl, i << 5);
+                    return -EIO;
+                }
+
+                /* Mark the entry as empty and move on... */
+                ent->name[0] = FAT_ENTRY_FREE;
+            }
+
+            /* Move onto the next cluster. */
+            if(!(lcl & 0x80000000)) {
+                lcl = fat_read_fat(fs, lcl, &err);
+                if(lcl == 0xFFFFFFFF) {
+                    dbglog(DBG_ERROR, "Invalid FAT value hit while reading long"
+                           " name entry for deletion at cluster %" PRIu32
+                           ", offset %" PRIu32 "\n", lcl, i << 5);
+                    return -err;
+                }
+
+                /* This shouldn't happen either... */
+                if(fat_is_eof(fs, lcl)) {
+                    dbglog(DBG_ERROR, "End of directory hit while reading long "
+                           "name entry for deletion at cluster %" PRIu32
+                           ", offset %" PRIu32 "\n", lcl, i << 5);
+                    return -EIO;
+                }
+            }
+            else {
+                ++lcl;
+                max2 -= max;
+
+                if(max2 <= 0) {
+                    dbglog(DBG_ERROR, "End of directory hit while reading long "
+                           "name entry for deletion at cluster %" PRIu32
+                           ", offset %" PRIu32 "\n", lcl, i << 5);
+                    return -EIO;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int fat_is_dir_empty(fat_fs_t *fs, uint32_t cluster) {
+    uint8_t *cl;
+    int err, done = 0;
+    uint32_t i, j = 0, max;
+    fat_dentry_t *ent;
+
+    /* Figure out how many directory entries there are in each cluster/block. */
+    if(fs->sb.fs_type == FAT_FS_FAT32 || !(cluster & 0x80000000)) {
+        /* Either we're working with a regular directory or we're working with
+           the root directory on FAT32 (which is the same as a normal
+           directory). We care about the number of entries per cluster. */
+        max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+    }
+    else {
+        /* We're working with the root directory on FAT12/FAT16, so we need to
+           look at the number of entries per sector. */
+        max = fs->sb.bytes_per_sector >> 5;
+    }
+
+    while(!done) {
+        if(!(cl = fat_cluster_read(fs, cluster, &err))) {
+            dbglog(DBG_ERROR, "Error reading directory at cluster %" PRIu32
+                   ": %s\n", cluster, strerror(err));
+            return -EIO;
+        }
+
+        for(i = 0; i < max && !done; ++i, ++j) {
+            ent = (fat_dentry_t *)(cl + (i << 5));
+
+            /* If name[0] is zero, then we've hit the end of the directory. */
+            if(ent->name[0] == FAT_ENTRY_EOD) {
+                return 1;
+            }
+            /* If name[0] == 0xE5, then this entry is empty (but there might
+               still be additional entries after it). */
+            else if(ent->name[0] == FAT_ENTRY_FREE) {
+                continue;
+            }
+            /* Ignore long name entries. */
+            else if(FAT_IS_LONG_NAME(ent)) {
+                continue;
+            }
+
+            /* If we find a valid short entry, the directory is not empty. Bail
+               out now. */
+            return 0;
+        }
+
+        if(!(cluster & 0x80000000)) {
+            cluster = fat_read_fat(fs, cluster, &err);
+            if(cluster == 0xFFFFFFFF)
+                return -err;
+
+            if(fat_is_eof(fs, cluster))
+                done = 1;
+        }
+        else {
+            ++cluster;
+
+            if(j >= fs->sb.root_dir)
+                done = 1;
+        }
+    }
+
+    /* If we get here, we hit the end of chain marker in the FAT (or the max
+       entries in the root dir of FAT12/FAT16). Thus, there's nothing in the
+       directory or we would have bailed out before now. */
+    return 1;
 }
 
 #ifdef FAT_DEBUG
