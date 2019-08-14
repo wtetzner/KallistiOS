@@ -27,6 +27,9 @@ char *strdup(const char *);
 
 static uint16_t longname_buf[256], longname_buf2[256];
 
+#define DOT_NAME    ".          "
+#define DOTDOT_NAME "..         "
+
 static int fat_search_dir(fat_fs_t *fs, const char *fn, uint32_t cluster,
                           fat_dentry_t *rv, uint32_t *rcl, uint32_t *roff) {
     uint8_t *cl;
@@ -720,8 +723,15 @@ int fat_is_dir_empty(fat_fs_t *fs, uint32_t cluster) {
                 continue;
             }
 
-            /* If we find a valid short entry, the directory is not empty. Bail
-               out now. */
+            /* There's only two valid entries we can have in an empty directory,
+               "." and "..". */
+            if(!memcmp(ent->name, DOT_NAME, 11) ||
+               !memcmp(ent->name, DOTDOT_NAME, 11)) {
+                continue;
+            }
+
+            /* If we find a valid short entry, other than "." or "..", then
+               the directory is not empty. Return failure. */
             return 0;
         }
 
