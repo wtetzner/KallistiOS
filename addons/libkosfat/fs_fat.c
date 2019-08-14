@@ -743,6 +743,7 @@ static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
     fat_dentry_t p_ent, n_ent;
     int err;
     uint32_t cl, off, lcl, loff, cl2;
+    uint8_t *buf;
 
     mutex_lock(&fat_mutex);
 
@@ -812,7 +813,7 @@ static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
     }
 
     /* Clear the target cluster on the disk (well, in the cache, anyway). */
-    if(!(fat_cluster_clear(fs->fs, cl, &err))) {
+    if(!(buf = fat_cluster_clear(fs->fs, cl, &err))) {
         /* Uh oh... Now things start becoming bad if things fail... */
         fat_erase_chain(fs->fs, cl);
         mutex_unlock(&fat_mutex);
@@ -830,6 +831,13 @@ static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
         errno = -err;
         return -1;
     }
+
+    /* Add entries for "." and ".." */
+    fat_add_raw_dentry((fat_dentry_t *)buf, ".          ", FAT_ATTR_DIRECTORY,
+                       cl);
+    cl2 = p_ent.cluster_low | (p_ent.cluster_high << 16);
+    fat_add_raw_dentry((fat_dentry_t *)(buf + sizeof(fat_dentry_t)),
+                       "..         ", FAT_ATTR_DIRECTORY, cl2);
 
     /* And we're done... Clean up. */
     mutex_unlock(&fat_mutex);

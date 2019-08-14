@@ -860,6 +860,17 @@ static int fat_get_free_dentry(fat_fs_t *fs, uint32_t cluster, uint32_t *rcl,
     return 0;
 }
 
+inline void fat_add_raw_dentry(fat_dentry_t *dent, const char shortname[11],
+                               uint8_t attr, uint32_t cluster) {
+    memset(dent, 0, sizeof(fat_dentry_t));
+    memcpy(dent->name, shortname, 11);
+    dent->attr = attr;
+    dent->cluster_high = (uint16_t)(cluster >> 16);
+    dent->cluster_low = (uint16_t)cluster;
+
+    /* XXXX: Fill in timestamps... */
+}
+
 int fat_add_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
                    uint8_t attr, uint32_t cluster, uint32_t *rcl,
                    uint32_t *roff, uint32_t *rlcl, uint32_t *rloff) {
@@ -876,15 +887,8 @@ int fat_add_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
         if((err = fat_get_free_dentry(fs, cl, rcl, roff, &dent)) < 0)
             return -err;
 
-        /* Clear it. */
-        memset(dent, 0, sizeof(fat_dentry_t));
-
-        /* Fill in what we care about. */
-        memcpy(dent->name, comp, 11);
-        dent->attr = attr;
-        dent->cluster_high = (uint16_t)(cluster >> 16);
-        dent->cluster_low = (uint16_t)cluster;
-        /* XXXX: Fill in timestamps... */
+        /* Fill it in. */
+        fat_add_raw_dentry(dent, comp, attr, cluster);
 
         /* Clean up... */
         *rlcl = 0;
