@@ -747,6 +747,146 @@ int fat_is_dir_empty(fat_fs_t *fs, uint32_t cluster) {
     return 1;
 }
 
+static int fat_get_free_dentry(fat_fs_t *fs, uint32_t cluster, uint32_t *rcl,
+                               uint32_t *roff, fat_dentry_t **rv) {
+    uint8_t *cl;
+    int err, done = 0;
+    uint32_t i, j = 0, max, old;
+    fat_dentry_t *ent;
+
+    /* Figure out how many directory entries there are in each cluster/block. */
+    if(fs->sb.fs_type == FAT_FS_FAT32 || !(cluster & 0x80000000)) {
+        /* Either we're working with a regular directory or we're working with
+           the root directory on FAT32 (which is the same as a normal
+           directory). We care about the number of entries per cluster. */
+        max = (fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster) >> 5;
+    }
+    else {
+        /* We're working with the root directory on FAT12/FAT16, so we need to
+           look at the number of entries per sector. */
+        max = fs->sb.bytes_per_sector >> 5;
+    }
+
+    while(!done) {
+        if(!(cl = fat_cluster_read(fs, cluster, &err))) {
+            dbglog(DBG_ERROR, "Error reading directory at cluster %" PRIu32
+                   ": %s\n", cluster, strerror(err));
+            return -EIO;
+        }
+
+        for(i = 0; i < max && !done; ++i, ++j) {
+            ent = (fat_dentry_t *)(cl + (i << 5));
+
+            /* If name[0] is zero, then we've hit the end of the directory. */
+            if(ent->name[0] == FAT_ENTRY_EOD) {
+                *rv = ent;
+                *rcl = cluster;
+                *roff = i << 5;
+                return 0;
+            }
+            /* If name[0] == 0xE5, then this entry is empty (but there might
+               still be additional entries after it). */
+            else if(ent->name[0] == FAT_ENTRY_FREE) {
+                *rv = ent;
+                *rcl = cluster;
+                *roff = i << 5;
+                return 0;
+            }
+
+            /* Just ignore anything else... */
+        }
+
+        if(!(cluster & 0x80000000)) {
+            old = cluster;
+            cluster = fat_read_fat(fs, old, &err);
+            if(cluster == 0xFFFFFFFF)
+                return -err;
+
+            if(fat_is_eof(fs, cluster))
+                done = 1;
+        }
+        else {
+            ++cluster;
+
+            if(j >= fs->sb.root_dir) {
+                *rv = NULL;
+                return -ENOSPC;
+            }
+        }
+    }
+
+    /* If we get here, that means we've run out of space in what's allocated
+       for the directory (and it's not the end of the FAT12/FAT16 root).
+       Attempt to allocate a new cluster, clear it out, and return a pointer to
+       the beginning of it. */
+    if((j = fat_allocate_cluster(fs, &err)) == FAT_INVALID_CLUSTER) {
+        dbglog(DBG_ERROR, "Error allocating directory cluster: %s\n",
+               strerror(err));
+        *rv = NULL;
+        return err;
+    }
+
+    /* Update the FAT chain. */
+    if((err = fat_write_fat(fs, old, j)) < 0) {
+        dbglog(DBG_ERROR, "Error writing fat for new allocation: %s\n",
+               strerror(err));
+        fat_write_fat(fs, j, 0);
+        *rv = NULL;
+        return -err;
+    }
+
+    /* Clear the new block and return a pointer to the beginning of it. */
+    if(!(cl = fat_cluster_clear(fs, j, &err))) {
+        fat_write_fat(fs, j, 0);
+        /* This will get properly truncated for FAT12/FAT16. */
+        fat_write_fat(fs, old, 0x0FFFFFFF);
+        *rv = NULL;
+        return err;
+    }
+
+    *rv = (fat_dentry_t *)cl;
+    *rcl = j;
+    *roff = 0;
+    return 0;
+}
+
+int fat_add_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
+                   uint8_t attr, uint32_t cluster, uint32_t *rcl,
+                   uint32_t *roff, uint32_t *rlcl, uint32_t *rloff) {
+    fat_dentry_t *dent;
+    int err;
+    uint32_t cl;
+    char comp[11];
+
+    /* XXXX: For now, this only supports short entries... */
+    if(is_component_short(fn)) {
+        normalize_shortname(fn, comp);
+        cl = parent->cluster_low | (parent->cluster_high << 16);
+
+        if((err = fat_get_free_dentry(fs, cl, rcl, roff, &dent)) < 0)
+            return -err;
+
+        /* Clear it. */
+        memset(dent, 0, sizeof(fat_dentry_t));
+
+        /* Fill in what we care about. */
+        memcpy(dent->name, comp, 11);
+        dent->attr = attr;
+        dent->cluster_high = (uint16_t)(cluster >> 16);
+        dent->cluster_low = (uint16_t)cluster;
+        /* XXXX: Fill in timestamps... */
+
+        /* Clean up... */
+        *rlcl = 0;
+        *rloff = 0;
+        fat_cluster_mark_dirty(fs, *rcl);
+        return 0;
+    }
+    else {
+        return -ENAMETOOLONG;
+    }
+}
+
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent) {
     uint32_t cl = ent->cluster_low | (ent->cluster_high << 16);

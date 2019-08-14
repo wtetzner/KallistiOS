@@ -614,7 +614,7 @@ static int fs_fat_fcntl(void *h, int cmd, va_list ap) {
     return rv;
 }
 
-static int fs_fat_unlink(struct vfs_handler *vfs, const char *fn) {
+static int fs_fat_unlink(vfs_handler_t *vfs, const char *fn) {
     fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
     fat_dentry_t ent;
     int irv = 0, err;
@@ -737,7 +737,107 @@ static int fs_fat_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
     return irv;
 }
 
-static int fs_fat_rmdir(struct vfs_handler *vfs, const char *fn) {
+static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
+    fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
+    char *parent_fn, *newdir_fn;
+    fat_dentry_t p_ent, n_ent;
+    int err;
+    uint32_t cl, off, lcl, loff, cl2;
+
+    mutex_lock(&fat_mutex);
+
+    /* Make sure the filesystem isn't mounted read-only. */
+    if(!(fs->mount_flags & FS_FAT_MOUNT_READWRITE)) {
+        mutex_unlock(&fat_mutex);
+        errno = EROFS;
+        return -1;
+    }
+
+    /* Make a copy of the filename, as we're gonna split it into two... */
+    if(!(parent_fn = strdup(fn))) {
+        mutex_unlock(&fat_mutex);
+        errno = ENOMEM;
+        return -1;
+    }
+
+    /* Figure out where the new directory's name starts in the string... */
+    newdir_fn = strrchr(parent_fn, '/');
+    if(newdir_fn == parent_fn || !newdir_fn) {
+        /* If it's at the beginning, or non-existent, then the user is trying
+           to mkdir the root directory, which obviously already exists. */
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        errno = EEXIST;
+        return -1;
+    }
+
+    /* Split the string. */
+    *newdir_fn++ = 0;
+
+    /* Find the parent's dentry. */
+    if((err = fat_find_dentry(fs->fs, parent_fn, &p_ent, &cl, &off, &lcl,
+                              &loff)) < 0) {
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        errno = -err;
+        return -1;
+    }
+
+    /* Make sure the parent is actually a directory. */
+    if(!(p_ent.attr & FAT_ATTR_DIRECTORY)) {
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        errno = ENOTDIR;
+        return -1;
+    }
+
+    /* Make sure the child doeesn't exist. */
+    if((err = fat_find_child(fs->fs, newdir_fn, &p_ent, &n_ent, &cl, &off, &lcl,
+                             &loff)) != -ENOENT) {
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        if(err)
+            errno = -err;
+        else
+            errno = EEXIST;
+        return -1;
+    }
+
+    /* Allocate a cluster to store the directory in. */
+    if((cl = fat_allocate_cluster(fs->fs, &err)) == FAT_INVALID_CLUSTER) {
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        errno = err;
+        return -1;
+    }
+
+    /* Clear the target cluster on the disk (well, in the cache, anyway). */
+    if(!(fat_cluster_clear(fs->fs, cl, &err))) {
+        /* Uh oh... Now things start becoming bad if things fail... */
+        fat_erase_chain(fs->fs, cl);
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        errno = -err;
+        return -1;
+    }
+
+    /* Add the dentry to the parent. */
+    if((err = fat_add_dentry(fs->fs, newdir_fn, &p_ent, FAT_ATTR_DIRECTORY,
+                             cl, &cl2, &off, &lcl, &loff)) < 0) {
+        fat_erase_chain(fs->fs, cl);
+        mutex_unlock(&fat_mutex);
+        free(parent_fn);
+        errno = -err;
+        return -1;
+    }
+
+    /* And we're done... Clean up. */
+    mutex_unlock(&fat_mutex);
+    free(parent_fn);
+    return 0;
+}
+
+static int fs_fat_rmdir(vfs_handler_t *vfs, const char *fn) {
     fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
     fat_dentry_t ent;
     int irv = 0, err;
@@ -923,7 +1023,7 @@ static vfs_handler_t vh = {
     NULL,                       /* mmap */
     NULL,                       /* complete */
     fs_fat_stat,                /* stat */
-    NULL,                       /* mkdir */
+    fs_fat_mkdir,               /* mkdir */
     fs_fat_rmdir,               /* rmdir */
     fs_fat_fcntl,               /* fcntl */
     NULL,                       /* poll */

@@ -81,6 +81,48 @@ out:
     return rv;
 }
 
+uint8_t *fat_cluster_clear(fat_fs_t *fs, uint32_t cl, int *err) {
+    int i;
+    uint8_t *rv;
+    fat_cache_t **cache = fs->bcache;
+
+    /* Look through the cache from the most recently used to the least recently
+       used entry. */
+    for(i = fs->cache_size - 1; i >= 0; --i) {
+        if(cache[i]->block == cl && cache[i]->flags) {
+            rv = cache[i]->data;
+            make_mru(fs, cache, i);
+            goto out;
+        }
+    }
+
+    /* If we didn't get anything, did we end up with an invalid entry or do we
+       need to boot someone out? */
+    if(i < 0) {
+        i = 0;
+
+        /* Make sure that if the block is dirty, we write it back out. */
+        if(cache[0]->flags & FAT_CACHE_FLAG_DIRTY) {
+            if(fat_cluster_write_nc(fs, cache[0]->block, cache[0]->data)) {
+                /* XXXX: Uh oh... */
+                *err = EIO;
+                return NULL;
+            }
+        }
+    }
+
+    /* Don't bother reading the cluster from disk, since we're erasing it
+       anyway... */
+    cache[i]->block = cl;
+    cache[i]->flags = FAT_CACHE_FLAG_VALID | FAT_CACHE_FLAG_DIRTY;
+    rv = cache[i]->data;
+    make_mru(fs, cache, i);
+
+out:
+    memset(rv, 0, fs->sb.bytes_per_sector * fs->sb.sectors_per_cluster);
+    return rv;
+}
+
 int fat_cluster_read_nc(fat_fs_t *fs, uint32_t cluster, uint8_t *rv) {
     int fs_per_block = (int)fs->sb.sectors_per_cluster;
 

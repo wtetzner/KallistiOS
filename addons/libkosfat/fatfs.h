@@ -85,6 +85,7 @@ void fat_fs_shutdown(fat_fs_t *fs);
 
 int fat_cluster_read_nc(fat_fs_t *fs, uint32_t cluster, uint8_t *rv);
 uint8_t *fat_cluster_read(fat_fs_t *fs, uint32_t cluster, int *err);
+uint8_t *fat_cluster_clear(fat_fs_t *fs, uint32_t cl, int *err);
 
 int fat_cluster_write_nc(fat_fs_t *fs, uint32_t cluster, const uint8_t *blk);
 
