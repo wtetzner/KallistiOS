@@ -62,10 +62,86 @@ static struct {
 
 static uint16_t longname_buf[256];
 
+static int fat_create_entry(fat_fs_t *fs, const char *fn, uint8_t attr,
+                            uint32_t *cl2, uint32_t *off, uint32_t *lcl,
+                            uint32_t *loff, uint8_t **buf, uint32_t *pcl) {
+    char *parent_fn, *newdir_fn;
+    fat_dentry_t p_ent, n_ent;
+    int err;
+    uint32_t cl;
+
+    /* Make a copy of the filename, as we're gonna split it into two... */
+    if(!(parent_fn = strdup(fn))) {
+        return -ENOMEM;
+    }
+
+    /* Figure out where the new directory's name starts in the string... */
+    newdir_fn = strrchr(parent_fn, '/');
+    if(newdir_fn == parent_fn || !newdir_fn) {
+        /* If it's at the beginning, or non-existent, then the user is trying
+           to mkdir the root directory, which obviously already exists. */
+        free(parent_fn);
+        return -EEXIST;
+    }
+
+    /* Split the string. */
+    *newdir_fn++ = 0;
+
+    /* Find the parent's dentry. */
+    if((err = fat_find_dentry(fs, parent_fn, &p_ent, &cl, off, lcl,
+                              loff)) < 0) {
+        free(parent_fn);
+        return err;
+    }
+
+    /* Make sure the parent is actually a directory. */
+    if(!(p_ent.attr & FAT_ATTR_DIRECTORY)) {
+        free(parent_fn);
+        return -ENOTDIR;
+    }
+
+    /* Make sure the child doeesn't exist. */
+    if((err = fat_find_child(fs, newdir_fn, &p_ent, &n_ent, &cl, off, lcl,
+                             loff)) != -ENOENT) {
+        free(parent_fn);
+        if(!err)
+            err = -EEXIST;
+        return err;
+    }
+
+    /* Allocate a cluster to store the first block of the new thing in. */
+    if((cl = fat_allocate_cluster(fs, &err)) == FAT_INVALID_CLUSTER) {
+        free(parent_fn);
+        return -err;
+    }
+
+    /* Clear the target cluster on the disk (well, in the cache, anyway). */
+    if(!(*buf = fat_cluster_clear(fs, cl, &err))) {
+        /* Uh oh... Now things start becoming bad if things fail... */
+        fat_erase_chain(fs, cl);
+        free(parent_fn);
+        return -err;
+    }
+
+    /* Add the dentry to the parent. */
+    if((err = fat_add_dentry(fs, newdir_fn, &p_ent, attr, cl, cl2, off, lcl,
+                             loff)) < 0) {
+        fat_erase_chain(fs, cl);
+        free(parent_fn);
+        return err;
+    }
+
+    /* Clean up, because we're done. */
+    *pcl = p_ent.cluster_low | (p_ent.cluster_high << 16);
+    free(parent_fn);
+    return 0;
+}
+
 static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
     file_t fd;
     fs_fat_fs_t *mnt = (fs_fat_fs_t *)vfs->privdata;
     int rv;
+    uint32_t cl, cl2;
 
     /* Make sure if we're going to be writing to the file that the fs is mounted
        read/write. */
@@ -94,7 +170,29 @@ static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
     if((rv = fat_find_dentry(mnt->fs, fn, &fh[fd].dentry,
                              &fh[fd].dentry_cluster, &fh[fd].dentry_offset,
                              &fh[fd].dentry_lcl, &fh[fd].dentry_loff))) {
-        /* XXXX Handle creating files... */
+        if(rv == -ENOENT) {
+            if((mode & O_CREAT)) {
+                uint32_t off, lcl, loff, pcl;
+                uint8_t *buf;
+
+                if((rv = fat_create_entry(mnt->fs, fn, FAT_ATTR_ARCHIVE,
+                                           &cl, &off, &lcl, &loff, &buf,
+                                           &pcl)) < 0) {
+                    mutex_unlock(&fat_mutex);
+                    errno = -rv;
+                    return NULL;
+                }
+
+                /* Fill in the file descriptor... */
+                fat_get_dentry(mnt->fs, cl, off, &fh[fd].dentry);
+                fh[fd].dentry_cluster = cl;
+                fh[fd].dentry_offset = off;
+                fh[fd].dentry_lcl = lcl;
+                fh[fd].dentry_loff = loff;
+                goto created;
+            }
+        }
+
         mutex_unlock(&fat_mutex);
         errno = -rv;
         return NULL;
@@ -118,9 +216,50 @@ static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
         return NULL;
     }
 
-    /* XXXX: Handle truncating the file if we need to (for writing). */
+    /* Handle truncating the file if we need to (for writing). */
+    if((mode & (O_WRONLY | O_RDWR)) && (mode & O_TRUNC)) {
+        /* Read the FAT for the first cluster of the file and clear the entire
+           chain after that point. Then, blank the first cluster and fix up
+           the directory entry. */
+        cl = fh[fd].dentry.cluster_low | (fh[fd].dentry.cluster_high << 16);
+        cl2 = fat_read_fat(mnt->fs, cl, &rv);
+
+        if(cl2 == FAT_INVALID_CLUSTER) {
+            errno = rv;
+            fh[fd].dentry_cluster = fh[fd].dentry_offset = 0;
+            fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
+            mutex_unlock(&fat_mutex);
+            return NULL;
+        }
+        else if(!fat_is_eof(mnt->fs, cl2)) {
+            /* Erase all but the first block. */
+            if((rv = fat_erase_chain(mnt->fs, cl2)) < 0) {
+                /* Uh oh... this could be really bad... */
+                errno = -rv;
+                fh[fd].dentry_cluster = fh[fd].dentry_offset = 0;
+                fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
+                mutex_unlock(&fat_mutex);
+                return NULL;
+            }
+
+            /* Set the first block's fat value to the end of chain marker. */
+            if((rv = fat_write_fat(mnt->fs, cl, 0x0FFFFFFF)) < 0) {
+                /* Uh oh... this could be really bad... */
+                errno = -rv;
+                fh[fd].dentry_cluster = fh[fd].dentry_offset = 0;
+                fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
+                mutex_unlock(&fat_mutex);
+                return NULL;
+            }
+        }
+
+        /* Set the size to 0. */
+        fat_cluster_clear(mnt->fs, cl, &rv);
+        fh[fd].dentry.size = 0;
+    }
 
     /* Fill in the rest of the handle */
+created:
     fh[fd].mode = mode;
     fh[fd].ptr = 0;
     fh[fd].fs = mnt;
@@ -739,11 +878,9 @@ static int fs_fat_stat(vfs_handler_t *vfs, const char *path, struct stat *buf,
 
 static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
     fs_fat_fs_t *fs = (fs_fat_fs_t *)vfs->privdata;
-    char *parent_fn, *newdir_fn;
-    fat_dentry_t p_ent, n_ent;
     int err;
-    uint32_t cl, off, lcl, loff, cl2;
-    uint8_t *buf;
+    uint32_t cl, off, lcl, loff, cl2 = 0;
+    uint8_t *buf = NULL;
 
     mutex_lock(&fat_mutex);
 
@@ -754,94 +891,20 @@ static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
         return -1;
     }
 
-    /* Make a copy of the filename, as we're gonna split it into two... */
-    if(!(parent_fn = strdup(fn))) {
+    if((err = fat_create_entry(fs->fs, fn, FAT_ATTR_DIRECTORY, &cl, &off, &lcl,
+                               &loff, &buf, &cl2)) < 0) {
         mutex_unlock(&fat_mutex);
-        errno = ENOMEM;
-        return -1;
-    }
-
-    /* Figure out where the new directory's name starts in the string... */
-    newdir_fn = strrchr(parent_fn, '/');
-    if(newdir_fn == parent_fn || !newdir_fn) {
-        /* If it's at the beginning, or non-existent, then the user is trying
-           to mkdir the root directory, which obviously already exists. */
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        errno = EEXIST;
-        return -1;
-    }
-
-    /* Split the string. */
-    *newdir_fn++ = 0;
-
-    /* Find the parent's dentry. */
-    if((err = fat_find_dentry(fs->fs, parent_fn, &p_ent, &cl, &off, &lcl,
-                              &loff)) < 0) {
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        errno = -err;
-        return -1;
-    }
-
-    /* Make sure the parent is actually a directory. */
-    if(!(p_ent.attr & FAT_ATTR_DIRECTORY)) {
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        errno = ENOTDIR;
-        return -1;
-    }
-
-    /* Make sure the child doeesn't exist. */
-    if((err = fat_find_child(fs->fs, newdir_fn, &p_ent, &n_ent, &cl, &off, &lcl,
-                             &loff)) != -ENOENT) {
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        if(err)
-            errno = -err;
-        else
-            errno = EEXIST;
-        return -1;
-    }
-
-    /* Allocate a cluster to store the directory in. */
-    if((cl = fat_allocate_cluster(fs->fs, &err)) == FAT_INVALID_CLUSTER) {
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        errno = err;
-        return -1;
-    }
-
-    /* Clear the target cluster on the disk (well, in the cache, anyway). */
-    if(!(buf = fat_cluster_clear(fs->fs, cl, &err))) {
-        /* Uh oh... Now things start becoming bad if things fail... */
-        fat_erase_chain(fs->fs, cl);
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        errno = -err;
-        return -1;
-    }
-
-    /* Add the dentry to the parent. */
-    if((err = fat_add_dentry(fs->fs, newdir_fn, &p_ent, FAT_ATTR_DIRECTORY,
-                             cl, &cl2, &off, &lcl, &loff)) < 0) {
-        fat_erase_chain(fs->fs, cl);
-        mutex_unlock(&fat_mutex);
-        free(parent_fn);
-        errno = -err;
-        return -1;
+        return -err;
     }
 
     /* Add entries for "." and ".." */
     fat_add_raw_dentry((fat_dentry_t *)buf, ".          ", FAT_ATTR_DIRECTORY,
                        cl);
-    cl2 = p_ent.cluster_low | (p_ent.cluster_high << 16);
     fat_add_raw_dentry((fat_dentry_t *)(buf + sizeof(fat_dentry_t)),
                        "..         ", FAT_ATTR_DIRECTORY, cl2);
 
     /* And we're done... Clean up. */
     mutex_unlock(&fat_mutex);
-    free(parent_fn);
     return 0;
 }
 

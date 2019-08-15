@@ -72,6 +72,7 @@ int fat_add_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
                    uint32_t *roff, uint32_t *rlcl, uint32_t *rloff);
 void fat_add_raw_dentry(fat_dentry_t *dent, const char shortname[11],
                         uint8_t attr, uint32_t cluster);
+int fat_get_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, fat_dentry_t *rv);
 
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent);

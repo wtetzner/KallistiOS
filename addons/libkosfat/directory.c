@@ -927,6 +927,21 @@ int fat_add_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
     }
 }
 
+int fat_get_dentry(fat_fs_t *fs, uint32_t cluster, uint32_t off,
+                   fat_dentry_t *rv) {
+    uint8_t *cl;
+    int err;
+
+    if(!(cl = fat_cluster_read(fs, cluster, &err))) {
+        dbglog(DBG_ERROR, "Error reading directory at cluster %" PRIu32
+               ": %s\n", cluster, strerror(err));
+        return -EIO;
+    }
+
+    memcpy(rv, cl + off, sizeof(fat_dentry_t));
+    return 0;
+}
+
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent) {
     uint32_t cl = ent->cluster_low | (ent->cluster_high << 16);
