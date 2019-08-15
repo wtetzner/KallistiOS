@@ -860,15 +860,41 @@ static int fat_get_free_dentry(fat_fs_t *fs, uint32_t cluster, uint32_t *rcl,
     return 0;
 }
 
+static inline void fill_timestamp(struct tm *now, uint16_t *date,
+                                  uint16_t *ts, uint8_t *tenth) {
+    /* The MS-DOS epoch is January 1, 1980, not January 1, 1970... */
+    *date = ((now->tm_year - 10) & 0x7f) << 9;
+    *date |= (now->tm_mon + 1) << 5;
+    *date |= now->tm_mday;
+
+    if(ts) {
+        *ts = now->tm_hour << 11;
+        *ts |= now->tm_min << 5;
+        *ts |= now->tm_sec >> 1;     /* two-second resolution.... */
+
+        /* Meh, good enough. */
+        if(tenth) {
+            *tenth = (now->tm_sec & 1) * 100;
+        }
+    }
+}
+
 inline void fat_add_raw_dentry(fat_dentry_t *dent, const char shortname[11],
                                uint8_t attr, uint32_t cluster) {
+    time_t now = time(NULL);
+    struct tm *tmv;
+
     memset(dent, 0, sizeof(fat_dentry_t));
     memcpy(dent->name, shortname, 11);
     dent->attr = attr;
     dent->cluster_high = (uint16_t)(cluster >> 16);
     dent->cluster_low = (uint16_t)cluster;
 
-    /* XXXX: Fill in timestamps... */
+    /* Fill in the timestamps... */
+    tmv = localtime(&now);
+    fill_timestamp(tmv, &dent->cdate, &dent->ctime, &dent->ctenth);
+    fill_timestamp(tmv, &dent->mdate, &dent->mtime, NULL);
+    fill_timestamp(tmv, &dent->adate, NULL, NULL);
 }
 
 int fat_add_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
