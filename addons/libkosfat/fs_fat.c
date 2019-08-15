@@ -464,7 +464,7 @@ static _off64_t fs_fat_seek64(void *h, _off64_t offset, int whence) {
             break;
 
         case SEEK_END:
-            pos = fh[fd].dentry.size;
+            pos = fh[fd].dentry.size + offset;
             break;
 
         default:
