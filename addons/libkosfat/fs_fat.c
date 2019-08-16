@@ -54,6 +54,7 @@ static struct {
     uint32_t dentry_lcl;
     uint32_t dentry_loff;
     uint32_t cluster;
+    uint32_t cluster_order;
     int mode;
     uint32_t ptr;
     dirent_t dent;
@@ -265,6 +266,7 @@ created:
     fh[fd].fs = mnt;
     fh[fd].cluster = fh[fd].dentry.cluster_low |
         (fh[fd].dentry.cluster_high << 16);
+    fh[fd].cluster_order = 0;
     fh[fd].opened = 1;
 
     mutex_unlock(&fat_mutex);
@@ -364,6 +366,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             }
 
             fh[fd].cluster = cl;
+            ++fh[fd].cluster_order;
         }
         else {
             memcpy(bbuf, block + bo, cnt);
@@ -379,6 +382,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
                 }
 
                 fh[fd].cluster = cl;
+                ++fh[fd].cluster_order;
             }
 
             cnt = 0;
@@ -411,6 +415,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             }
 
             fh[fd].cluster = cl;
+            ++fh[fd].cluster_order;
         }
         else {
             memcpy(bbuf, block + bo, cnt);
@@ -426,6 +431,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
                 }
 
                 fh[fd].cluster = cl;
+                ++fh[fd].cluster_order;
             }
 
             cnt = 0;
@@ -440,7 +446,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
 static _off64_t fs_fat_seek64(void *h, _off64_t offset, int whence) {
     file_t fd = ((file_t)h) - 1;
     off_t rv;
-    uint32_t pos, tmp, bs, cl;
+    uint32_t pos, tmp, bs, cl, clo;
     fat_fs_t *fs;
     int err;
 
@@ -477,6 +483,7 @@ static _off64_t fs_fat_seek64(void *h, _off64_t offset, int whence) {
     fs = fh[fd].fs->fs;
     bs = fat_cluster_size(fs);
     cl = fh[fd].dentry.cluster_low | (fh[fd].dentry.cluster_high << 16);
+    clo = 0;
     tmp = pos;
 
     while(tmp >= bs) {
@@ -496,10 +503,12 @@ static _off64_t fs_fat_seek64(void *h, _off64_t offset, int whence) {
         }
 
         tmp -= bs;
+        ++clo;
     }
 
     fh[fd].ptr = pos;
     fh[fd].cluster = cl;
+    fh[fd].cluster_order = clo;
 
     rv = (_off64_t)fh[fd].ptr;
     mutex_unlock(&fat_mutex);
@@ -687,6 +696,9 @@ static dirent_t *fs_fat_readdir(void *h) {
                         mutex_unlock(&fat_mutex);
                         return NULL;
                     }
+
+                    fh[fd].cluster = cl;
+                    ++fh[fd].cluster_order;
                 }
                 else {
                     /* Are we at the end of the directory? */
@@ -697,6 +709,7 @@ static dirent_t *fs_fat_readdir(void *h) {
                     }
 
                     ++fh[fd].cluster;
+                    ++fh[fd].cluster_order;
                 }
             }
         }
@@ -996,6 +1009,7 @@ static int fs_fat_rewinddir(void *h) {
     fh[fd].ptr = 0;
     fh[fd].cluster = fh[fd].dentry.cluster_low |
         (fh[fd].dentry.cluster_high << 16);
+    fh[fd].cluster_order = 0;
 
     mutex_unlock(&fat_mutex);
     return 0;
