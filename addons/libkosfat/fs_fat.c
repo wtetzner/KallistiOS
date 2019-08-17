@@ -1118,7 +1118,8 @@ static int fs_fat_mkdir(vfs_handler_t *vfs, const char *fn) {
     if((err = fat_create_entry(fs->fs, fn, FAT_ATTR_DIRECTORY, &cl, &off, &lcl,
                                &loff, &buf, &cl2)) < 0) {
         mutex_unlock(&fat_mutex);
-        return -err;
+        errno = -err;
+        return -1;
     }
 
     /* Add entries for "." and ".." */
