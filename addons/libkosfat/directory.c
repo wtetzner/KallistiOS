@@ -257,7 +257,7 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
 
             /* Now, is the filename length *actually* right? */
             fnlen += fat_strlen_ucs2(longname_buf + fnlen);
-            if(l > fnlen) {
+            if(l != fnlen) {
                 skip = (lent->order & 0x3F);
                 continue;
             }
