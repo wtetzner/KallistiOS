@@ -942,6 +942,30 @@ int fat_get_dentry(fat_fs_t *fs, uint32_t cluster, uint32_t off,
     return 0;
 }
 
+void fat_update_mtime(fat_dentry_t *ent) {
+    time_t now = time(NULL);
+    struct tm *tmv;
+
+    tmv = localtime(&now);
+    fill_timestamp(tmv, &ent->mdate, &ent->mtime, NULL);
+}
+
+int fat_update_dentry(fat_fs_t *fs, fat_dentry_t *ent, uint32_t cluster,
+                      uint32_t off) {
+    uint8_t *cl;
+    int err;
+
+    if(!(cl = fat_cluster_read(fs, cluster, &err))) {
+        dbglog(DBG_ERROR, "Error reading directory at cluster %" PRIu32
+               ": %s\n", cluster, strerror(err));
+        return -EIO;
+    }
+
+    memcpy(cl + off, ent, sizeof(fat_dentry_t));
+    fat_cluster_mark_dirty(fs, cluster);
+    return 0;
+}
+
 #ifdef FAT_DEBUG
 void fat_dentry_print(const fat_dentry_t *ent) {
     uint32_t cl = ent->cluster_low | (ent->cluster_high << 16);
