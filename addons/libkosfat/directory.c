@@ -518,8 +518,6 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
     }
 
     tok = strtok_r(NULL, "/", &tmp);
-    cl = cur.cluster_low | (cur.cluster_high << 16);
-
 
     while(tok) {
         /* Make sure what we're looking at is a directory... */
@@ -527,6 +525,8 @@ int fat_find_dentry(fat_fs_t *fs, const char *fn, fat_dentry_t *rv,
             err = -ENOTDIR;
             goto out;
         }
+
+        cl = cur.cluster_low | (cur.cluster_high << 16);
 
         if(is_component_short(tok)) {
             normalize_shortname(tok, comp);

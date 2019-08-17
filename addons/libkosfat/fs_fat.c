@@ -341,26 +341,11 @@ created:
 
 static int fs_fat_close(void *h) {
     file_t fd = ((file_t)h) - 1;
-    int mode, rv;
-    fat_fs_t *fs;
+    int rv = 0;
 
     mutex_lock(&fat_mutex);
 
     if(fd < MAX_FAT_FILES && fh[fd].opened) {
-        /* If the file was open for writing, then we need to update the dentry
-           on the disk... */
-        mode = fh[fd].mode & O_MODE_MASK;
-        if(mode == O_WRONLY && mode == O_RDWR) {
-            fs = fh[fd].fs->fs;
-
-            if((mode = fat_update_dentry(fs, &fh[fd].dentry,
-                                         fh[fd].dentry_cluster,
-                                         fh[fd].dentry_offset)) < 0) {
-                rv = -1;
-                errno = -mode;
-            }
-        }
-
         fh[fd].opened = 0;
         fh[fd].dentry_offset = fh[fd].dentry_cluster = 0;
         fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
@@ -639,6 +624,7 @@ static ssize_t fs_fat_write(void *h, const void *buf, size_t cnt) {
         /* Is there still more to write after this cluster? */
         if(cnt > bs) {
             memcpy(block, bbuf, bs);
+            fat_cluster_mark_dirty(fs, fh[fd].cluster);
             fh[fd].ptr += bs;
             cnt -= bs;
             bbuf += bs;
@@ -666,8 +652,15 @@ static ssize_t fs_fat_write(void *h, const void *buf, size_t cnt) {
 
     /* If the file pointer is past the end of the file as recorded in its
        directory entry, update the directory entry with the new size. */
-    if(fh[fd].ptr > fh[fd].dentry.size) {
+    if(fh[fd].ptr > fh[fd].dentry.size || mode == O_WRONLY) {
         fh[fd].dentry.size = fh[fd].ptr;
+
+        if((err = fat_update_dentry(fs, &fh[fd].dentry,
+                                    fh[fd].dentry_cluster,
+                                    fh[fd].dentry_offset)) < 0) {
+            rv = -1;
+            errno = -err;
+        }
     }
 
     /* Update the file's modification timestamp. */
