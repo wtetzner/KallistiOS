@@ -450,7 +450,7 @@ int fat_find_child(fat_fs_t *fs, const char *fn, fat_dentry_t *parent,
     if(is_component_short(fnc)) {
         normalize_shortname(fnc, comp);
 
-        err = fat_search_dir(fs, fnc, cl, rv, rcl, roff);
+        err = fat_search_dir(fs, comp, cl, rv, rcl, roff);
         *rlcl = 0;
         *rloff = 0;
     }
