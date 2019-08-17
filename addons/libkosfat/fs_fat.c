@@ -79,9 +79,7 @@ static int fat_create_entry(fat_fs_t *fs, const char *fn, uint8_t attr,
 
     /* Figure out where the new directory's name starts in the string... */
     newdir_fn = strrchr(parent_fn, '/');
-    if(newdir_fn == parent_fn || !newdir_fn) {
-        /* If it's at the beginning, or non-existent, then the user is trying
-           to mkdir the root directory, which obviously already exists. */
+    if(!newdir_fn) {
         free(parent_fn);
         return -EEXIST;
     }
