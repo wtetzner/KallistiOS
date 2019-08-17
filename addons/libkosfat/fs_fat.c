@@ -7,6 +7,7 @@
 #include <time.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
@@ -151,6 +152,8 @@ static int advance_cluster(fat_fs_t *fs, int fd, uint32_t order, int write) {
            and advance forward. */
         clo = 0;
         cl = fh[fd].dentry.cluster_low | (fh[fd].dentry.cluster_high << 16);
+        fh[fd].cluster = cl;
+        fh[fd].cluster_order = clo;
     }
 
     /* At this point, we're definitely moving forward, if at all... */
@@ -168,6 +171,7 @@ static int advance_cluster(fat_fs_t *fs, int fd, uint32_t order, int write) {
             if(!write) {
                 fh[fd].cluster = cl2;
                 fh[fd].cluster_order = clo;
+                fh[fd].mode &= ~0x80000000;
                 return -EDOM;
             }
             else {
@@ -194,10 +198,11 @@ static int advance_cluster(fat_fs_t *fs, int fd, uint32_t order, int write) {
 
         cl = cl2;
         ++clo;
-        fh[fd].cluster = cl;
-        fh[fd].cluster_order = clo;
     }
 
+    fh[fd].cluster = cl;
+    fh[fd].cluster_order = clo;
+    fh[fd].mode &= ~0x80000000;
     return 0;
 }
 
@@ -431,7 +436,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             mutex_unlock(&fat_mutex);
             return 0;
         }
-        else {
+        else if(mode < 0) {
             mutex_unlock(&fat_mutex);
             errno = -mode;
             return -1;
