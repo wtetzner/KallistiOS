@@ -138,6 +138,69 @@ static int fat_create_entry(fat_fs_t *fs, const char *fn, uint8_t attr,
     return 0;
 }
 
+static int advance_cluster(fat_fs_t *fs, int fd, uint32_t order, int write) {
+    uint32_t clo, cl, cl2;
+    int err;
+
+    cl = fh[fd].cluster;
+    clo = fh[fd].cluster_order;
+
+    /* Are we moving forward or backward? */
+    if(clo > order) {
+        /* If moving backward, we have to start from the beginning of the file
+           and advance forward. */
+        clo = 0;
+        cl = fh[fd].dentry.cluster_low | (fh[fd].dentry.cluster_high << 16);
+    }
+
+    /* At this point, we're definitely moving forward, if at all... */
+    while(clo < order) {
+        /* Read the FAT for the current cluster to see where we're going
+           next... */
+        cl2 = fat_read_fat(fs, cl, &err);
+
+        if(cl2 == FAT_INVALID_CLUSTER) {
+            return -err;
+        }
+        else if(fat_is_eof(fs, cl2)) {
+            /* If we've hit the EOF and we're writing, we need to allocate a new
+               cluster to the file. If we're reading, then return error. */
+            if(!write) {
+                fh[fd].cluster = cl2;
+                fh[fd].cluster_order = clo;
+                return -EDOM;
+            }
+            else {
+                /* Allocate a new cluster */
+                cl2 = fat_allocate_cluster(fs, &err);
+
+                if(cl2 == FAT_INVALID_CLUSTER) {
+                    return -err;
+                }
+
+                /* Clear it. */
+                if(!fat_cluster_clear(fs, cl2, &err)) {
+                    fat_write_fat(fs, cl2, 0);
+                    return -err;
+                }
+
+                /* Write it to the file's FAT chain. */
+                if((err = fat_write_fat(fs, cl, cl2)) < 0) {
+                    fat_write_fat(fs, cl2, 0);
+                    return err;
+                }
+            }
+        }
+
+        cl = cl2;
+        ++clo;
+        fh[fd].cluster = cl;
+        fh[fd].cluster_order = clo;
+    }
+
+    return 0;
+}
+
 static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
     file_t fd;
     fs_fat_fs_t *mnt = (fs_fat_fs_t *)vfs->privdata;
@@ -275,17 +338,37 @@ created:
 
 static int fs_fat_close(void *h) {
     file_t fd = ((file_t)h) - 1;
+    int mode, rv;
+    fat_fs_t *fs;
 
     mutex_lock(&fat_mutex);
 
-    if(fd < MAX_FAT_FILES && fh[fd].mode) {
+    if(fd < MAX_FAT_FILES && fh[fd].opened) {
+        /* If the file was open for writing, then we need to update the dentry
+           on the disk... */
+        mode = fh[fd].mode & O_MODE_MASK;
+        if(mode == O_WRONLY && mode == O_RDWR) {
+            fs = fh[fd].fs->fs;
+
+            if((mode = fat_update_dentry(fs, &fh[fd].dentry,
+                                         fh[fd].dentry_cluster,
+                                         fh[fd].dentry_offset)) < 0) {
+                rv = -1;
+                errno = -mode;
+            }
+        }
+
         fh[fd].opened = 0;
         fh[fd].dentry_offset = fh[fd].dentry_cluster = 0;
         fh[fd].dentry_lcl = fh[fd].dentry_loff = 0;
     }
+    else {
+        rv = -1;
+        errno = EBADF;
+    }
 
     mutex_unlock(&fat_mutex);
-    return 0;
+    return rv;
 }
 
 static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
@@ -340,6 +423,21 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
     rv = (ssize_t)cnt;
     bo = fh[fd].ptr & (bs - 1);
 
+    /* Have we had an intervening seek call? */
+    if((fh[fd].mode & 0x80000000)) {
+        mode = advance_cluster(fs, fd, fh[fd].ptr / bs, 0);
+
+        if(mode == -EDOM) {
+            mutex_unlock(&fat_mutex);
+            return 0;
+        }
+        else {
+            mutex_unlock(&fat_mutex);
+            errno = -mode;
+            return -1;
+        }
+    }
+
     /* Handle the first block specially if we are offset within it. */
     if(bo) {
         if(!(block = fat_cluster_read(fs, fh[fd].cluster, &errno))) {
@@ -355,7 +453,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             bbuf += bs - bo;
             cl = fat_read_fat(fs, fh[fd].cluster, &errno);
 
-            if(cl == 0xFFFFFFFF) {
+            if(cl == FAT_INVALID_CLUSTER) {
                 mutex_unlock(&fat_mutex);
                 return -1;
             }
@@ -376,7 +474,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             if(cnt + bo == bs) {
                 cl = fat_read_fat(fs, fh[fd].cluster, &errno);
 
-                if(cl == 0xFFFFFFFF) {
+                if(cl == FAT_INVALID_CLUSTER) {
                     mutex_unlock(&fat_mutex);
                     return -1;
                 }
@@ -404,7 +502,7 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             bbuf += bs;
             cl = fat_read_fat(fs, fh[fd].cluster, &errno);
 
-            if(cl == 0xFFFFFFFF) {
+            if(cl == FAT_INVALID_CLUSTER) {
                 mutex_unlock(&fat_mutex);
                 return -1;
             }
@@ -418,14 +516,14 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
             ++fh[fd].cluster_order;
         }
         else {
-            memcpy(bbuf, block + bo, cnt);
+            memcpy(bbuf, block, cnt);
             fh[fd].ptr += cnt;
 
             /* Did we hit the end of the cluster? */
-            if(cnt + bo == bs) {
+            if(cnt == bs) {
                 cl = fat_read_fat(fs, fh[fd].cluster, &errno);
 
-                if(cl == 0xFFFFFFFF) {
+                if(cl == FAT_INVALID_CLUSTER) {
                     mutex_unlock(&fat_mutex);
                     return -1;
                 }
@@ -443,12 +541,144 @@ static ssize_t fs_fat_read(void *h, void *buf, size_t cnt) {
     return rv;
 }
 
+static ssize_t fs_fat_write(void *h, const void *buf, size_t cnt) {
+    file_t fd = ((file_t)h) - 1;
+    fat_fs_t *fs;
+    uint32_t bs, bo;
+    uint8_t *block;
+    uint8_t *bbuf = (uint8_t *)buf;
+    ssize_t rv;
+    int mode, err;
+
+    mutex_lock(&fat_mutex);
+
+    /* Check that the fd is valid */
+    if(fd >= MAX_FAT_FILES || !fh[fd].opened) {
+        mutex_unlock(&fat_mutex);
+        errno = EBADF;
+        return -1;
+    }
+
+    /* Make sure the fd is open for reading */
+    mode = fh[fd].mode & O_MODE_MASK;
+    if(mode != O_WRONLY && mode != O_RDWR) {
+        mutex_unlock(&fat_mutex);
+        errno = EBADF;
+        return -1;
+    }
+
+    if(!cnt) {
+        mutex_unlock(&fat_mutex);
+        return 0;
+    }
+
+    fs = fh[fd].fs->fs;
+    bs = fat_cluster_size(fs);
+    rv = (ssize_t)cnt;
+    bo = fh[fd].ptr & (bs - 1);
+
+    /* Have we had an intervening seek call (or a write that ended exactly on
+       a cluster boundary)? */
+    if((fh[fd].mode & 0x80000000)) {
+        if((err = advance_cluster(fs, fd, fh[fd].ptr / bs, 1)) < 0) {
+            mutex_unlock(&fat_mutex);
+            errno = -err;
+            return -1;
+        }
+    }
+
+    /* Are we starting our write in the middle of a block? */
+    if(bo) {
+        if(!(block = fat_cluster_read(fs, fh[fd].cluster, &err))) {
+            mutex_unlock(&fat_mutex);
+            errno = err;
+            return -1;
+        }
+
+        /* Are we writing past the end of this block, or not? */
+        if(cnt > bs - bo) {
+            memcpy(block + bo, bbuf, bs - bo);
+            fat_cluster_mark_dirty(fs, fh[fd].cluster);
+
+            fh[fd].ptr += bs - bo;
+            bbuf += bs - bo;
+            cnt -= bs - bo;
+
+            if((err = advance_cluster(fs, fd, fh[fd].cluster_order + 1,
+                                      1)) < 0) {
+                mutex_unlock(&fat_mutex);
+                errno = -err;
+                return -1;
+            }
+        }
+        else {
+            memcpy(block + bo, bbuf, cnt);
+            fat_cluster_mark_dirty(fs, fh[fd].cluster);
+            fh[fd].ptr += cnt;
+            cnt = 0;
+
+            /* We don't want to advance the cluster even if we've hit the end of
+               the current one here, as that may extend the file unnecessarily
+               into a new cluster. Set the seek flag and it'll be dealt with
+               on the next write, if needed. */
+            fh[fd].mode |= 0x80000000;
+        }
+    }
+
+    /* While we still have more to write, do it. */
+    while(cnt) {
+        if(!(block = fat_cluster_read(fs, fh[fd].cluster, &err))) {
+            mutex_unlock(&fat_mutex);
+            errno = err;
+            return -1;
+        }
+
+        /* Is there still more to write after this cluster? */
+        if(cnt > bs) {
+            memcpy(block, bbuf, bs);
+            fh[fd].ptr += bs;
+            cnt -= bs;
+            bbuf += bs;
+
+            if((err = advance_cluster(fs, fd, fh[fd].cluster_order + 1,
+                                      1)) < 0) {
+                mutex_unlock(&fat_mutex);
+                errno = -err;
+                return -1;
+            }
+        }
+        else {
+            memcpy(block, bbuf, cnt);
+            fat_cluster_mark_dirty(fs, fh[fd].cluster);
+            fh[fd].ptr += cnt;
+            cnt = 0;
+
+            /* We don't want to advance the cluster even if we've hit the end of
+               the current one here, as that may extend the file unnecessarily
+               into a new cluster. Set the seek flag and it'll be dealt with
+               on the next write, if needed. */
+            fh[fd].mode |= 0x80000000;
+        }
+    }
+
+    /* If the file pointer is past the end of the file as recorded in its
+       directory entry, update the directory entry with the new size. */
+    if(fh[fd].ptr > fh[fd].dentry.size) {
+        fh[fd].dentry.size = fh[fd].ptr;
+    }
+
+    /* Update the file's modification timestamp. */
+    fat_update_mtime(&fh[fd].dentry);
+
+    /* We're done, clean up and return. */
+    mutex_unlock(&fat_mutex);
+    return rv;
+}
+
 static _off64_t fs_fat_seek64(void *h, _off64_t offset, int whence) {
     file_t fd = ((file_t)h) - 1;
     off_t rv;
-    uint32_t pos, tmp, bs, cl, clo;
-    fat_fs_t *fs;
-    int err;
+    uint32_t pos;
 
     mutex_lock(&fat_mutex);
 
@@ -479,38 +709,12 @@ static _off64_t fs_fat_seek64(void *h, _off64_t offset, int whence) {
             return -1;
     }
 
-    /* Figure out what cluster we're at... */
-    fs = fh[fd].fs->fs;
-    bs = fat_cluster_size(fs);
-    cl = fh[fd].dentry.cluster_low | (fh[fd].dentry.cluster_high << 16);
-    clo = 0;
-    tmp = pos;
-
-    while(tmp >= bs) {
-        /* This really shouldn't happen... */
-        if(fat_is_eof(fs, cl)) {
-            errno = EIO;
-            mutex_unlock(&fat_mutex);
-            return -1;
-        }
-
-        cl = fat_read_fat(fs, cl, &err);
-
-        if(cl == 0xFFFFFFFF) {
-            errno = err;
-            mutex_unlock(&fat_mutex);
-            return -1;
-        }
-
-        tmp -= bs;
-        ++clo;
-    }
-
+    /* Update the file pointer and set the flag so that we know that we have
+       done a seek. */
     fh[fd].ptr = pos;
-    fh[fd].cluster = cl;
-    fh[fd].cluster_order = clo;
+    fh[fd].mode |= 0x80000000;
 
-    rv = (_off64_t)fh[fd].ptr;
+    rv = (_off64_t)pos;
     mutex_unlock(&fat_mutex);
     return rv;
 }
@@ -686,7 +890,7 @@ static dirent_t *fs_fat_readdir(void *h) {
                 if(fat_fs_type(fs) == FAT_FS_FAT32 || fh[fd].dentry_cluster) {
                     cl = fat_read_fat(fs, fh[fd].cluster, &err);
 
-                    if(cl == 0xFFFFFFFF) {
+                    if(cl == FAT_INVALID_CLUSTER) {
                         errno = err;
                         mutex_unlock(&fat_mutex);
                         return NULL;
@@ -703,7 +907,7 @@ static dirent_t *fs_fat_readdir(void *h) {
                 else {
                     /* Are we at the end of the directory? */
                     if((fh[fd].ptr >> 5) >= fat_rootdir_length(fs)) {
-                        fh[fd].cluster = 0x0FFFFFF8;
+                        fh[fd].cluster = 0x0FFFFFFF;
                         mutex_unlock(&fat_mutex);
                         return NULL;
                     }
@@ -1097,7 +1301,7 @@ static vfs_handler_t vh = {
     fs_fat_open,                /* open */
     fs_fat_close,               /* close */
     fs_fat_read,                /* read */
-    NULL,                       /* write */
+    fs_fat_write,               /* write */
     NULL,                       /* seek */
     NULL,                       /* tell */
     NULL,                       /* total */
