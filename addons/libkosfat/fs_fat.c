@@ -792,16 +792,19 @@ static void fill_stat_timestamps(const fat_dentry_t *ent, struct stat *buf) {
 }
 
 static void copy_shortname(fat_dentry_t *dent, char *fn) {
-    int i, j;
+    int i, j = 0;
 
     for(i = 0; i < 8 && dent->name[i] != ' '; ++i) {
         fn[i] = dent->name[i];
     }
 
-    fn[i++] = '.';
+    /* Only add a dot if there's actually an extension. */
+    if(dent->name[8] != ' ') {
+        fn[i++] = '.';
 
-    for(j = 0; j < 3 && dent->name[8 + j] != ' '; ++j) {
-        fn[i + j] = dent->name[8 + j];
+        for(; j < 3 && dent->name[8 + j] != ' '; ++j) {
+            fn[i + j] = dent->name[8 + j];
+        }
     }
 
     fn[i + j] = '\0';
