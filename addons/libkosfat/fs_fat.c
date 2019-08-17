@@ -323,6 +323,14 @@ static void *fs_fat_open(vfs_handler_t *vfs, const char *fn, int mode) {
         /* Set the size to 0. */
         fat_cluster_clear(mnt->fs, cl, &rv);
         fh[fd].dentry.size = 0;
+
+        if((rv = fat_update_dentry(mnt->fs, &fh[fd].dentry,
+                                   fh[fd].dentry_cluster,
+                                   fh[fd].dentry_offset)) < 0) {
+            errno = -rv;
+            mutex_unlock(&fat_mutex);
+            return NULL;
+        }
     }
 
     /* Fill in the rest of the handle */
