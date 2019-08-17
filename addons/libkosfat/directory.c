@@ -863,7 +863,7 @@ static int fat_get_free_dentry(fat_fs_t *fs, uint32_t cluster, uint32_t *rcl,
 static inline void fill_timestamp(struct tm *now, uint16_t *date,
                                   uint16_t *ts, uint8_t *tenth) {
     /* The MS-DOS epoch is January 1, 1980, not January 1, 1970... */
-    *date = ((now->tm_year - 10) & 0x7f) << 9;
+    *date = ((now->tm_year - 80) & 0x7f) << 9;
     *date |= (now->tm_mon + 1) << 5;
     *date |= now->tm_mday;
 

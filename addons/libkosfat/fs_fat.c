@@ -760,7 +760,7 @@ static time_t fat_time_to_stat(uint16_t date, uint16_t time) {
     struct tm tmv;
 
     /* The MS-DOS epoch is January 1, 1980, not January 1, 1970... */
-    tmv.tm_year = (date >> 9) + 10;
+    tmv.tm_year = (date >> 9) + 80;
     tmv.tm_mon = ((date >> 5) & 0x0F) - 1;
     tmv.tm_mday = date & 0x1F;
 
