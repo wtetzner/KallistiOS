@@ -1351,11 +1351,6 @@ int fs_fat_mount(const char *mp, kos_blockdev_t *dev, uint32_t flags) {
         return -1;
     }
 
-    if((flags & FS_FAT_MOUNT_READWRITE)) {
-        dbglog(DBG_DEBUG, "fs_fat: Read/write mode not yet supported.\n");
-        return -1;
-    }
-
     mutex_lock(&fat_mutex);
 
     /* Try to initialize the filesystem */
