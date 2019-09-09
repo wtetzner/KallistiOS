@@ -307,7 +307,7 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
 
                     *rv = *ent;
                     *rcl = cluster;
-                    *roff = (i << 5);
+                    *roff = ((i + 1) << 5);
                     *rlcl = lcl;
                     *rloff = loff;
 
