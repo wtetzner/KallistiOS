@@ -130,6 +130,8 @@ static int read_longname(fat_fs_t *fs, uint32_t *cluster, uint32_t *offset,
     fat_longname_t *lent;
     uint8_t *cl;
 
+    ++*offset;
+
     while(!done) {
         if(!(cl = fat_cluster_read(fs, *cluster, &err))) {
             dbglog(DBG_ERROR, "Error reading directory at cluster %" PRIu32
@@ -137,7 +139,7 @@ static int read_longname(fat_fs_t *fs, uint32_t *cluster, uint32_t *offset,
             return -EIO;
         }
 
-        for(i = (*offset) + 1; i < max; ++i) {
+        for(i = *offset; i < max; ++i) {
             ent = (fat_dentry_t *)(cl + (i << 5));
 
             /* If name[0] is zero, then we've hit the end of the directory. */
@@ -175,18 +177,24 @@ static int read_longname(fat_fs_t *fs, uint32_t *cluster, uint32_t *offset,
 
         if(!(*cluster & 0x80000000)) {
             *cluster = fat_read_fat(fs, *cluster, &err);
-            if(*cluster == 0xFFFFFFFF)
+            if(*cluster == 0xFFFFFFFF) {
                 return -EIO;
+            }
 
             if(fat_is_eof(fs, *cluster))
                 done = 1;
+
+            *offset = 0;
         }
         else {
             ++*cluster;
 
             *max2 -= max;
-            if(*max2 <= 0)
+            if(*max2 <= 0) {
                 return -EIO;
+            }
+
+            *offset = 0;
         }
     }
 
@@ -198,12 +206,12 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                            uint32_t *rlcl, uint32_t *rloff) {
     uint8_t *cl;
     int err, done = 0;
-    uint32_t i, max, skip = 0;
+    uint32_t i = 0, max, skip = 0;
     int32_t max2;
     fat_dentry_t *ent;
     fat_longname_t *lent;
     size_t l = strlen(fn);
-    uint32_t fnlen, lcl = 0, loff = 0;
+    uint32_t fnlen, lcl = 0, loff = 0, cluster2;
 
     /* Figure out how many directory entries there are in each cluster/block. */
     if(fs->sb.fs_type == FAT_FS_FAT32 || !(cluster & 0x80000000)) {
@@ -229,7 +237,8 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
             return -EIO;
         }
 
-        for(i = 0; i < max && !done; ++i) {
+        for(; i < max && !done; ++i) {
+            cluster2 = cluster;
             ent = (fat_dentry_t *)(cl + (i << 5));
 
             /* Are we skipping this entry? */
@@ -354,8 +363,12 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                     return 0;
                 }
             }
-            else
+            else {
                 skip = 1;
+
+                if(cluster2 != cluster)
+                    break;
+            }
         }
 
         if(!(cluster & 0x80000000)) {
