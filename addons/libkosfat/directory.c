@@ -306,6 +306,15 @@ static int fat_search_long(fat_fs_t *fs, const char *fn, uint32_t cluster,
                 /* The next entry should be the dentry we want (that is to say,
                    the short name entry for this long name). */
                 if(i < max) {
+                    if(cluster != cluster2) {
+                        if(!(cl = fat_cluster_read(fs, cluster, &err))) {
+                            dbglog(DBG_ERROR, "Error reading directory at "
+                                   "cluster %" PRIu32 ": %s\n", cluster,
+                                   strerror(err));
+                            return -EIO;
+                        }
+                    }
+
                     ent = (fat_dentry_t *)(cl + ((i + 1) << 5));
 
                     /* Make sure we got a valid short entry... */
@@ -644,6 +653,8 @@ int fat_erase_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, uint32_t lcl,
             max2 = (int32_t)fs->sb.root_dir;
         }
 
+        i = loff >> 5;
+
         while(!done) {
             if(!(buf = fat_cluster_read(fs, lcl, &err))) {
                 dbglog(DBG_ERROR, "Error reading directory entry at cluster %"
@@ -655,7 +666,7 @@ int fat_erase_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, uint32_t lcl,
             /* Just go ahead and do this now to save us the trouble later... */
             fat_cluster_mark_dirty(fs, lcl);
 
-            for(i = loff >> 5; i < max; ++i) {
+            for(; i < max; ++i) {
                 ent = (fat_dentry_t *)(buf + (i << 5));
 
                 /* If name[0] is zero, then we've hit the end of the
@@ -704,6 +715,8 @@ int fat_erase_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, uint32_t lcl,
                            ", offset %" PRIu32 "\n", lcl, i << 5);
                     return -EIO;
                 }
+
+                i = 0;
             }
             else {
                 ++lcl;
@@ -715,6 +728,8 @@ int fat_erase_dentry(fat_fs_t *fs, uint32_t cl, uint32_t off, uint32_t lcl,
                            ", offset %" PRIu32 "\n", lcl, i << 5);
                     return -EIO;
                 }
+
+                i = 0;
             }
         }
     }
