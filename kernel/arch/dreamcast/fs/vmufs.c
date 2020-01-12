@@ -747,7 +747,7 @@ int vmufs_write(maple_device_t * dev, const char * fn, void * inbuf, int insize,
     strncpy(nd.filename, fn, 12);
     vmufs_dir_fill_time(&nd);
     nd.filesize = insize / 512;
-    nd.hdroff = 0;
+    nd.hdroff = (flags & VMUFS_VMUGAME) ? 1 : 0;
     nd.dirty = 1;
 
     // If any of these fail, the action to take can be decided by the caller.
