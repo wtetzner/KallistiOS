@@ -13,7 +13,7 @@ OBJS = abort.o byteorder.o memset2.o memset4.o memcpy2.o memcpy4.o \
 	telldir.o usleep.o inet_addr.o realpath.o getcwd.o chdir.o mkdir.o \
 	creat.o sleep.o rmdir.o rename.o inet_pton.o inet_ntop.o \
 	inet_ntoa.o inet_aton.o poll.o select.o symlink.o readlink.o \
-	gethostbyname.o getaddrinfo.o dirfd.o nanosleep.o
+	gethostbyname.o getaddrinfo.o dirfd.o nanosleep.o basename.o dirname.o
 
 GCC_MAJORMINOR = $(basename $(KOS_GCCVER))
 GCC_MAJOR = $(basename $(GCC_MAJORMINOR))
