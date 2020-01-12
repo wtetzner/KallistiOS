@@ -97,6 +97,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
       kazade at DCEmulation for pointing out the issue [LS]
 - *** Added the uname() function to retrieve the current kernel version [LS]
 - *** Added fs_fat for SD cards and g1ata devices [LS]
+- *** Added thd_each() function to iterate over all current threads [LB]
+- *** Added dirname() and basename() functions to koslib [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
