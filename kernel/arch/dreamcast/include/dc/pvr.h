@@ -834,8 +834,15 @@ typedef struct {
     \return                 The packed coordinates
 */
 static inline uint32 PVR_PACK_16BIT_UV(float u, float v) {
-    return (((*((uint32 *) &u)) >> 0) & 0xFFFF0000) |
-           (((*((uint32 *) &v)) >> 16) & 0x0000FFFF);
+    union {
+        float f;
+        uint32 i;
+    } u2, v2;
+
+    u2.f = u;
+    v2.f = v;
+
+    return (u2.i & 0xFFFF0000) | (v2.i >> 16);
 }
 
 /** \defgroup pvr_commands          TA command values

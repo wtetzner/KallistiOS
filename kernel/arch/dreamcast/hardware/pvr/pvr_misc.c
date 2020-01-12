@@ -168,6 +168,10 @@ void pvr_begin_queued_render() {
     uint32      vert_end;
     int     i;
     int bufn = pvr_state.view_target;
+    union {
+        float f;
+        uint32 i;
+    } zclip;
 
     /* Get the appropriate buffer */
     tbuf = pvr_state.ta_buffers + (pvr_state.ta_target ^ 1);
@@ -220,7 +224,8 @@ void pvr_begin_queued_render() {
     }
 
     PVR_SET(PVR_BGPLANE_CFG, vert_end); /* Bkg plane location */
-    PVR_SET(PVR_BGPLANE_Z, *((uint32*)&pvr_state.zclip));
+    zclip.f = pvr_state.zclip;
+    PVR_SET(PVR_BGPLANE_Z, zclip.i);
     PVR_SET(PVR_PCLIP_X, pvr_state.pclip_x);
     PVR_SET(PVR_PCLIP_Y, pvr_state.pclip_y);
 
