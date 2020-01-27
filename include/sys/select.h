@@ -12,7 +12,7 @@
     as directed by the POSIX 2008 standard (aka The Open Group Base
     Specifications Issue 7). Currently the functionality defined herein only
     really works for sockets, and that is likely how it will stay for some time.
- 
+
     \author Lawrence Sebald
 */
 
@@ -27,8 +27,36 @@ __BEGIN_DECLS
 #include <time.h>
 #include <sys/time.h>
 
-/* <sys/types.h> defines fd_set and friends for us, so there's really not much
-   that we have to do here... */
+/* Newlib used to define fd_set and friends in <sys/types.h>, but at some point
+   that stopped being the case... This should tell us whether we need to define
+   it here or not... */
+#ifndef _SYS_TYPES_FD_SET
+
+#define _SYS_TYPES_FD_SET
+
+#ifndef FD_SETSIZE
+/* This matches fs.h. */
+#define FD_SETSIZE 1024
+#endif
+
+#define NFDBITS 32
+
+typedef struct fd_set {
+    unsigned long fds_bits[FD_SETSIZE / NFDBITS];
+} fd_set;
+
+#define FD_SET(n, p)    ((p)->fds_bits[(n) / NFDBITS] |= (1 << ((n) % NFDBITS)))
+#define FD_CLR(n, p)    ((p)->fds_bits[(n) / NFDBITS] &= ~(1 << ((n) % NFDBITS)))
+#define FD_ISSET(n, p)  ((p)->fds_bits[(n) / NFDBITS] & (1 << ((n) % NFDBITS)))
+#define FD_ZERO(p)      \
+    do { \
+        int __i; \
+        for(__i = 0; __i < FD_SETSIZE / NFDBITS; ++__i) { \
+            (p)->fds_bits[__i] = 0; \
+        } \
+    } while(0)
+
+#endif /* !_SYS_TYPES_FD_SET */
 
 /** \brief  Wait for activity on a group of file descriptors.
 
