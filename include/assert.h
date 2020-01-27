@@ -26,11 +26,25 @@ __BEGIN_DECLS
    error message. */
 #define _assert(e) assert(e)
 
-/* __FUNCTION__ is not ANSI, it's GCC, but we depend on GCC anyway.. */
 #ifdef NDEBUG
 #   define assert(e) ((void)0)
 #   define assert_msg(e, m) ((void)0)
 #else
+
+/* This bit of magic borrowed from Newlib's assert.h... */
+/* \cond */
+#ifndef __ASSERT_FUNC
+#if defined(__cplusplus)
+#   define __ASSERT_FUNC __PRETTY_FUNCTION__
+#elif __STDC_VERSION__ >= 199901L
+#   define __ASSERT_FUNC __func__
+#elif __GNUC__ >= 2
+#   define __ASSERT_FUNC __FUNCTION__
+#else
+#   define __ASSERT_FUNC ((char *)0)
+#endif
+#endif
+/* \endcond */
 
 /** \brief  Standard C assertion macro.
 
@@ -42,7 +56,7 @@ __BEGIN_DECLS
     \param  e               A value or expression to be evaluated as true or
                             false.
 */
-#   define assert(e)        ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e, NULL, __FUNCTION__))
+#   define assert(e)        ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e, NULL, __ASSERT_FUNC))
 
 /** \brief  assert() with a custom message.
 
@@ -53,7 +67,7 @@ __BEGIN_DECLS
                             false.
     \param  m               A message (const char *).
 */
-#   define assert_msg(e, m) ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e, m, __FUNCTION__))
+#   define assert_msg(e, m) ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e, m, __ASSERT_FUNC))
 #endif
 
 /* \cond */
@@ -93,4 +107,3 @@ assert_handler_t assert_set_handler(assert_handler_t hnd);
 __END_DECLS
 
 #endif  /* __ASSERT_H */
-
