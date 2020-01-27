@@ -15,7 +15,7 @@
 /* Newlib doesn't prototype this function in strict standards compliant mode, so
    we'll do it here. It is still provided either way, but it isn't prototyped if
    we use -std=c99 (or any other non-gnuXX value). */
-char 	*_EXFUN(strdup,(const char *));
+char *strdup(const char *);
 #endif
 
 int h_errno = 0;
