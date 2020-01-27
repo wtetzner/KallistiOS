@@ -50,3 +50,6 @@ void __assert(const char *file, int line, const char *expr, const char *msg, con
         a_hnd(file, line, expr, msg, func);
 }
 
+void __assert_func(const char *file, int line, const char *func, const char *expr) {
+    __assert(file, line, expr, NULL, func);
+}
