@@ -25,9 +25,14 @@ extern int _bss_start, end;
 void _atexit_call_all();
 
 #if __GNUC__ >= 4
-void init(void);
-void fini(void);
+void _init(void);
+void _fini(void);
 void __verify_newlib_patch();
+#endif
+
+#if __GNUC__ == 4
+#define _init init
+#define _fini fini
 #endif
 
 int main(int argc, char **argv);
@@ -199,7 +204,7 @@ int arch_main() {
     arch_ctors();
 #else
     __verify_newlib_patch();
-    init();
+    _init();
 #endif
 
     /* Call the user's main function */
@@ -226,7 +231,7 @@ void arch_shutdown() {
 #if __GNUC__ < 4
     arch_dtors();
 #else
-    fini();
+    _fini();
 #endif
 
     dbglog(DBG_CRITICAL, "arch: shutting down kernel\n");
