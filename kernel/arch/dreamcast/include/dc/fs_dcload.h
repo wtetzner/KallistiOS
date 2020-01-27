@@ -100,11 +100,11 @@ struct  dcload_stat {
     unsigned short st_gid;
     unsigned short st_rdev;
     long st_size;
-    long st_atime;
+    long atime;
     long st_spare1;
-    long st_mtime;
+    long mtime;
     long st_spare2;
-    long st_ctime;
+    long ctime;
     long st_spare3;
     long st_blksize;
     long st_blocks;
@@ -143,5 +143,3 @@ int fs_dcload_init_lwip(void *p);
 __END_DECLS
 
 #endif  /* __KALLISTI_FS_DCLOAD_H */
-
-

@@ -314,7 +314,7 @@ dirent_t *dcload_readdir(void * h) {
             else
                 rv->size = filestat.st_size;
 
-            rv->time = filestat.st_mtime;
+            rv->time = filestat.mtime;
 
         }
 
@@ -386,9 +386,9 @@ static int dcload_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
         rv->st_gid = filestat.st_gid;
         rv->st_rdev = filestat.st_rdev;
         rv->st_size = filestat.st_size;
-        rv->st_atime = filestat.st_atime;
-        rv->st_mtime = filestat.st_mtime;
-        rv->st_ctime = filestat.st_ctime;
+        rv->st_atime = filestat.atime;
+        rv->st_mtime = filestat.mtime;
+        rv->st_ctime = filestat.ctime;
         rv->st_blksize = filestat.st_blksize;
         rv->st_blocks = filestat.st_blocks;
 
