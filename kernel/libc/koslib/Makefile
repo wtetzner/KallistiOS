@@ -18,7 +18,7 @@ OBJS = abort.o byteorder.o memset2.o memset4.o memcpy2.o memcpy4.o \
 GCC_MAJORMINOR = $(basename $(KOS_GCCVER))
 GCC_MAJOR = $(basename $(GCC_MAJORMINOR))
 
-ifneq ($(strip $(GCC_MAJOR)), 4)
+ifeq ($(strip $(GCC_MAJOR)), 3)
 OBJS += crtbegin.o crtend.o
 endif
 
