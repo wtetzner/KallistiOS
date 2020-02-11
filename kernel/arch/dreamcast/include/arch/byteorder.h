@@ -26,6 +26,11 @@ __BEGIN_DECLS
 
 #include <sys/_types.h>
 
+#ifdef BYTE_ORDER
+/* If we've included <arch/types.h>, this might already be defined... */
+#undef BYTE_ORDER
+#endif
+
 /** \brief  Define the byte-order of the platform in use. */
 #define BYTE_ORDER      LITTLE_ENDIAN
 

@@ -80,6 +80,7 @@ typedef int handle_t;               /**< \brief Generic "handle" type */
 typedef handle_t tid_t;             /**< \brief Thread ID type */
 typedef handle_t prio_t;            /**< \brief Priority value type */
 
+#ifndef BYTE_ORDER
 /* Make sure to pull in the base endianness defines... */
 #ifndef LITTLE_ENDIAN
 #include <sys/_types.h>
@@ -87,8 +88,8 @@ typedef handle_t prio_t;            /**< \brief Priority value type */
 
 /** \brief  Endianness definition -- Little Endian */
 #define BYTE_ORDER  LITTLE_ENDIAN
+#endif
 
 __END_DECLS
 
 #endif  /* __ARCH_TYPES_H */
-
