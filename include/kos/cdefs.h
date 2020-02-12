@@ -2,6 +2,7 @@
 
    kos/cdefs.h
    Copyright (C) 2002, 2004 Dan Potter
+   Copyright (C) 2020 Lawrence Sebald
 
    Based loosely around some stuff in BSD's sys/cdefs.h
 */
@@ -13,6 +14,7 @@
     shorter forms for use in programs (to aid in optimization, mainly).
 
     \author Dan Potter
+    \author Lawrence Sebald
 */
 
 #ifndef __KOS_CDEFS_H
@@ -99,6 +101,14 @@
 */
 #define __scanflike(fmtarg, firstvararg) \
     __attribute__((__format__ (__scanf__, fmtarg, firstvararg)))
+#endif
+
+#if __GNUC__ >= 7
+/** \brief  Identify a case statement that is expected to fall through to the
+            statement underneath it. */
+#define __fallthrough __attribute__((__fallthrough__))
+#else
+#define __fallthrough /* Fall through */
 #endif
 
 /* GCC macros for special cases */
