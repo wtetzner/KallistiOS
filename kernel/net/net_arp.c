@@ -288,6 +288,8 @@ int net_arp_input(netif_t *nif, const uint8 *pkt_in, int len) {
     switch(pkt->opcode[1]) {
         case 1: /* ARP Request */
             net_arp_send(nif, pkt);
+            __fallthrough; /* Yes, this really should fall through here. */
+
         case 2: /* ARP Reply */
             /* Insert into ARP cache */
             net_arp_insert(nif, pkt->hw_send, pkt->pr_send,

@@ -819,6 +819,7 @@ gdb_handle_exception(int exceptionVector) {
                 /* sAA..AA   Step one instruction from AA..AA(optional) */
             case 's':
                 stepping = 1;
+                __fallthrough;
             case 'c': {
                 /* tRY, to read optional parameter, pc unchanged if no parm */
                 if(hexToInt(&ptr, &addr))

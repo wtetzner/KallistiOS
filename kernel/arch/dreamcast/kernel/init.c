@@ -267,6 +267,7 @@ void arch_exit() {
     switch(arch_exit_path) {
         default:
             dbglog(DBG_CRITICAL, "arch: arch_exit_path has invalid value!\n");
+            __fallthrough;
         case ARCH_EXIT_RETURN:
             arch_return();
             break;
