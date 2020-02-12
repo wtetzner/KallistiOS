@@ -843,6 +843,7 @@ static int lcp_handle_terminate_req(ppp_protocol_t *self, const lcp_pkt_t *pkt,
             lcp_state.resend_pkt = NULL;
             lcp_state.resend_timeout = NULL;
             lcp_state.state = PPP_STATE_STOPPING;
+            __fallthrough;
 
         default:
             return -1;

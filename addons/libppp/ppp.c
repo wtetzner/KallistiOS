@@ -362,7 +362,7 @@ void *ppp_main(void *arg) {
                                hopefully compressed. Check the flags set by LCP
                                to make sure. */
                             expect = EXPECT_DATA;
-                            /* Fall through... */
+                            __fallthrough;
                         }
 
                     case EXPECT_DATA:

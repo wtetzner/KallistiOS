@@ -177,7 +177,7 @@ static int ipcp_handle_configure_req(ppp_protocol_t *self,
 
         case PPP_STATE_OPENED:
             /* XXXX: This layer down. */
-            /* Fall through... */
+            __fallthrough;
 
         case PPP_STATE_STOPPED:
             ipcp_send_client_cfg(self, 0);
@@ -390,7 +390,7 @@ static int ipcp_handle_configure_ack(ppp_protocol_t *self,
         case PPP_STATE_OPENED:
             /* Uh oh... Something's gone wrong. */
             /* XXXX: This layer down. */
-            /* Fall through... */
+            __fallthrough;
 
         case PPP_STATE_ACK_RECEIVED:
             /* Well, this isn't good... Resend the configure request and back
@@ -440,7 +440,7 @@ static int ipcp_handle_configure_nak(ppp_protocol_t *self,
 
         case PPP_STATE_OPENED:
             /* XXXX: This layer down. */
-            /* Fall through... */
+            __fallthrough;
 
         case PPP_STATE_REQUEST_SENT:
         case PPP_STATE_ACK_RECEIVED:
@@ -555,6 +555,7 @@ static int ipcp_handle_terminate_req(ppp_protocol_t *self,
             ipcp_state.resend_pkt = NULL;
             ipcp_state.resend_timeout = NULL;
             ipcp_state.state = PPP_STATE_STOPPING;
+            __fallthrough;
 
         default:
             return -1;
