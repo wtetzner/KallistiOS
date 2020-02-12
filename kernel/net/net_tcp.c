@@ -388,6 +388,7 @@ retry:
             }
 
             /* Fall through... */
+            __fallthrough;
 
         case TCP_STATE_SYN_RECEIVED:
             /* Don't have to worry about queued packets, since we don't allow
@@ -2009,6 +2010,7 @@ static short net_tcp_poll(net_socket_t *hnd, short events) {
             if(sock->data.sndbuf_cur_sz < sock->sndbuf_sz)
                 rv |= POLLWRNORM | POLLWRBAND;
             /* Fall through... */
+            __fallthrough;
 
         case TCP_STATE_TIME_WAIT:
         case TCP_STATE_CLOSING:
@@ -2020,6 +2022,7 @@ static short net_tcp_poll(net_socket_t *hnd, short events) {
             if(sock->data.sndbuf_cur_sz < sock->sndbuf_sz)
                 rv |= POLLWRNORM | POLLWRBAND;
             /* Fall through... */
+            __fallthrough;
 
         case TCP_STATE_FIN_WAIT_1:
         case TCP_STATE_FIN_WAIT_2:
