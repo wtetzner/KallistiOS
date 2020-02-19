@@ -40,17 +40,19 @@ uint32 _fs_dclsocket_get_ip(void);
 
 /* We have to put this here so we can include plat-specific devices */
 dbgio_handler_t * dbgio_handlers[] = {
+#ifndef _arch_sub_naomi
     &dbgio_dcload,
     &dbgio_dcls,
     &dbgio_scif,
+#endif
     &dbgio_fb,
     &dbgio_null
 };
 int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
 
-/* Auto-init stuff: comment out here if you don't like this stuff
-   to be running in your build, and also below in arch_main() */
-/* #if 0 */
+/* Auto-init stuff: override with a non-weak symbol if you don't want all of
+   this to be linked into your code (and do the same with the
+   arch_auto_shutdown function too). */
 int  __attribute__((weak)) arch_auto_init() {
     union {
         uint32 ipl;
@@ -65,23 +67,29 @@ int  __attribute__((weak)) arch_auto_init() {
     irq_init();         /* IRQs */
     irq_disable();          /* Turn on exceptions */
 
+#ifndef _arch_sub_naomi
     if(!(__kos_init_flags & INIT_NO_DCLOAD))
         fs_dcload_init_console();   /* Init dc-load console, if applicable */
 
-    // Init SCIF for debug stuff (maybe)
+    /* Init SCIF for debug stuff (maybe) */
     scif_init();
+#endif
 
     /* Init debug IO */
     dbgio_init();
 
+#ifndef _arch_sub_naomi
     /* Print a banner */
     if(__kos_init_flags & INIT_QUIET)
         dbgio_disable();
     else {
-        // PTYs not initialized yet
+        /* PTYs not initialized yet */
         dbgio_write_str("\n--\n");
         dbgio_write_str(kos_get_banner());
     }
+#else
+    dbgio_disable();
+#endif
 
     timer_init();           /* Timers */
     hardware_sys_init();        /* DC low-level hardware init */
@@ -109,6 +117,7 @@ int  __attribute__((weak)) arch_auto_init() {
         fs_romdisk_mount("/rd", __kos_romdisk, 0);
     }
 
+#ifndef _arch_sub_naomi
     if(!(__kos_init_flags & INIT_NO_DCLOAD) && *DCLOADMAGICADDR == DCLOADMAGICVALUE) {
         dbglog(DBG_INFO, "dc-load console support enabled\n");
         fs_dcload_init();
@@ -117,16 +126,20 @@ int  __attribute__((weak)) arch_auto_init() {
     fs_iso9660_init();
     vmufs_init();
     fs_vmu_init();
+#endif
 
-    // Initialize library handling
+    /* Initialize library handling */
     library_init();
 
     /* Now comes the optional stuff */
     if(__kos_init_flags & INIT_IRQ) {
         irq_enable();       /* Turn on IRQs */
+#ifndef _arch_sub_naomi
         maple_wait_scan();  /* Wait for the maple scan to complete */
+#endif
     }
 
+#ifndef _arch_sub_naomi
     if(__kos_init_flags & INIT_NET) {
         ip.ipl = 0;
 
@@ -152,13 +165,16 @@ int  __attribute__((weak)) arch_auto_init() {
             }
         }
     }
+#endif
 
     return 0;
 }
 
 void  __attribute__((weak)) arch_auto_shutdown() {
+#ifndef _arch_sub_naomi
     fs_dclsocket_shutdown();
     net_shutdown();
+#endif
 
     irq_disable();
     snd_shutdown();
@@ -166,10 +182,12 @@ void  __attribute__((weak)) arch_auto_shutdown() {
     hardware_shutdown();
     pvr_shutdown();
     library_shutdown();
+#ifndef _arch_sub_naomi
     fs_dcload_shutdown();
     fs_vmu_shutdown();
     vmufs_shutdown();
     fs_iso9660_shutdown();
+#endif
     fs_ramdisk_shutdown();
     fs_romdisk_shutdown();
     fs_pty_shutdown();
@@ -177,7 +195,6 @@ void  __attribute__((weak)) arch_auto_shutdown() {
     thd_shutdown();
     rtc_shutdown();
 }
-/* endif */
 
 /* This is the entry point inside the C program */
 int arch_main() {

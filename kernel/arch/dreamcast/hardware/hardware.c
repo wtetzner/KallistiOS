@@ -45,18 +45,22 @@ int hardware_periph_init() {
     spu_init();
     spu_dma_init();
 
+#ifndef _arch_sub_naomi
     /* Init CD-ROM.. NOTE: NO GD-ROM SUPPORT. ONLY CDs/CDRs. */
     cdrom_init();
 
     /* Setup maple bus */
     maple_init();
+#endif
 
     /* Init video */
     vid_init(DEFAULT_VID_MODE, DEFAULT_PIXEL_MODE);
 
+#ifndef _arch_sub_naomi
     /* Setup network (this won't do anything unless we enable netcore) */
     bba_init();
     la_init();
+#endif
 
     initted = 2;
 
@@ -66,10 +70,12 @@ int hardware_periph_init() {
 void hardware_shutdown() {
     switch(initted) {
         case 2:
+#ifndef _arch_sub_naomi
             la_shutdown();
             bba_shutdown();
             maple_shutdown();
             cdrom_shutdown();
+#endif
             spu_dma_shutdown();
             spu_shutdown();
             vid_shutdown();
@@ -82,5 +88,3 @@ void hardware_shutdown() {
             return;
     }
 }
-
-

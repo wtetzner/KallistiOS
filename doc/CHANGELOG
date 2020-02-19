@@ -101,6 +101,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Added dirname() and basename() functions to koslib [LS]
 - DC  Clean up strict aliasing rule violations and remove -fno-strict-aliasing
       from the KOS_CFLAGS [mrneo240 && LS]
+- NAO Added preliminary support for compiling to target the NAOMI and NAOMI 2
+      arcade systems with a NetDIMM board attached [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

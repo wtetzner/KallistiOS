@@ -427,12 +427,18 @@ uint32      *vram_l;
    [This is the old KOS function by Dan.]
 */
 int vid_check_cable() {
+#ifndef _arch_sub_naomi
     vuint32 * porta = (vuint32 *)0xff80002c;
 
     *porta = (*porta & 0xfff0ffff) | 0x000a0000;
 
     /* Read port8 and port9 */
     return (*((vuint16*)(porta + 1)) >> 8) & 3;
+#else
+    /* XXXX: This still needs to be figured out for NAOMI. For now, assume
+       VGA mode. */
+    return 0;
+#endif
 }
 
 /*-----------------------------------------------------------------------------*/

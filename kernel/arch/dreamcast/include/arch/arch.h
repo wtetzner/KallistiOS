@@ -2,7 +2,7 @@
 
    arch/dreamcast/include/arch.h
    Copyright (C) 2001 Dan Potter
-   Copyright (C) 2013 Lawrence Sebald
+   Copyright (C) 2013, 2020 Lawrence Sebald
 
 */
 
@@ -27,10 +27,14 @@ __BEGIN_DECLS
 #define PAGESIZE_BITS   12              /**< \brief Bits for page size */
 #define PAGEMASK        (PAGESIZE - 1)  /**< \brief Mask for page offset */
 
+#ifndef _arch_sub_naomi
 /** \brief  Page count "variable".
 
     The number of pages is static, so we can optimize this quite a bit. */
 #define page_count      ((16*1024*1024 - 0x10000) / PAGESIZE)
+#else
+#define page_count      ((32*1024*1024 - 0x10000) / PAGESIZE)
+#endif
 
 /** \brief  Base address of available physical pages. */
 #define page_phys_base  0x8c010000
@@ -350,6 +354,7 @@ const char *kos_get_authors(void);
 */
 #define arch_fptr_next(fptr) (*((uint32*)(fptr+4)))
 
+#ifndef _arch_sub_naomi
 /** \brief  Returns true if the passed address is likely to be valid. Doesn't
             have to be exact, just a sort of general idea.
 
@@ -357,6 +362,9 @@ const char *kos_get_authors(void);
                             memory access.
 */
 #define arch_valid_address(ptr) ((ptr_t)(ptr) >= 0x8c010000 && (ptr_t)(ptr) < 0x8d000000)
+#else
+#define arch_valid_address(ptr) ((ptr_t)(ptr) >= 0x8c010000 && (ptr_t)(ptr) < 0x8e000000)
+#endif
 
 __END_DECLS
 
