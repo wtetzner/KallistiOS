@@ -44,8 +44,8 @@ dbgio_handler_t * dbgio_handlers[] = {
     &dbgio_dcload,
     &dbgio_dcls,
     &dbgio_scif,
-#endif
     &dbgio_fb,
+#endif
     &dbgio_null
 };
 int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
@@ -78,7 +78,6 @@ int  __attribute__((weak)) arch_auto_init() {
     /* Init debug IO */
     dbgio_init();
 
-#ifndef _arch_sub_naomi
     /* Print a banner */
     if(__kos_init_flags & INIT_QUIET)
         dbgio_disable();
@@ -87,9 +86,6 @@ int  __attribute__((weak)) arch_auto_init() {
         dbgio_write_str("\n--\n");
         dbgio_write_str(kos_get_banner());
     }
-#else
-    dbgio_disable();
-#endif
 
     timer_init();           /* Timers */
     hardware_sys_init();        /* DC low-level hardware init */
@@ -124,9 +120,9 @@ int  __attribute__((weak)) arch_auto_init() {
     }
 
     fs_iso9660_init();
+#endif
     vmufs_init();
     fs_vmu_init();
-#endif
 
     /* Initialize library handling */
     library_init();
@@ -134,9 +130,7 @@ int  __attribute__((weak)) arch_auto_init() {
     /* Now comes the optional stuff */
     if(__kos_init_flags & INIT_IRQ) {
         irq_enable();       /* Turn on IRQs */
-#ifndef _arch_sub_naomi
         maple_wait_scan();  /* Wait for the maple scan to complete */
-#endif
     }
 
 #ifndef _arch_sub_naomi
@@ -184,8 +178,10 @@ void  __attribute__((weak)) arch_auto_shutdown() {
     library_shutdown();
 #ifndef _arch_sub_naomi
     fs_dcload_shutdown();
+#endif
     fs_vmu_shutdown();
     vmufs_shutdown();
+#ifndef _arch_sub_naomi
     fs_iso9660_shutdown();
 #endif
     fs_ramdisk_shutdown();

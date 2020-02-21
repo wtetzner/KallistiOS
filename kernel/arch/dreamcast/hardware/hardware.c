@@ -48,10 +48,10 @@ int hardware_periph_init() {
 #ifndef _arch_sub_naomi
     /* Init CD-ROM.. NOTE: NO GD-ROM SUPPORT. ONLY CDs/CDRs. */
     cdrom_init();
+#endif
 
     /* Setup maple bus */
     maple_init();
-#endif
 
     /* Init video */
     vid_init(DEFAULT_VID_MODE, DEFAULT_PIXEL_MODE);
@@ -73,7 +73,9 @@ void hardware_shutdown() {
 #ifndef _arch_sub_naomi
             la_shutdown();
             bba_shutdown();
+#endif
             maple_shutdown();
+#if 0
             cdrom_shutdown();
 #endif
             spu_dma_shutdown();
