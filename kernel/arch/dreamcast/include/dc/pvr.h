@@ -1204,6 +1204,15 @@ void pvr_set_bg_color(float r, float g, float b);
 */
 void pvr_set_shadow_scale(int enable, float scale_value);
 
+/** \brief  Set Z clipping depth.
+
+    This function sets the Z clipping depth. The default value for this is
+    0.0001.
+
+    \param  zc              The new value to set the z clip parameter to.
+*/
+void pvr_set_zclip(float zc);
+
 /** \brief  Retrieve the current VBlank count.
 
     This function retrieves the number of VBlank interrupts that have occurred
