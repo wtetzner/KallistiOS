@@ -103,6 +103,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
       from the KOS_CFLAGS [mrneo240 && LS]
 - NAO Added preliminary support for compiling to target the NAOMI and NAOMI 2
       arcade systems with a NetDIMM board attached [LS]
+- NAO Added a simple utility to parse NetDIMM binary header data [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
