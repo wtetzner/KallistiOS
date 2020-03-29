@@ -44,9 +44,9 @@ dbgio_handler_t * dbgio_handlers[] = {
     &dbgio_dcload,
     &dbgio_dcls,
     &dbgio_scif,
-    &dbgio_fb,
 #endif
-    &dbgio_null
+    &dbgio_null,
+    &dbgio_fb
 };
 int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
 
