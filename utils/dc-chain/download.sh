@@ -1,9 +1,10 @@
 #!/bin/sh
 
 # These version numbers are all that should ever have to be changed.
-export GCC_VER=4.7.4
-export BINUTILS_VER=2.31.1
-export NEWLIB_VER=2.0.0
+export SH_GCC_VER=9.3.0
+export ARM_GCC_VER=8.4.0
+export BINUTILS_VER=2.34
+export NEWLIB_VER=3.3.0
 export GMP_VER=4.3.2
 export MPFR_VER=2.4.2
 export MPC_VER=0.8.1
@@ -37,8 +38,10 @@ done
 if command -v wget >/dev/null 2>&1; then
     echo "Downloading binutils-$BINUTILS_VER..."
     wget -c https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
-    echo "Downloading GCC $GCC_VER..."
-    wget -c https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.bz2 || exit 1
+    echo "Downloading GCC $SH_GCC_VER..."
+    wget -c https://ftp.gnu.org/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.gz || exit 1
+    echo "Downloading GCC $ARM_GCC_VER..."
+    wget -c https://ftp.gnu.org/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.gz || exit 1
     echo "Downloading Newlib $NEWLIB_VER..."
     wget -c https://sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.gz || exit 1
 
@@ -59,8 +62,10 @@ if command -v wget >/dev/null 2>&1; then
 elif command -v curl >/dev/null 2>&1; then
     echo "Downloading Binutils $BINUTILS_VER..."
     curl -C - -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
-    echo "Downloading GCC $GCC_VER..."
-    curl -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.bz2 || exit 1
+    echo "Downloading GCC $SH_GCC_VER..."
+    curl -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.gz || exit 1
+    echo "Downloading GCC $ARM_GCC_VER..."
+    curl -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.gz || exit 1
     echo "Downloading Newlib $NEWLIB_VER..."
     curl -C - -O https://sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.gz || exit 1
 

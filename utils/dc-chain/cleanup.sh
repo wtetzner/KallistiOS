@@ -1,9 +1,10 @@
 #!/bin/sh
 
 # These version numbers are all that should ever have to be changed.
-export GCC_VER=4.7.4
-export BINUTILS_VER=2.31.1
-export NEWLIB_VER=2.0.0
+export SH_GCC_VER=9.3.0
+export ARM_GCC_VER=8.4.0
+export BINUTILS_VER=2.34
+export NEWLIB_VER=3.3.0
 export GMP_VER=4.3.2
 export MPFR_VER=2.4.2
 export MPC_VER=0.8.1
@@ -36,7 +37,8 @@ done
 # Clean up downloaded tarballs...
 echo "Deleting downloaded packages..."
 rm -f binutils-$BINUTILS_VER.tar.xz
-rm -f gcc-$GCC_VER.tar.bz2
+rm -f gcc-$SH_GCC_VER.tar.gz
+rm -f gcc-$ARM_GCC_VER.tar.gz
 rm -f newlib-$NEWLIB_VER.tar.gz
 
 if [ -n "$GMP_VER" ]; then
@@ -57,7 +59,8 @@ echo "---------------------------------------"
 # Clean up
 echo "Deleting unpacked package sources..."
 rm -rf binutils-$BINUTILS_VER
-rm -rf gcc-$GCC_VER
+rm -rf gcc-$SH_GCC_VER
+rm -rf gcc-$ARM_GCC_VER
 rm -rf newlib-$NEWLIB_VER
 
 if [ -n "$GMP_VER" ]; then

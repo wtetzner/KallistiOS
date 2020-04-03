@@ -1,9 +1,10 @@
 #!/bin/sh
 
 # These version numbers are all that should ever have to be changed.
-export GCC_VER=4.7.4
-export BINUTILS_VER=2.31.1
-export NEWLIB_VER=2.0.0
+export SH_GCC_VER=9.3.0
+export ARM_GCC_VER=8.4.0
+export BINUTILS_VER=2.34
+export NEWLIB_VER=3.3.0
 export GMP_VER=4.3.2
 export MPFR_VER=2.4.2
 export MPC_VER=0.8.1
@@ -34,12 +35,13 @@ while [ "$1" != "" ]; do
 done
 
 # Clean up from any old builds.
-rm -rf binutils-$BINUTILS_VER gcc-$GCC_VER newlib-$NEWLIB_VER
+rm -rf binutils-$BINUTILS_VER gcc-$SH_GCC_VER gcc-$ARM_GCC_VER newlib-$NEWLIB_VER
 rm -rf gmp-$GMP_VER mpfr-$MPFR_VER mpc-$MPC_VER
 
 # Unpack everything.
 tar xf binutils-$BINUTILS_VER.tar.xz || exit 1
-tar xf gcc-$GCC_VER.tar.bz2 || exit 1
+tar xf gcc-$SH_GCC_VER.tar.gz || exit 1
+tar xf gcc-$ARM_GCC_VER.tar.gz || exit 1
 tar xf newlib-$NEWLIB_VER.tar.gz || exit 1
 
 # Unpack the GCC dependencies and move them into their required locations.

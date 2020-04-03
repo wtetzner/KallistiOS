@@ -3,7 +3,7 @@
 #
 # Interesting parameters:
 # erase=0|1                     Erase build directories on the fly to save space
-# thread_model=posix|single|kos Set gcc threading model
+# thread_model=single|kos       Set gcc threading model
 # verbose=0|1                   Display
 # makejobs=-jn                  Set the number of jobs for calls to make to n
 #
@@ -28,11 +28,17 @@ arm_prefix := /opt/toolchains/dc/$(arm_target)
 kos_root=$(CURDIR)/../../..
 # kos_base: equivalent of KOS_BASE (contains include/ and kernel/)
 kos_base=$(CURDIR)/../..
-binutils_ver=2.31.1
-gcc_ver=4.7.4
-newlib_ver=2.0.0
+sh_binutils_ver=2.34
+sh_gcc_ver=9.3.0
+newlib_ver=3.3.0
 gdb_ver=7.11.1
 insight_ver=6.8-1
+
+# The ARM version of binutils/gcc is separated out as the
+# particular CPU versions we need may not be available in
+# newer versions of GCC.
+arm_binutils_ver=2.34
+arm_gcc_ver=8.4.0
 
 # With GCC 4.x versions, the patches provide a kos thread model, so you should
 # use it. With 3.4.6, you probably want posix here. If you really don't want
@@ -47,7 +53,7 @@ verbose=1
 # Tracking down problems with multiple make jobs is much more difficult than
 # with just one running at a time. So, if you run into trouble, then you should
 # clear this variable and try again with just one job running.
-makejobs=-j4
+makejobs=-j2
 
 # Set the languages to build for pass 2 of building gcc for sh-elf. The default
 # here is to build C, C++, Objective C, and Objective C++. You may want to take
@@ -79,14 +85,14 @@ patches := $(pwd)/patches
 logdir := $(pwd)/logs
 PATH := $(sh_prefix)/bin:$(arm_prefix)/bin:$(PATH)
 binutils_dir=binutils-$(binutils_ver)
-gcc_dir=gcc-$(gcc_ver)
+gcc_dir=gcc-$(sh_gcc_ver)
 newlib_dir=newlib-$(newlib_ver)
 
 all: patch build
 
 # ---- patch {{{
 binutils_patches    := $(wildcard $(patches)/binutils-$(binutils_ver)*.diff)
-gcc_patches    := $(wildcard $(patches)/gcc-$(gcc_ver)*.diff)
+gcc_patches    := $(wildcard $(patches)/gcc-$(sh_gcc_ver)*.diff)
 newlib_patches := $(wildcard $(patches)/newlib-$(newlib_ver)*.diff)
 kos_patches    := $(wildcard $(patches)/kos-*.diff)
 
@@ -127,10 +133,14 @@ build_sh4_targets=build-sh4-binutils build-sh4-gcc build-sh4-gcc-pass1 build-sh4
 build_arm_targets=build-arm-binutils build-arm-gcc build-arm-gcc-pass1
 $(build_sh4_targets): prefix = $(sh_prefix)
 $(build_sh4_targets): target = $(sh_target)
-$(build_sh4_targets): extra_configure_args = --with-multilib-list=m4-single-only,m4-nofpu,m4 --with-endian=little --with-cpu=m4-single-only
+$(build_sh4_targets): extra_configure_args = --with-multilib-list=m4-single-only --with-endian=little --with-cpu=m4-single-only
+$(build_sh4_targets): gcc_ver = $(sh_gcc_ver)
+$(build_sh4_targets): binutils_ver = $(sh_binutils_ver)
 $(build_arm_targets): prefix = $(arm_prefix)
 $(build_arm_targets): target = $(arm_target)
-$(build_arm_targets): extra_configure_args = --with-arch=armv4
+$(build_arm_targets): extra_configure_args = --with-arch=armv4 --with-mode=arm --disable-multilib
+$(build_arm_targets): gcc_ver = $(arm_gcc_ver)
+$(build_arm_targets): binutils_ver = $(arm_binutils_ver)
 
 # To avoid code repetition, we use the same commands for both
 # architectures.  But we can't create a single target called
