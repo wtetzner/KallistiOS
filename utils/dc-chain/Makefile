@@ -31,7 +31,7 @@ kos_base=$(CURDIR)/../..
 sh_binutils_ver=2.34
 sh_gcc_ver=9.3.0
 newlib_ver=3.3.0
-gdb_ver=7.11.1
+gdb_ver=9.1
 insight_ver=6.8-1
 
 # The ARM version of binutils/gcc is separated out as the
@@ -317,7 +317,7 @@ clean:
 	-rm -rf build-gcc-$(arm_target)-$(gcc_ver)
 	-rm -rf build-binutils-$(sh_target)-$(binutils_ver)
 	-rm -rf build-binutils-$(arm_target)-$(binutils_ver)
-	-rm -rf build-gdb-$(gdb_ver) install_gdb_stamp build_gdb_stamp unpack_gdb_stamp
+	-rm -rf build-gdb-$(gdb_ver) gdb-$(gdb_ver) gdb-$(gdb_ver).tar.gz install_gdb_stamp build_gdb_stamp unpack_gdb_stamp
 	-rm -rf build-insight-$(insight_ver) install_insight_stamp build_insight_stamp unpack_insight_stamp
 
 logdir:

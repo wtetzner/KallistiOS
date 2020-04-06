@@ -5,9 +5,9 @@ export SH_GCC_VER=9.3.0
 export ARM_GCC_VER=8.4.0
 export BINUTILS_VER=2.34
 export NEWLIB_VER=3.3.0
-export GMP_VER=4.3.2
-export MPFR_VER=2.4.2
-export MPC_VER=0.8.1
+export GMP_VER=6.1.0
+export MPFR_VER=3.1.4
+export MPC_VER=1.0.3
 
 while [ "$1" != "" ]; do
     PARAM=`echo $1 | awk -F= '{print $1}'`
