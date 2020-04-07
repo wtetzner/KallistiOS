@@ -31,7 +31,7 @@ kos_base=$(CURDIR)/../..
 sh_binutils_ver=2.34
 sh_gcc_ver=9.3.0
 newlib_ver=3.3.0
-gdb_ver=7.11.1
+gdb_ver=9.1
 insight_ver=6.8-1
 
 # The ARM version of binutils/gcc is separated out as the
@@ -40,10 +40,10 @@ insight_ver=6.8-1
 arm_binutils_ver=2.34
 arm_gcc_ver=8.4.0
 
-# With GCC 4.x versions, the patches provide a kos thread model, so you should
-# use it. With 3.4.6, you probably want posix here. If you really don't want
-# threading support for C++ (or Objective C/Objective C++), you can set this to
-# single (why you would is beyond me, though).
+# With GCC 4.x versions and higher, the patches provide a kos thread model, 
+# so you should use it. With 3.4.6, you probably want posix here. If you 
+# really don't want threading support for C++ (or Objective C/Objective C++), 
+# you can set this to single (why you would is beyond me, though).
 thread_model=kos
 erase=1
 verbose=1
@@ -174,7 +174,7 @@ $(build_gcc_pass1): logdir
 	> $(log)
 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --without-headers --with-newlib --enable-languages=c --disable-libssp --disable-tls $(extra_configure_args) CXX=$(CXX) $(to_log)
 	$(MAKE) $(makejobs) -C $(build) DESTDIR=$(DESTDIR) $(to_log)
-	$(MAKE) -C $(build) install DESTDIR=$(DESTDIR) $(to_log)
+	$(MAKE) -C $(build) install-strip DESTDIR=$(DESTDIR) $(to_log)
 
 $(build_newlib): build = build-newlib-$(target)-$(newlib_ver)
 $(build_newlib): src_dir = newlib-$(newlib_ver)
@@ -212,7 +212,7 @@ $(build_gcc_pass2): logdir
 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --with-newlib --disable-libssp --disable-tls \
 	   --enable-threads=$(thread_model) --enable-languages=$(pass2_languages) $(extra_configure_args) CXX=$(CXX) $(to_log)
 	$(MAKE) $(makejobs) -C $(build) DESTDIR=$(DESTDIR) $(to_log)
-	$(MAKE) -C $(build) install DESTDIR=$(DESTDIR) $(to_log)
+	$(MAKE) -C $(build) install-strip DESTDIR=$(DESTDIR) $(to_log)
 	$(clean_up)
 
 # ---- }}}}
@@ -317,7 +317,7 @@ clean:
 	-rm -rf build-gcc-$(arm_target)-$(gcc_ver)
 	-rm -rf build-binutils-$(sh_target)-$(binutils_ver)
 	-rm -rf build-binutils-$(arm_target)-$(binutils_ver)
-	-rm -rf build-gdb-$(gdb_ver) install_gdb_stamp build_gdb_stamp unpack_gdb_stamp
+	-rm -rf build-gdb-$(gdb_ver) gdb-$(gdb_ver) gdb-$(gdb_ver).tar.gz install_gdb_stamp build_gdb_stamp unpack_gdb_stamp
 	-rm -rf build-insight-$(insight_ver) install_insight_stamp build_insight_stamp unpack_insight_stamp
 
 logdir:
