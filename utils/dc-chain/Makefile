@@ -40,10 +40,10 @@ insight_ver=6.8-1
 arm_binutils_ver=2.34
 arm_gcc_ver=8.4.0
 
-# With GCC 4.x versions, the patches provide a kos thread model, so you should
-# use it. With 3.4.6, you probably want posix here. If you really don't want
-# threading support for C++ (or Objective C/Objective C++), you can set this to
-# single (why you would is beyond me, though).
+# With GCC 4.x versions and higher, the patches provide a kos thread model, 
+# so you should use it. With 3.4.6, you probably want posix here. If you 
+# really don't want threading support for C++ (or Objective C/Objective C++), 
+# you can set this to single (why you would is beyond me, though).
 thread_model=kos
 erase=1
 verbose=1
