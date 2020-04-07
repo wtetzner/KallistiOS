@@ -174,7 +174,7 @@ $(build_gcc_pass1): logdir
 	> $(log)
 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --without-headers --with-newlib --enable-languages=c --disable-libssp --disable-tls $(extra_configure_args) CXX=$(CXX) $(to_log)
 	$(MAKE) $(makejobs) -C $(build) DESTDIR=$(DESTDIR) $(to_log)
-	$(MAKE) -C $(build) install DESTDIR=$(DESTDIR) $(to_log)
+	$(MAKE) -C $(build) install-strip DESTDIR=$(DESTDIR) $(to_log)
 
 $(build_newlib): build = build-newlib-$(target)-$(newlib_ver)
 $(build_newlib): src_dir = newlib-$(newlib_ver)
@@ -212,7 +212,7 @@ $(build_gcc_pass2): logdir
 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --with-newlib --disable-libssp --disable-tls \
 	   --enable-threads=$(thread_model) --enable-languages=$(pass2_languages) $(extra_configure_args) CXX=$(CXX) $(to_log)
 	$(MAKE) $(makejobs) -C $(build) DESTDIR=$(DESTDIR) $(to_log)
-	$(MAKE) -C $(build) install DESTDIR=$(DESTDIR) $(to_log)
+	$(MAKE) -C $(build) install-strip DESTDIR=$(DESTDIR) $(to_log)
 	$(clean_up)
 
 # ---- }}}}
