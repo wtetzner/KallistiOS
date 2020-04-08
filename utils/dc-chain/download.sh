@@ -35,7 +35,31 @@ while [ "$1" != "" ]; do
 done
 
 # Download everything.
-if command -v wget >/dev/null 2>&1; then
+if command -v curl >/dev/null 2>&1; then
+    echo "Downloading Binutils $BINUTILS_VER..."
+    curl --progress-bar -C - -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
+    echo "Downloading GCC $SH_GCC_VER..."
+    curl --progress-bar -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.gz || exit 1
+    echo "Downloading GCC $ARM_GCC_VER..."
+    curl --progress-bar -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.gz || exit 1
+    echo "Downloading Newlib $NEWLIB_VER..."
+    curl --progress-bar -C - -O https://sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.gz || exit 1
+
+    if [ -n "$GMP_VER" ]; then
+        echo "Downloading GMP $GMP_VER..."
+        curl --progress-bar -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2 || exit 1
+    fi
+
+    if [ -n "$MPFR_VER" ]; then
+        echo "Downloading MPFR $MPFR_VER..."
+        curl --progress-bar -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2 || exit 1
+    fi
+
+    if [ -n "$MPC_VER" ]; then
+        echo "Downloading MPC $MPC_VER..."
+        curl --progress-bar -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz || exit 1
+    fi
+elif command -v wget >/dev/null 2>&1; then
     echo "Downloading binutils-$BINUTILS_VER..."
     wget -c https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
     echo "Downloading GCC $SH_GCC_VER..."
@@ -58,30 +82,6 @@ if command -v wget >/dev/null 2>&1; then
     if [ -n "$MPC_VER" ]; then
         echo "Downloading MPC $MPC_VER..."
         wget -c https://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz || exit 1
-    fi
-elif command -v curl >/dev/null 2>&1; then
-    echo "Downloading Binutils $BINUTILS_VER..."
-    curl -C - -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
-    echo "Downloading GCC $SH_GCC_VER..."
-    curl -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.gz || exit 1
-    echo "Downloading GCC $ARM_GCC_VER..."
-    curl -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.gz || exit 1
-    echo "Downloading Newlib $NEWLIB_VER..."
-    curl -C - -O https://sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.gz || exit 1
-
-    if [ -n "$GMP_VER" ]; then
-        echo "Downloading GMP $GMP_VER..."
-        curl -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2 || exit 1
-    fi
-
-    if [ -n "$MPFR_VER" ]; then
-        echo "Downloading MPFR $MPFR_VER..."
-        curl -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2 || exit 1
-    fi
-
-    if [ -n "$MPC_VER" ]; then
-        echo "Downloading MPC $MPC_VER..."
-        curl -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz || exit 1
     fi
 else
     echo >&2 "You must have either wget or cURL installed to use this script!"
