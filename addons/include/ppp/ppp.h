@@ -363,7 +363,7 @@ int ppp_scif_init(int bps);
 
 /** \brief  Initialize the Dreamcast modem for a PPP link.
 
-    This function sets up the Dreamcast serial port to act as a communications
+    This function sets up the Dreamcast modem to act as a communications
     link for a point-to-point connection. This includes dialing the specified
     phone number and establishing the low-level link.
 
