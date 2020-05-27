@@ -16,6 +16,10 @@
 #ifndef __SYS_DIRENT_H
 #define __SYS_DIRENT_H
 
+#include <kos/cdefs.h>
+
+__BEGIN_DECLS
+
 #include <unistd.h>
 #include <arch/types.h>
 #include <kos/fs.h>
@@ -130,9 +134,13 @@ void rewinddir(DIR *dir);
 int scandir(const char *dir, struct dirent ***namelist,
             int(*filter)(const struct dirent *),
             int(*compar)(const struct dirent **, const struct dirent **));
+
 /** \brief Not implemented */
 void seekdir(DIR *dir, off_t offset);
+
 /** \brief Not implemented */
 off_t telldir(DIR *dir);
+
+__END_DECLS
 
 #endif
