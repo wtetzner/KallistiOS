@@ -5,9 +5,6 @@ versions (where they are missing from early versions, assume that they
 should be attributed to Dan Potter).
 
 KallistiOS version 2.1.0 -----------------------------------------------
-- DC  Fixed aica crash when volume is set to 255 [AB]
-- DC  Put a cap on the amount of samples requested by AICA so we don't get a 
-      Buffer overflow [AB == Andress Barajas]
 - *** Cleaned up generated stubs files on a make clean [Lawrence Sebald == LS]
 - DC  Added a function to detect if the program is being run on a retail
       Dreamcast or a Set5.xx device [LS]
@@ -107,6 +104,9 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - NAO Added preliminary support for compiling to target the NAOMI and NAOMI 2
       arcade systems with a NetDIMM board attached [LS]
 - NAO Added a simple utility to parse NetDIMM binary header data [LS]
+- DC  Fixed aica crash when volume is set to 255 [AB == Andress Barajas]
+- DC  Put a cap on the amount of samples requested by AICA so we don't get a 
+      Buffer overflow [AB]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
