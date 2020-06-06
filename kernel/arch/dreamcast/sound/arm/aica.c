@@ -96,7 +96,6 @@ void aica_play(int ch, int delay) {
 
     uint32 freq_lo, freq_base = 5644800;
     int freq_hi = 7;
-    uint32 i;
     uint32 playCont;
 
     /* Stop the channel (if it's already playing) */
