@@ -7,7 +7,7 @@ should be attributed to Dan Potter).
 KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Fixed aica crash when volume is set to 255 [AB]
 - DC  Put a cap on the amount of samples requested by AICA so we don't get a 
-      Buffer overflow [AB]
+      Buffer overflow [AB == Andress Barajas]
 - *** Cleaned up generated stubs files on a make clean [Lawrence Sebald == LS]
 - DC  Added a function to detect if the program is being run on a retail
       Dreamcast or a Set5.xx device [LS]
