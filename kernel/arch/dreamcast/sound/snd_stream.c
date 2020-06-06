@@ -432,7 +432,7 @@ void snd_stream_stop(snd_stream_hnd_t hnd) {
 
     /* Channel 1 */
     cmd->cmd_id = streams[hnd].ch[1];
-    snd_sh4_to_aica(tmp, AICA_CMDSTR_CHANNEL_SIZE);
+    snd_sh4_to_aica(tmp, cmd->size);
 }
 
 /* The DMA will chain to this to start the second DMA. */
@@ -476,7 +476,7 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
 
     /* round it a little bit */
     needed_samples &= ~0x7ff;
-    /* printf("last_write_pos %6i, current_play_pos %6i, needed_samples %6i\n",last_write_pos,current_play_pos,needed_samples); */
+    /* printf("last_write_pos %6u, current_play_pos %6u, needed_samples %6i\n",streams[hnd].last_write_pos,current_play_pos,needed_samples); */
 
     if(needed_samples > 0) {
         if(streams[hnd].stereo) {
