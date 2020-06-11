@@ -6,6 +6,7 @@
 */
 
 #include <string.h>
+#include <dc/minifont.h>
 #include "minifont.h"
 
 #define CHAR_WIDTH 8

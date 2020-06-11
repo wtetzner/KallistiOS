@@ -1,3 +1,18 @@
+/* KallistiOS ##version##
+
+   util/minifont.h
+   Copyright (C) 2020 Lawrence Sebald
+
+*/
+
+/*  This file defines a very simple 1bpp font called "Naomi" that I designed for
+    use when you just don't want to (or can't) use the biosfont. It's called
+    Naomi because, well, it was specifically put to use there first of all for
+    my early debugging with it.
+
+    Only ASCII characters 33-126 are present here. Each one taking up 16 bytes
+    of the data. Each character is 8x16 pixels in size. */
+
 static const int minifont_size = 1504;
 static const unsigned char minifont_data[1504] = {
     0x00, 0x00, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
@@ -189,6 +204,3 @@ static const unsigned char minifont_data[1504] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x51, 0x8a,
     0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-
-int minifont_draw(uint16 *buffer, uint32 bufwidth, uint32 c);
-int minifont_draw_str(uint16 *buffer, uint32 bufwidth, const char *str);
