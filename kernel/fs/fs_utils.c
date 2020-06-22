@@ -143,20 +143,30 @@ ssize_t fs_path_append(char *dst, const char *src, size_t len) {
     dlen = strlen(dst);
     slen = strlen(src);
 
+    /* Dont do anything if dst and src are empty. Return 1 for NUL terminator */
+    if(dlen == 0 && slen == 0)
+        return 1;
+
     /* Will we run out of space? */
-    if(*(dst + dlen - 1) != '/') {
+    if(dlen == 0 || dst[dlen - 1] != '/') {
         if(dlen + slen + 2 > len) {
             errno = ENAMETOOLONG;
             return -1;
         }
 
-        dst[dlen++] = '/';
+        /* If src doesn't start with '/', add one to dst */
+        if(src[0] != '/')
+            dst[dlen++] = '/';
     }
     else if(dlen + slen + 1 > len) {
         errno = ENAMETOOLONG;
         return -1;
     }
 
+    /* If dst ends with '/' and src starts with '/', ignore '/' from dst */
+    if(dlen > 0 && dst[dlen - 1] == '/' && src[0] == '/')
+        --dlen;
+        
     /* Concatenate the src string on the dst, copying the NUL terminator while
        we are at it. */
     memcpy(dst + dlen, src, slen + 1);
