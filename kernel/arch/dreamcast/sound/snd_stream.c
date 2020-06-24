@@ -288,7 +288,7 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     return hnd;
 }
 
-int snd_stream_reinit(snd_stream_hnd_t hnd, snd_stream_callback_t cb) {
+snd_stream_hnd_t snd_stream_reinit(snd_stream_hnd_t hnd, snd_stream_callback_t cb) {
     CHECK_HND(hnd);
 
     /* Start off with queueing disabled */
