@@ -112,6 +112,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - NAO Cleaned up the build process to not build certain parts of the DC hardware
       support that are either not useful or not (yet?) functional on NAOMI [LS]
 - DC  Fixed fs_path_append unsafe pointer arithmetic and made it smarter [AB]
+- DC  Fixed fs_ramdisk_attach so it does not cut off the first character of filename when
+      attaching
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

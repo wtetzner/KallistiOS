@@ -231,7 +231,7 @@ static void * ramdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
 
     (void)vfs;
 
-    if(!strcmp(fn, "/"))
+    if(fn[0] == '/')
         fn++;
 
     mutex_lock(&rd_mutex);
@@ -247,13 +247,13 @@ static void * ramdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
         f = root;
     }
     else {
-        f = ramdisk_find_path(rootdir, fn + 1, mode & O_DIR);
+        f = ramdisk_find_path(rootdir, fn, mode & O_DIR);
 
         if(f == NULL) {
             /* Are we planning to write anyway? */
             if(mm != O_RDONLY && !(mode & O_DIR)) {
                 /* Create a new file */
-                f = ramdisk_create_file(rootdir, fn + 1, mode & O_DIR);
+                f = ramdisk_create_file(rootdir, fn, mode & O_DIR);
 
                 if(f == NULL)
                     goto error_out;
