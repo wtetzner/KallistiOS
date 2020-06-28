@@ -32,9 +32,6 @@ __BEGIN_DECLS
 #include <kos/limits.h>
 #include <kos/fs.h>
 
-/** \brief  The maximum number of files that can be open at once. */
-#define MAX_ISO_FILES 8
-
 /** \brief  Reset the internal ISO9660 cache.
 
     This function resets the cache of the ISO9660 driver, breaking connections
