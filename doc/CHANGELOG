@@ -114,6 +114,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Fixed fs_path_append unsafe pointer arithmetic and made it smarter [AB]
 - DC  Fixed fs_ramdisk_attach so it does not cut off the first character of filename when
       attaching [AB]
+- DC  Moved max open file constants for CD, Ramdisk, Romdisk to opts.h [AB]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
