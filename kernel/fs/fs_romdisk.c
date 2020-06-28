@@ -20,6 +20,7 @@ on sunsite.unc.edu in /pub/Linux/system/recovery/, or as a package under Debian 
 #include <kos/thread.h>
 #include <kos/mutex.h>
 #include <kos/fs_romdisk.h>
+#include <kos/opts.h>
 #include <malloc.h>
 #include <string.h>
 #include <strings.h>
@@ -88,7 +89,7 @@ static struct {
     uint32      size;       /* Length of file in bytes */
     dirent_t    dirent;     /* A static dirent to pass back to clients */
     rd_image_t  * mnt;      /* Which mount instance are we using? */
-} fh[MAX_RD_FILES];
+} fh[FS_ROMDISK_MAX_FILES];
 
 /* Mutex for file handles */
 static mutex_t fh_mutex;
@@ -216,7 +217,7 @@ static void * romdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
     /* Find a free file handle */
     mutex_lock(&fh_mutex);
 
-    for(fd = 0; fd < MAX_RD_FILES; fd++)
+    for(fd = 0; fd < FS_ROMDISK_MAX_FILES; fd++)
         if(fh[fd].index == 0) {
             fh[fd].index = -1;
             break;
@@ -224,7 +225,7 @@ static void * romdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
 
     mutex_unlock(&fh_mutex);
 
-    if(fd >= MAX_RD_FILES) {
+    if(fd >= FS_ROMDISK_MAX_FILES) {
         errno = ENFILE;
         return NULL;
     }
@@ -245,7 +246,7 @@ static int romdisk_close(void * h) {
     file_t fd = (file_t)h;
 
     /* Check that the fd is valid */
-    if(fd < MAX_RD_FILES) {
+    if(fd < FS_ROMDISK_MAX_FILES) {
         /* No need to lock the mutex: this is an atomic op */
         fh[fd].index = 0;
     }
@@ -257,7 +258,7 @@ static ssize_t romdisk_read(void * h, void *buf, size_t bytes) {
     file_t fd = (file_t)h;
 
     /* Check that the fd is valid */
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0 || fh[fd].dir) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0 || fh[fd].dir) {
         errno = EINVAL;
         return -1;
     }
@@ -278,7 +279,7 @@ static off_t romdisk_seek(void * h, off_t offset, int whence) {
     file_t fd = (file_t)h;
 
     /* Check that the fd is valid */
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0 || fh[fd].dir) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0 || fh[fd].dir) {
         errno = EBADF;
         return -1;
     }
@@ -327,7 +328,7 @@ static off_t romdisk_seek(void * h, off_t offset, int whence) {
 static off_t romdisk_tell(void * h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0 || fh[fd].dir) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0 || fh[fd].dir) {
         errno = EINVAL;
         return -1;
     }
@@ -339,7 +340,7 @@ static off_t romdisk_tell(void * h) {
 static size_t romdisk_total(void * h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0 || fh[fd].dir) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0 || fh[fd].dir) {
         errno = EINVAL;
         return -1;
     }
@@ -353,7 +354,7 @@ static dirent_t *romdisk_readdir(void * h) {
     int type;
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0 || !fh[fd].dir) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0 || !fh[fd].dir) {
         errno = EBADF;
         return NULL;
     }
@@ -395,7 +396,7 @@ static dirent_t *romdisk_readdir(void * h) {
 static void *romdisk_mmap(void * h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0) {
         errno = EINVAL;
         return NULL;
     }
@@ -410,7 +411,7 @@ static int romdisk_fcntl(void *h, int cmd, va_list ap) {
 
     (void)ap;
 
-    if(fd >= MAX_RD_FILES || !fh[fd].index) {
+    if(fd >= FS_ROMDISK_MAX_FILES || !fh[fd].index) {
         errno = EBADF;
         return -1;
     }
@@ -440,7 +441,7 @@ static int romdisk_fcntl(void *h, int cmd, va_list ap) {
 static int romdisk_rewinddir(void *h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_RD_FILES || fh[fd].index == 0 || !fh[fd].dir) {
+    if(fd >= FS_ROMDISK_MAX_FILES || fh[fd].index == 0 || !fh[fd].dir) {
         errno = EBADF;
         return -1;
     }
@@ -452,7 +453,7 @@ static int romdisk_rewinddir(void *h) {
 static int romdisk_fstat(void *h, struct stat *st) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_RD_FILES || !fh[fd].index) {
+    if(fd >= FS_ROMDISK_MAX_FILES || !fh[fd].index) {
         errno = EBADF;
         return -1;
     }

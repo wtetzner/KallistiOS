@@ -31,9 +31,6 @@ __BEGIN_DECLS
 #include <kos/limits.h>
 #include <kos/fs.h>
 
-/** \brief  The maximum number of files that can be open at a time. */
-#define MAX_RD_FILES 16
-
 /** \cond */
 /* Initialize the file system */
 int fs_romdisk_init();

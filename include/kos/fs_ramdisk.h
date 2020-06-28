@@ -29,9 +29,6 @@ __BEGIN_DECLS
 #include <kos/limits.h>
 #include <kos/fs.h>
 
-/** \brief  The maximum number of files that can be open at a time. */
-#define MAX_RAM_FILES 8
-
 /** \cond */
 int fs_ramdisk_init();
 int fs_ramdisk_shutdown();
