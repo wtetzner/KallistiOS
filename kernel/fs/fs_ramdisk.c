@@ -34,6 +34,7 @@ cache data from disk rather than as a general purpose file system.
 #include <kos/thread.h>
 #include <kos/mutex.h>
 #include <kos/fs_ramdisk.h>
+#include <kos/opts.h>
 #include <malloc.h>
 #include <string.h>
 #include <strings.h>
@@ -87,8 +88,6 @@ static rd_dir_t  *rootdir = NULL;
 /********************************************************************************/
 /* File primitives */
 
-#define MAX_RAM_FILES 8
-
 /* File handles.. I could probably do this with a linked list, but I'm just
    too lazy right now. =) */
 static struct {
@@ -97,7 +96,7 @@ static struct {
     uint32      ptr;        /* Current read position in bytes */
     dirent_t    dirent;     /* A static dirent to pass back to clients */
     int         omode;      /* Open mode */
-} fh[MAX_RAM_FILES];
+} fh[FS_RAMDISK_MAX_FILES];
 
 /* Mutex for file system structs */
 static mutex_t rd_mutex;
@@ -233,7 +232,7 @@ static void * ramdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
 
     (void)vfs;
 
-    if(!strcmp(fn, "/"))
+    if(fn[0] == '/')
         fn++;
 
     mutex_lock(&rd_mutex);
@@ -249,13 +248,13 @@ static void * ramdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
         f = root;
     }
     else {
-        f = ramdisk_find_path(rootdir, fn + 1, mode & O_DIR);
+        f = ramdisk_find_path(rootdir, fn, mode & O_DIR);
 
         if(f == NULL) {
             /* Are we planning to write anyway? */
             if(mm != O_RDONLY && !(mode & O_DIR)) {
                 /* Create a new file */
-                f = ramdisk_create_file(rootdir, fn + 1, mode & O_DIR);
+                f = ramdisk_create_file(rootdir, fn, mode & O_DIR);
 
                 if(f == NULL)
                     goto error_out;
@@ -270,12 +269,12 @@ static void * ramdisk_open(vfs_handler_t * vfs, const char *fn, int mode) {
         goto error_out;
 
     /* Find a free file handle */
-    for(fd = 1; fd < MAX_RAM_FILES; fd++)
+    for(fd = 1; fd < FS_RAMDISK_MAX_FILES; fd++)
         if(fh[fd].file == NULL)
             break;
 
     /* Did we find it? */
-    if(fd >= MAX_RAM_FILES) {
+    if(fd >= FS_RAMDISK_MAX_FILES) {
         fd = -1;
         goto error_out;
     }
@@ -353,7 +352,7 @@ static int ramdisk_close(void * h) {
     mutex_lock(&rd_mutex);
 
     /* Check that the fd is valid */
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL) {
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL) {
         f = fh[fd].file;
         fh[fd].file = NULL;
 
@@ -379,7 +378,7 @@ static ssize_t ramdisk_read(void * h, void *buf, size_t bytes) {
     mutex_lock(&rd_mutex);
 
     /* Check that the fd is valid */
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL && !fh[fd].dir) {
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL && !fh[fd].dir) {
         /* Is there enough left? */
         if((fh[fd].ptr + bytes) > fh[fd].file->size)
             bytes = fh[fd].file->size - fh[fd].ptr;
@@ -403,7 +402,7 @@ static ssize_t ramdisk_write(void * h, const void *buf, size_t bytes) {
     mutex_lock(&rd_mutex);
 
     /* Check that the fd is valid */
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL && !fh[fd].dir && fh[fd].file->openfor == OPENFOR_WRITE) {
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL && !fh[fd].dir && fh[fd].file->openfor == OPENFOR_WRITE) {
         /* Is there enough left? */
         if((fh[fd].ptr + bytes) > fh[fd].file->datasize) {
             /* We need to realloc the block */
@@ -440,7 +439,7 @@ static off_t ramdisk_seek(void * h, off_t offset, int whence) {
     mutex_lock(&rd_mutex);
 
     /* Check that the fd is valid */
-    if(fd >= MAX_RAM_FILES || !fh[fd].file || fh[fd].dir) {
+    if(fd >= FS_RAMDISK_MAX_FILES || !fh[fd].file || fh[fd].dir) {
         errno = EBADF;
         mutex_unlock(&rd_mutex);
         return -1;
@@ -500,7 +499,7 @@ static off_t ramdisk_tell(void * h) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL && !fh[fd].dir)
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL && !fh[fd].dir)
         rv = fh[fd].ptr;
 
     mutex_unlock(&rd_mutex);
@@ -514,7 +513,7 @@ static size_t ramdisk_total(void * h) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL && !fh[fd].dir)
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL && !fh[fd].dir)
         rv = fh[fd].file->size;
 
     mutex_unlock(&rd_mutex);
@@ -529,7 +528,7 @@ static dirent_t *ramdisk_readdir(void * h) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL && fh[fd].ptr != 0 && fh[fd].dir) {
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL && fh[fd].ptr != 0 && fh[fd].dir) {
         /* Find the current file and advance to the next */
         f = (rd_file_t *)fh[fd].ptr;
         fh[fd].ptr = (uint32)LIST_NEXT(f, dirlist);
@@ -595,7 +594,7 @@ static void * ramdisk_mmap(void * h) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd < MAX_RAM_FILES && fh[fd].file != NULL && !fh[fd].dir) {
+    if(fd < FS_RAMDISK_MAX_FILES && fh[fd].file != NULL && !fh[fd].dir) {
         rv = fh[fd].file->data;
     }
 
@@ -653,7 +652,7 @@ static int ramdisk_fcntl(void *h, int cmd, va_list ap) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd >= MAX_RAM_FILES || !fh[fd].file) {
+    if(fd >= FS_RAMDISK_MAX_FILES || !fh[fd].file) {
         mutex_unlock(&rd_mutex);
         errno = EBADF;
         return -1;
@@ -684,7 +683,7 @@ static int ramdisk_rewinddir(void * h) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd >= MAX_RAM_FILES || !fh[fd].file || !fh[fd].dir) {
+    if(fd >= FS_RAMDISK_MAX_FILES || !fh[fd].file || !fh[fd].dir) {
         errno = EBADF;
         rv = -1;
     }
@@ -704,7 +703,7 @@ static int ramdisk_fstat(void *h, struct stat *buf) {
 
     mutex_lock(&rd_mutex);
 
-    if(fd >= MAX_RAM_FILES || !fh[fd].file) {
+    if(fd >= FS_RAMDISK_MAX_FILES || !fh[fd].file) {
         mutex_unlock(&rd_mutex);
         errno = EBADF;
         return -1;

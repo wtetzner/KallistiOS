@@ -35,6 +35,7 @@ ISO9660 systems, as these were used as references as well.
 #include <kos/thread.h>
 #include <kos/mutex.h>
 #include <kos/fs.h>
+#include <kos/opts.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -574,7 +575,7 @@ static struct {
     uint32      size;       /* Length of file in bytes */
     dirent_t    dirent;     /* A static dirent to pass back to clients */
     int     broken;     /* >0 if the CD has been swapped out since open */
-} fh[MAX_ISO_FILES];
+} fh[FS_CD_MAX_FILES];
 
 /* Mutex for file handles */
 static mutex_t fh_mutex;
@@ -588,7 +589,7 @@ static void iso_break_all() {
 
     mutex_lock(&fh_mutex);
 
-    for(i = 0; i < MAX_ISO_FILES; i++)
+    for(i = 0; i < FS_CD_MAX_FILES; i++)
         fh[i].broken = 1;
 
     mutex_unlock(&fh_mutex);
@@ -619,7 +620,7 @@ static void * iso_open(vfs_handler_t * vfs, const char *fn, int mode) {
     /* Find a free file handle */
     mutex_lock(&fh_mutex);
 
-    for(fd = 0; fd < MAX_ISO_FILES; fd++)
+    for(fd = 0; fd < FS_CD_MAX_FILES; fd++)
         if(fh[fd].first_extent == 0) {
             fh[fd].first_extent = -1;
             break;
@@ -627,7 +628,7 @@ static void * iso_open(vfs_handler_t * vfs, const char *fn, int mode) {
 
     mutex_unlock(&fh_mutex);
 
-    if(fd >= MAX_ISO_FILES)
+    if(fd >= FS_CD_MAX_FILES)
         return 0;
 
     /* Fill in the file handle and return the fd */
@@ -645,7 +646,7 @@ static int iso_close(void * h) {
     file_t fd = (file_t)h;
 
     /* Check that the fd is valid */
-    if(fd < MAX_ISO_FILES) {
+    if(fd < FS_CD_MAX_FILES) {
         /* No need to lock the mutex: this is an atomic op */
         fh[fd].first_extent = 0;
     }
@@ -659,7 +660,7 @@ static ssize_t iso_read(void * h, void *buf, size_t bytes) {
     file_t fd = (file_t)h;
 
     /* Check that the fd is valid */
-    if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || fh[fd].broken)
+    if(fd >= FS_CD_MAX_FILES || fh[fd].first_extent == 0 || fh[fd].broken)
         return -1;
 
     rv = 0;
@@ -726,7 +727,7 @@ static off_t iso_seek(void * h, off_t offset, int whence) {
     file_t fd = (file_t)h;
 
     /* Check that the fd is valid */
-    if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || fh[fd].broken) {
+    if(fd >= FS_CD_MAX_FILES || fh[fd].first_extent == 0 || fh[fd].broken) {
         errno = EBADF;
         return -1;
     }
@@ -775,7 +776,7 @@ static off_t iso_seek(void * h, off_t offset, int whence) {
 static off_t iso_tell(void * h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || fh[fd].broken)
+    if(fd >= FS_CD_MAX_FILES || fh[fd].first_extent == 0 || fh[fd].broken)
         return -1;
 
     return fh[fd].ptr;
@@ -785,7 +786,7 @@ static off_t iso_tell(void * h) {
 static size_t iso_total(void * h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || fh[fd].broken)
+    if(fd >= FS_CD_MAX_FILES || fh[fd].first_extent == 0 || fh[fd].broken)
         return -1;
 
     return fh[fd].size;
@@ -820,7 +821,7 @@ static dirent_t *iso_readdir(void * h) {
 
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || !fh[fd].dir ||
+    if(fd >= FS_CD_MAX_FILES || fh[fd].first_extent == 0 || !fh[fd].dir ||
        fh[fd].broken) {
         errno = EBADF;
         return NULL;
@@ -903,7 +904,7 @@ static dirent_t *iso_readdir(void * h) {
 static int iso_rewinddir(void * h) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_ISO_FILES || fh[fd].first_extent == 0 || !fh[fd].dir ||
+    if(fd >= FS_CD_MAX_FILES || fh[fd].first_extent == 0 || !fh[fd].dir ||
        fh[fd].broken) {
         errno = EBADF;
         return -1;
@@ -951,7 +952,7 @@ static int iso_fcntl(void *h, int cmd, va_list ap) {
 
     (void)ap;
 
-    if(fd >= MAX_ISO_FILES || !fh[fd].first_extent || fh[fd].broken) {
+    if(fd >= FS_CD_MAX_FILES || !fh[fd].first_extent || fh[fd].broken) {
         errno = EBADF;
         return -1;
     }
@@ -981,7 +982,7 @@ static int iso_fcntl(void *h, int cmd, va_list ap) {
 static int iso_fstat(void *h, struct stat *st) {
     file_t fd = (file_t)h;
 
-    if(fd >= MAX_ISO_FILES || !fh[fd].first_extent || fh[fd].broken) {
+    if(fd >= FS_CD_MAX_FILES || !fh[fd].first_extent || fh[fd].broken) {
         errno = EBADF;
         return -1;
     }
