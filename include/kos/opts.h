@@ -33,14 +33,6 @@ __BEGIN_DECLS
 
 /* Various debug options. Uncomment the #define line to enable the specific
    option described. */
-/* Enable debugging in fs_dclnative. This filesystem is deprecated, so there
-   probably won't be any good reason to enable these two. The first prints a bit
-   of debugging data, whereas the second prints out all packets received and
-   transmitted as well. You must uncomment the first in order for the second to
-   have any effect. */
-/* #define DCLN_DEBUG 1 */
-/* #define DCLN_DEBUG_VERBOSE 1 */
-
 
 /* Enable debugging in fs_vmu. */
 /* #define VMUFS_DEBUG 1 */
