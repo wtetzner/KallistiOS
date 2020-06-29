@@ -1,5 +1,3 @@
-#include <lwip/lwip.h>
-
 #include <kos/thread.h>
 #include <dc/video.h>
 #include <dc/biosfont.h>
@@ -17,7 +15,6 @@ void *do_httpd(void * foo) {
 }
 
 int main(int argc, char **argv) {
-    lwip_kos_init();
     thd_create(1, do_httpd, NULL);
 
     vid_clear(50, 0, 70);
@@ -37,8 +34,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-
-
-
-

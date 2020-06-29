@@ -4,10 +4,18 @@
    Copyright (C)2003 Dan Potter
 */
 
-#include <lwip/lwip.h>
-#include <lwip/sockets.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/queue.h>
+#include <sys/stat.h>
+
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <netinet/in.h>
+
+#include <kos/thread.h>
+#include <kos/mutex.h>
 
 struct http_state;
 typedef TAILQ_HEAD(http_state_list, http_state) http_state_list_t;
@@ -19,17 +27,15 @@ typedef struct http_state {
     struct sockaddr_in  client;
     socklen_t       client_size;
 
-//  sys_thread_t        thd;
     kthread_t       * thd;
 } http_state_t;
 
 http_state_list_t states;
 #define st_foreach(var) TAILQ_FOREACH(var, &states, list)
-mutex_t * list_mutex;
+mutex_t list_mutex = MUTEX_INITIALIZER;
 
 int st_init() {
     TAILQ_INIT(&states);
-    list_mutex = mutex_create();
     return 0;
 }
 
@@ -37,31 +43,31 @@ http_state_t * st_create() {
     http_state_t * ns;
 
     ns = calloc(1, sizeof(http_state_t));
-    mutex_lock(list_mutex);
+    mutex_lock(&list_mutex);
     TAILQ_INSERT_TAIL(&states, ns, list);
-    mutex_unlock(list_mutex);
+    mutex_unlock(&list_mutex);
 
     return ns;
 }
 
 void st_destroy(http_state_t *st) {
-    mutex_lock(list_mutex);
+    mutex_lock(&list_mutex);
     TAILQ_REMOVE(&states, st, list);
-    mutex_unlock(list_mutex);
+    mutex_unlock(&list_mutex);
     free(st);
 }
 
 int st_add_fds(fd_set * fds, int maxfd) {
     http_state_t * st;
 
-    mutex_lock(list_mutex);
+    mutex_lock(&list_mutex);
     st_foreach(st) {
         FD_SET(st->socket, fds);
 
         if(maxfd < (st->socket + 1))
             maxfd = st->socket + 1;
     }
-    mutex_unlock(list_mutex);
+    mutex_unlock(&list_mutex);
     return maxfd;
 }
 
@@ -226,7 +232,6 @@ void *client_thread(void *p) {
     const char * ct;
     file_t f = -1;
     int r, o, cnt;
-    stat_t st;
 
     printf("httpd: client thread started, sock %d\n", hs->socket);
 
@@ -376,8 +381,6 @@ void httpd(void) {
 
         // Check for new incoming connections
         if(FD_ISSET(listenfd, &readset)) {
-            int tmp = 1;
-
             hs = st_create();
             hs->client_size = sizeof(hs->client);
             hs->socket = accept(listenfd,
@@ -418,4 +421,3 @@ void httpd(void) {
 #endif
     }
 }
-
