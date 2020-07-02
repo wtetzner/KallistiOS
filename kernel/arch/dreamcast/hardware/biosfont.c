@@ -8,7 +8,6 @@
 */
 
 #include <assert.h>
-#include <string.h>
 #include <dc/biosfont.h>
 #include <dc/video.h>
 #include <kos/dbglog.h>
