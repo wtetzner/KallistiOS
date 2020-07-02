@@ -403,7 +403,8 @@ void bfont_draw_str(void *b, uint32 width, uint8 opaque, char *str);
 /** \brief  Find a vmu icon.
 
     This function retrieves a pointer to the icon data for the specified
-    vmu icon in the bios, if its available. Each vmu icon has dimens 32x32 
+    vmu icon in the bios, if its available. The icon data is flipped both
+    vertically and horizontally. Each vmu icon has dimens 32x32 
     and is 128 bytes long.
 
     \param  icon            The icon to look up. Use VICON_* values starting with 
