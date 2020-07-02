@@ -77,6 +77,138 @@ __BEGIN_DECLS
 #define BFONT_STARTBUTTON           BFONT_DREAMCAST_SPECIFIC+(20*BFONT_WIDE_WIDTH*BFONT_HEIGHT/8)
 #define BFONT_VMUICON               BFONT_DREAMCAST_SPECIFIC+(21*BFONT_WIDE_WIDTH*BFONT_HEIGHT/8)
 
+#define VICON_DIMEN                 32    /**< \brief Dimension of vmu icons */            
+#define VICON_DREAMCAST_SPECIFIC    BFONT_DREAMCAST_SPECIFIC+(22*BFONT_WIDE_WIDTH*BFONT_HEIGHT/8)
+
+#define VICON_INVALID_VMU           0x00
+#define VICON_HOURGLASS_ONE         0x01
+#define VICON_HOURGLASS_TWO         0x02
+#define VICON_HOURGLASS_THREE       0x03
+#define VICON_HOURGLASS_FOUR        0x04
+#define VICON_VMUICON               0x05
+#define VICON_EARTH                 0x06
+#define VICON_SATURN                0x07
+#define VICON_QUARTER_MOON          0x08
+#define VICON_LAUGHING_FACE         0x09
+#define VICON_SMILING_FACE          0x0A
+#define VICON_CASUAL_FACE           0x0B
+#define VICON_ANGRY_FACE            0x0C
+#define VICON_COW                   0x0D
+#define VICON_HORSE                 0x0E
+#define VICON_RABBIT                0x0F
+#define VICON_CAT                   0x10
+#define VICON_CHICK                 0x11
+#define VICON_LION                  0x12
+#define VICON_MONKEY                0x13
+#define VICON_PANDA                 0x14
+#define VICON_BEAR                  0x15
+#define VICON_PIG                   0x16
+#define VICON_DOG                   0x17
+#define VICON_FISH                  0x18
+#define VICON_OCTOPUS               0x19
+#define VICON_SQUID                 0x1A
+#define VICON_WHALE                 0x1B
+#define VICON_CRAB                  0x1C
+#define VICON_BUTTERFLY             0x1D
+#define VICON_LADYBUG               0x1E
+#define VICON_ANGLER_FISH           0x1F
+#define VICON_PENGUIN               0x20
+#define VICON_CHERRIES              0x21
+#define VICON_TULIP                 0x22
+#define VICON_LEAF                  0x23
+#define VICON_SAKURA                0x24
+#define VICON_APPLE                 0x25
+#define VICON_ICECREAM              0x26
+#define VICON_CACTUS                0x27
+#define VICON_PIANO                 0x28
+#define VICON_GUITAR                0x29
+#define VICON_EIGHTH_NOTE           0x2A
+#define VICON_TREBLE_CLEF           0x2B
+#define VICON_BOAT                  0x2C
+#define VICON_CAR                   0x2D
+#define VICON_HELMET                0x2E
+#define VICON_MOTORCYCLE            0x2F
+#define VICON_VAN                   0x30
+#define VICON_TRUCK                 0x31
+#define VICON_CLOCK                 0x32
+#define VICON_TELEPHONE             0x33
+#define VICON_PENCIL                0x34
+#define VICON_CUP                   0x35
+#define VICON_SILVERWARE            0x36
+#define VICON_HOUSE                 0x37
+#define VICON_BELL                  0x38
+#define VICON_CROWN                 0x39
+#define VICON_SOCK                  0x3A
+#define VICON_CAKE                  0x3B
+#define VICON_KEY                   0x3C
+#define VICON_BOOK                  0x3D
+#define VICON_BASEBALL              0x3E
+#define VICON_SOCCER                0x3F
+#define VICON_BULB                  0x40
+#define VICON_TEDDY_BEAR            0x41
+#define VICON_BOW_TIE               0x42
+#define VICON_BOW_ARROW             0x43
+#define VICON_SNOWMAN               0x44
+#define VICON_LIGHTNING             0x45
+#define VICON_SUN                   0x46
+#define VICON_CLOUD                 0x47
+#define VICON_UMBRELLA              0x48
+#define VICON_ONE_STAR              0x49
+#define VICON_TWO_STARS             0x4A
+#define VICON_THREE_STARS           0x4B
+#define VICON_FOUR_STARS            0x4C
+#define VICON_HEART                 0x4D
+#define VICON_DIAMOND               0x4E
+#define VICON_SPADE                 0x4F
+#define VICON_CLUB                  0x50
+#define VICON_JACK                  0x51
+#define VICON_QUEEN                 0x52
+#define VICON_KING                  0x53
+#define VICON_JOKER                 0x54
+#define VICON_ISLAND                0x55
+#define VICON_0                     0x56
+#define VICON_1                     0x57
+#define VICON_2                     0x58
+#define VICON_3                     0x59
+#define VICON_4                     0x5A
+#define VICON_5                     0x5B
+#define VICON_6                     0x5C
+#define VICON_7                     0x5D
+#define VICON_8                     0x5E
+#define VICON_9                     0x5F
+#define VICON_A                     0x60
+#define VICON_B                     0x61
+#define VICON_C                     0x62
+#define VICON_D                     0x63
+#define VICON_E                     0x64
+#define VICON_F                     0x65
+#define VICON_G                     0x66
+#define VICON_H                     0x67
+#define VICON_I                     0x68
+#define VICON_J                     0x69
+#define VICON_K                     0x6A
+#define VICON_L                     0x6B
+#define VICON_M                     0x6C
+#define VICON_N                     0x6D
+#define VICON_O                     0x6E
+#define VICON_P                     0x6F
+#define VICON_Q                     0x70
+#define VICON_R                     0x71
+#define VICON_S                     0x72
+#define VICON_T                     0x73
+#define VICON_U                     0x74
+#define VICON_V                     0x75
+#define VICON_W                     0x76
+#define VICON_X                     0x77
+#define VICON_Y                     0x78
+#define VICON_Z                     0x79
+#define VICON_CHECKER_BOARD         0x7A
+#define VICON_GRID                  0x7B
+#define VICON_LIGHT_GRAY            0x7C
+#define VICON_DIAG_GRID             0x7D
+#define VICON_PACMAN_GRID           0x7E
+#define VICON_DARK_GRAY             0x7F
+#define VICON_EMBROIDERY            0x80
 
 
 /** @} */
@@ -177,7 +309,7 @@ uint8 *bfont_find_char_jp_half(uint32 ch);
     of bfont characters to palletted textures.
     
     \param buffer       The buffer to draw to.
-    \param bufwidth     The width of the buffer in piexels.
+    \param bufwidth     The width of the buffer in pixels.
     \param fg           The foreground color to use.
     \param bg           The background color to use.
     \param bpp          The number of bits per pixel in the buffer.
@@ -267,6 +399,19 @@ void bfont_draw_str_ex(void *b, uint32 width, uint32 fg, uint32 bg, uint8 bpp, u
     \param  str             The string to draw
 */
 void bfont_draw_str(void *b, uint32 width, uint8 opaque, char *str);
+
+/** \brief  Find a vmu icon.
+
+    This function retrieves a pointer to the icon data for the specified
+    vmu icon in the bios, if its available. Each vmu icon has dimens 32x32 
+    and is 128 bytes long.
+
+    \param  icon            The icon to look up. Use VICON_* values starting with 
+                            VICON_INVALID_VMU
+    \return                 A pointer to the raw icon data or NULL if icon value is 
+                            incorrect
+*/
+uint8 *vicon_find_icon(uint8 icon);
 
 __END_DECLS
 
