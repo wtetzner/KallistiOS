@@ -63,9 +63,8 @@ int vmu_use_custom_color(maple_device_t * dev, int enable) {
     return 0;
 }
 
-/* The icon shape is used while navigating the BIOS menu. The values 
-   for icon_shape are listed in the biosfont.h and start with 
-   VICON_VMUICON. */
+/* The custom color is used while navigating the Dreamcast's file manager. 
+   You set the RGBA parameters, each with valid range of 0-255 */
 int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blue, uint8 alpha) {    
     vmu_root_t root;
 
