@@ -50,14 +50,13 @@ void vmu_shutdown() {
 int vmu_use_custom_color(maple_device_t * dev, int enable) {
     vmu_root_t root;
 
-    /* 255 is the root block of every VMU */
-    if(vmu_block_read(dev, 255, (uint8*)&root) != MAPLE_EOK)
+    if(vmufs_root_read(dev, &root) < 0)
         return -1;
 
     /* 1 - Enables the use of the custom color. 0 - Disables */
     root.use_custom = (enable != 0) ? 1 : 0;
     
-    if(vmu_block_write(dev, 255, (uint8*)&root) != MAPLE_EOK)
+    if(vmufs_root_write(dev, &root) < 0)
         return -1;
 
     return 0;
@@ -68,8 +67,7 @@ int vmu_use_custom_color(maple_device_t * dev, int enable) {
 int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blue, uint8 alpha) {    
     vmu_root_t root;
 
-    /* 255 is the root block of every VMU */
-    if(vmu_block_read(dev, 255, (uint8*)&root) != MAPLE_EOK)
+    if(vmufs_root_read(dev, &root) < 0)
         return -1;
 
     /* 1 - Enables the use of the custom color. 0 - Disables */
@@ -79,7 +77,7 @@ int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blu
     root.custom_color[2] = red;
     root.custom_color[3] = alpha;
 
-    if(vmu_block_write(dev, 255, (uint8*)&root) != MAPLE_EOK)
+    if(vmufs_root_write(dev, &root) < 0)
         return -1;
 
     return 0;
@@ -93,9 +91,8 @@ int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {
 
     if(icon_shape < VICON_VMUICON || icon_shape > VICON_EMBROIDERY)
         return -1;
-    
-    /* 255 is the root block of every VMU */
-    if(vmu_block_read(dev, 255, (uint8*)&root) != MAPLE_EOK)
+
+    if(vmufs_root_read(dev, &root) < 0)
         return -1;
 
     /* Valid value range is 0-123 and starts with VICON_VMUICON which
@@ -103,7 +100,7 @@ int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {
        found in the bios so we must minus 5 */
     root.icon_shape = icon_shape - VICON_VMUICON;
 
-    if(vmu_block_write(dev, 255, (uint8*)&root) != MAPLE_EOK)
+    if(vmufs_root_write(dev, &root) < 0)
         return -1;
 
     return 0;
