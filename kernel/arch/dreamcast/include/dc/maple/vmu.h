@@ -61,11 +61,11 @@ int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blu
     vmu icon that is displayed on the LCD screen while navigating the Dreamcast
     BIOS menu and is the GUI representation of the VMU in the menu's file manager. 
     The Dreamcast BIOS provides a set of 124 icons to choose from. The set of icons 
-    you can choose from are located in biosfont.h and start with VICON_VMUICON and 
-    end with VICON_EMBROIDERY.
+    you can choose from are located in biosfont.h and start with BFONT_VMUICON and 
+    end with BFONT_EMBROIDERY.
 
     \param  dev             The device to change the icon shape of.
-    \param  icon_shape      The valid values for icon_shape are VICON_* listed in 
+    \param  icon_shape      The valid values for icon_shape are BFONT_* listed in 
                             the biosfont.h
     \retval 0               On success
     \retval -1              On failure

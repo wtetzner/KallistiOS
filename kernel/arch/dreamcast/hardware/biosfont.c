@@ -339,11 +339,11 @@ void bfont_draw_str(void *b, uint32 width, uint8 opaque, char *str) {
     bfont_draw_str_ex(b, width, bfont_fgcolor, bfont_bgcolor, (bfont_32bit ? (sizeof (uint32)) : (sizeof (uint16))) << 3, opaque, str);
 }
 
-uint8 *vicon_find_icon(uint8 icon) {
-    if(icon > VICON_EMBROIDERY)
+uint8 *bfont_find_icon(uint8 icon) {
+    if(icon > BFONT_VICON_EMBROIDERY)
         return NULL;
 
-    int icon_offset = VICON_DREAMCAST_SPECIFIC+(icon*VICON_DIMEN*VICON_DIMEN/8);
+    int icon_offset = BFONT_VMU_DREAMCAST_SPECIFIC+(icon*BFONT_VICON_DIMEN*BFONT_VICON_DIMEN/8);
     uint8 *fa = get_font_address();
     return fa + icon_offset;
 }

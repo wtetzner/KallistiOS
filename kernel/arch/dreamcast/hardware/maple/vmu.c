@@ -89,7 +89,7 @@ int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blu
 int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {    
     vmu_root_t root;
 
-    if(icon_shape < VICON_VMUICON || icon_shape > VICON_EMBROIDERY)
+    if(icon_shape < BFONT_VICON_VMUICON || icon_shape > BFONT_VICON_EMBROIDERY)
         return -1;
 
     if(vmufs_root_read(dev, &root) < 0)
@@ -98,7 +98,7 @@ int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {
     /* Valid value range is 0-123 and starts with VICON_VMUICON which
        has a value of 5.  This is because we cant use the first 5 icons
        found in the bios so we must minus 5 */
-    root.icon_shape = icon_shape - VICON_VMUICON;
+    root.icon_shape = icon_shape - BFONT_VICON_VMUICON;
 
     if(vmufs_root_write(dev, &root) < 0)
         return -1;
