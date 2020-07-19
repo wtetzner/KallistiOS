@@ -77,7 +77,138 @@ __BEGIN_DECLS
 #define BFONT_STARTBUTTON           BFONT_DREAMCAST_SPECIFIC+(20*BFONT_WIDE_WIDTH*BFONT_HEIGHT/8)
 #define BFONT_VMUICON               BFONT_DREAMCAST_SPECIFIC+(21*BFONT_WIDE_WIDTH*BFONT_HEIGHT/8)
 
+#define BFONT_VICON_DIMEN                 32    /**< \brief Dimension of vmu icons */            
+#define BFONT_VMU_DREAMCAST_SPECIFIC    BFONT_DREAMCAST_SPECIFIC+(22*BFONT_WIDE_WIDTH*BFONT_HEIGHT/8)
 
+#define BFONT_VICON_INVALID_VMU           0x00
+#define BFONT_VICON_HOURGLASS_ONE         0x01
+#define BFONT_VICON_HOURGLASS_TWO         0x02
+#define BFONT_VICON_HOURGLASS_THREE       0x03
+#define BFONT_VICON_HOURGLASS_FOUR        0x04
+#define BFONT_VICON_VMUICON               0x05
+#define BFONT_VICON_EARTH                 0x06
+#define BFONT_VICON_SATURN                0x07
+#define BFONT_VICON_QUARTER_MOON          0x08
+#define BFONT_VICON_LAUGHING_FACE         0x09
+#define BFONT_VICON_SMILING_FACE          0x0A
+#define BFONT_VICON_CASUAL_FACE           0x0B
+#define BFONT_VICON_ANGRY_FACE            0x0C
+#define BFONT_VICON_COW                   0x0D
+#define BFONT_VICON_HORSE                 0x0E
+#define BFONT_VICON_RABBIT                0x0F
+#define BFONT_VICON_CAT                   0x10
+#define BFONT_VICON_CHICK                 0x11
+#define BFONT_VICON_LION                  0x12
+#define BFONT_VICON_MONKEY                0x13
+#define BFONT_VICON_PANDA                 0x14
+#define BFONT_VICON_BEAR                  0x15
+#define BFONT_VICON_PIG                   0x16
+#define BFONT_VICON_DOG                   0x17
+#define BFONT_VICON_FISH                  0x18
+#define BFONT_VICON_OCTOPUS               0x19
+#define BFONT_VICON_SQUID                 0x1A
+#define BFONT_VICON_WHALE                 0x1B
+#define BFONT_VICON_CRAB                  0x1C
+#define BFONT_VICON_BUTTERFLY             0x1D
+#define BFONT_VICON_LADYBUG               0x1E
+#define BFONT_VICON_ANGLER_FISH           0x1F
+#define BFONT_VICON_PENGUIN               0x20
+#define BFONT_VICON_CHERRIES              0x21
+#define BFONT_VICON_TULIP                 0x22
+#define BFONT_VICON_LEAF                  0x23
+#define BFONT_VICON_SAKURA                0x24
+#define BFONT_VICON_APPLE                 0x25
+#define BFONT_VICON_ICECREAM              0x26
+#define BFONT_VICON_CACTUS                0x27
+#define BFONT_VICON_PIANO                 0x28
+#define BFONT_VICON_GUITAR                0x29
+#define BFONT_VICON_EIGHTH_NOTE           0x2A
+#define BFONT_VICON_TREBLE_CLEF           0x2B
+#define BFONT_VICON_BOAT                  0x2C
+#define BFONT_VICON_CAR                   0x2D
+#define BFONT_VICON_HELMET                0x2E
+#define BFONT_VICON_MOTORCYCLE            0x2F
+#define BFONT_VICON_VAN                   0x30
+#define BFONT_VICON_TRUCK                 0x31
+#define BFONT_VICON_CLOCK                 0x32
+#define BFONT_VICON_TELEPHONE             0x33
+#define BFONT_VICON_PENCIL                0x34
+#define BFONT_VICON_CUP                   0x35
+#define BFONT_VICON_SILVERWARE            0x36
+#define BFONT_VICON_HOUSE                 0x37
+#define BFONT_VICON_BELL                  0x38
+#define BFONT_VICON_CROWN                 0x39
+#define BFONT_VICON_SOCK                  0x3A
+#define BFONT_VICON_CAKE                  0x3B
+#define BFONT_VICON_KEY                   0x3C
+#define BFONT_VICON_BOOK                  0x3D
+#define BFONT_VICON_BASEBALL              0x3E
+#define BFONT_VICON_SOCCER                0x3F
+#define BFONT_VICON_BULB                  0x40
+#define BFONT_VICON_TEDDY_BEAR            0x41
+#define BFONT_VICON_BOW_TIE               0x42
+#define BFONT_VICON_BOW_ARROW             0x43
+#define BFONT_VICON_SNOWMAN               0x44
+#define BFONT_VICON_LIGHTNING             0x45
+#define BFONT_VICON_SUN                   0x46
+#define BFONT_VICON_CLOUD                 0x47
+#define BFONT_VICON_UMBRELLA              0x48
+#define BFONT_VICON_ONE_STAR              0x49
+#define BFONT_VICON_TWO_STARS             0x4A
+#define BFONT_VICON_THREE_STARS           0x4B
+#define BFONT_VICON_FOUR_STARS            0x4C
+#define BFONT_VICON_HEART                 0x4D
+#define BFONT_VICON_DIAMOND               0x4E
+#define BFONT_VICON_SPADE                 0x4F
+#define BFONT_VICON_CLUB                  0x50
+#define BFONT_VICON_JACK                  0x51
+#define BFONT_VICON_QUEEN                 0x52
+#define BFONT_VICON_KING                  0x53
+#define BFONT_VICON_JOKER                 0x54
+#define BFONT_VICON_ISLAND                0x55
+#define BFONT_VICON_0                     0x56
+#define BFONT_VICON_1                     0x57
+#define BFONT_VICON_2                     0x58
+#define BFONT_VICON_3                     0x59
+#define BFONT_VICON_4                     0x5A
+#define BFONT_VICON_5                     0x5B
+#define BFONT_VICON_6                     0x5C
+#define BFONT_VICON_7                     0x5D
+#define BFONT_VICON_8                     0x5E
+#define BFONT_VICON_9                     0x5F
+#define BFONT_VICON_A                     0x60
+#define BFONT_VICON_B                     0x61
+#define BFONT_VICON_C                     0x62
+#define BFONT_VICON_D                     0x63
+#define BFONT_VICON_E                     0x64
+#define BFONT_VICON_F                     0x65
+#define BFONT_VICON_G                     0x66
+#define BFONT_VICON_H                     0x67
+#define BFONT_VICON_I                     0x68
+#define BFONT_VICON_J                     0x69
+#define BFONT_VICON_K                     0x6A
+#define BFONT_VICON_L                     0x6B
+#define BFONT_VICON_M                     0x6C
+#define BFONT_VICON_N                     0x6D
+#define BFONT_VICON_O                     0x6E
+#define BFONT_VICON_P                     0x6F
+#define BFONT_VICON_Q                     0x70
+#define BFONT_VICON_R                     0x71
+#define BFONT_VICON_S                     0x72
+#define BFONT_VICON_T                     0x73
+#define BFONT_VICON_U                     0x74
+#define BFONT_VICON_V                     0x75
+#define BFONT_VICON_W                     0x76
+#define BFONT_VICON_X                     0x77
+#define BFONT_VICON_Y                     0x78
+#define BFONT_VICON_Z                     0x79
+#define BFONT_VICON_CHECKER_BOARD         0x7A
+#define BFONT_VICON_GRID                  0x7B
+#define BFONT_VICON_LIGHT_GRAY            0x7C
+#define BFONT_VICON_DIAG_GRID             0x7D
+#define BFONT_VICON_PACMAN_GRID           0x7E
+#define BFONT_VICON_DARK_GRAY             0x7F
+#define BFONT_VICON_EMBROIDERY            0x80
 
 /** @} */
 
@@ -177,7 +308,7 @@ uint8 *bfont_find_char_jp_half(uint32 ch);
     of bfont characters to palletted textures.
     
     \param buffer       The buffer to draw to.
-    \param bufwidth     The width of the buffer in piexels.
+    \param bufwidth     The width of the buffer in pixels.
     \param fg           The foreground color to use.
     \param bg           The background color to use.
     \param bpp          The number of bits per pixel in the buffer.
@@ -267,6 +398,20 @@ void bfont_draw_str_ex(void *b, uint32 width, uint32 fg, uint32 bg, uint8 bpp, u
     \param  str             The string to draw
 */
 void bfont_draw_str(void *b, uint32 width, uint8 opaque, char *str);
+
+/** \brief  Find a vmu icon.
+
+    This function retrieves a pointer to the icon data for the specified
+    vmu icon in the bios, if its available. The icon data is flipped both
+    vertically and horizontally. Each vmu icon has dimens 32x32 
+    and is 128 bytes long.
+
+    \param  icon            The icon to look up. Use BFONT_* values starting with 
+                            BFONT_INVALID_VMU
+    \return                 A pointer to the raw icon data or NULL if icon value is 
+                            incorrect
+*/
+uint8 *bfont_find_icon(uint8 icon);
 
 __END_DECLS
 
