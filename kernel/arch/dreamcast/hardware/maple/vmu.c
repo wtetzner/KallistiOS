@@ -55,16 +55,16 @@ int vmu_use_custom_color(maple_device_t * dev, int enable) {
 
     /* 1 - Enables the use of the custom color. 0 - Disables */
     root.use_custom = (enable != 0) ? 1 : 0;
-    
+
     if(vmufs_root_write(dev, &root) < 0)
         return -1;
 
     return 0;
 }
 
-/* The custom color is used while navigating the Dreamcast's file manager. 
+/* The custom color is used while navigating the Dreamcast's file manager.
    You set the RGBA parameters, each with valid range of 0-255 */
-int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blue, uint8 alpha) {    
+int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blue, uint8 alpha) {
     vmu_root_t root;
 
     if(vmufs_root_read(dev, &root) < 0)
@@ -83,27 +83,33 @@ int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blu
     return 0;
 }
 
-/* The icon shape is used while navigating the BIOS menu. The values 
-   for icon_shape are listed in the biosfont.h and start with 
-   VICON_VMUICON. */
-int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {    
+/* The icon shape is used while navigating the BIOS menu. The values
+   for icon_shape are listed in the biosfont.h and start with
+   BFONT_ICON_VMUICON. */
+int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {
+#ifdef _arch_sub_naomi
     vmu_root_t root;
 
-    if(icon_shape < BFONT_VICON_VMUICON || icon_shape > BFONT_VICON_EMBROIDERY)
+    if(icon_shape < BFONT_ICON_VMUICON || icon_shape > BFONT_ICON_EMBROIDERY)
         return -1;
 
     if(vmufs_root_read(dev, &root) < 0)
         return -1;
 
-    /* Valid value range is 0-123 and starts with VICON_VMUICON which
+    /* Valid value range is 0-123 and starts with BFONT_ICON_VMUICON which
        has a value of 5.  This is because we cant use the first 5 icons
-       found in the bios so we must minus 5 */
-    root.icon_shape = icon_shape - BFONT_VICON_VMUICON;
+       found in the bios so we must subtract 5 */
+    root.icon_shape = icon_shape - BFONT_ICON_VMUICON;
 
     if(vmufs_root_write(dev, &root) < 0)
         return -1;
 
     return 0;
+#else
+    (void)dev;
+    (void)icon_shape;
+    return -1;
+#endif
 }
 
 /* These interfaces will probably change eventually, but for now they
@@ -438,7 +444,7 @@ void vmu_set_icon(const char *vmu_icon) {
     int i = 0;
     maple_device_t * dev;
     uint8   bitmap[48 * 32 / 8];
-    
+
     vmu_xbm_to_bitmap(bitmap, vmu_icon);
 
     while((dev = maple_enum_type(i++, MAPLE_FUNC_LCD))) {
