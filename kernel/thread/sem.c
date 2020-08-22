@@ -2,7 +2,7 @@
 
    sem.c
    Copyright (C) 2001, 2002, 2003 Dan Potter
-   Copyright (C) 2012 Lawrence Sebald
+   Copyright (C) 2012, 2020 Lawrence Sebald
 */
 
 /* Defines semaphores */
@@ -49,7 +49,12 @@ semaphore_t *sem_create(int value) {
 }
 
 int sem_init(semaphore_t *sm, int count) {
-    if(sm->count < 0) {
+    if(!sm) {
+        errno = EFAULT;
+        return -1;
+    }
+    else if(count < 0) {
+        sm->initialized = 0;
         errno = EINVAL;
         return -1;
     }

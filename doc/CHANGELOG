@@ -18,15 +18,15 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Cleaned up warnings with -std=c99 for C code [LS]
 - DC  Changed the PVR render-to-texture support to allow for two render-to-
       texture passes without an intervening render-to-screen pass [LS]
-- *** Fixed an issue in fs_ext2 that would allow you to rename a directory to be
-      a child of itself, thus chopping it off from the rest of the directory
-      tree [LS]
+- *** Fixed an issue in fs_ext2 that would allow you to rename a directory to
+      be a child of itself, thus chopping it off from the rest of the
+      directory tree [LS]
 - *** Added a fs_readlink() function to resolve symlinks [LS]
 - *** Fixed the vqenc and kmgenc utilities for compilation on a 64-bit OS [LS]
 - DC  Corrected an issue with video cable detection with GCC 4.8.x [LS]
 - DC  Added support for ATA devices on the G1 bus [LS]
-- DC  Fixed an infinite loop in ATA initialization if nothing except the GD-ROM
-      drive is connected [LS]
+- DC  Fixed an infinite loop in ATA initialization if nothing except the
+      GD-ROM drive is connected [LS]
 - *** Added documentation for the addons tree [LS]
 - DC  Made the hardware auto-initialization/shutdown functions weakly linked so
       that they can be overridden without modifying KOS [LS]
@@ -37,19 +37,19 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Modified the cdrom driver so that it will set itself as the active ATA
       device before trying to do any CD related reading [LS]
 - DC  Fixed potential race conditions between the cdrom code and g1ata [LS]
-- DC  Fixed full sector reading of non-data CDs (thanks to SWAT for pointing out
-      that it needed fixing) [LS]
+- DC  Fixed full sector reading of non-data CDs (thanks to SWAT for pointing
+      out that it needed fixing) [LS]
 - DC  Added many new matrix/vector math-related macros [Josh Pearson == JP]
 - *** Added libppp for dialup internet access to the addons tree [LS]
 - *** Added DNS resolver functions getaddrinfo() and gethostbyname() [LS]
 - *** Fixed a problem where poll() would deadlock if the timeout expired [LS]
-- *** Modified getaddrinfo() so that it would try multiple times to contact the
-      DNS server with a timeout between messages [LS]
+- *** Modified getaddrinfo() so that it would try multiple times to contact
+      the DNS server with a timeout between messages [LS]
 - DC  Various cleanups and modifications to the cdrom code, including subcode
-      reading functionality, DMA-based sector reads, and using a recursive mutex
-      for the G1 lock [Donald Haase == DH]
-- DC  Fixed pvr_mem_available() to report all available texture memory, not just
-      what was available in the pvr_malloc() arena [LS]
+      reading functionality, DMA-based sector reads, and using a recursive
+      mutex for the G1 lock [Donald Haase == DH]
+- DC  Fixed pvr_mem_available() to report all available texture memory, not
+      just what was available in the pvr_malloc() arena [LS]
 - DC  Added a utility function to the PVR code for controlling the cheap shadow
       scale register [LS]
 - DC  Added an example of the PVR's cheap shadow functionality [LS]
@@ -93,8 +93,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
       as it should be to ensure GCC doesn't mess with it any [LS]
 - DC  Copy function data from maple device during hot-swap poll if already
       attached [Joe Fenton == JF]
-- DC  Fixed the clobber list of several matrix-related assembly blobs. Thanks to
-      kazade at DCEmulation for pointing out the issue [LS]
+- DC  Fixed the clobber list of several matrix-related assembly blobs. Thanks
+      to kazade at DCEmulation for pointing out the issue [LS]
 - *** Added the uname() function to retrieve the current kernel version [LS]
 - *** Added fs_fat for SD cards and g1ata devices [LS]
 - *** Added thd_each() function to iterate over all current threads [LB]
@@ -104,17 +104,31 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - NAO Added preliminary support for compiling to target the NAOMI and NAOMI 2
       arcade systems with a NetDIMM board attached [LS]
 - NAO Added a simple utility to parse NetDIMM binary header data [LS]
-- DC  Fixed AICA crash when volume is set to 255 [AB == Andress Barajas]
-- DC  Placed a cap on the amount of samples requested by AICA so we don't get a
-      Buffer overflow [AB]
+- DC  Fixed AICA crash when volume is set to 255 [Andress Barajas == AB]
+- DC  Placed a cap on the amount of samples requested by AICA so we don't get
+      a Buffer overflow [AB]
 - DC  Added a very simple minifont and an example of its use [LS]
 - NAO Added a NAOMI-specific version of fb_console using minifont [LS]
-- NAO Cleaned up the build process to not build certain parts of the DC hardware
-      support that are either not useful or not (yet?) functional on NAOMI [LS]
+- NAO Cleaned up the build process to not build certain parts of the DC
+      hardware support that are either not useful or not (yet?) functional on
+      NAOMI [LS]
 - DC  Fixed fs_path_append unsafe pointer arithmetic and made it smarter [AB]
-- DC  Fixed fs_ramdisk_attach so it does not cut off the first character of filename when
-      attaching [AB]
+- DC  Fixed fs_ramdisk_attach so it does not cut off the first character of
+      filename when attaching [AB]
 - DC  Moved max open file constants for CD, Ramdisk, Romdisk to opts.h [AB]
+- DC  Removed stale lwIP examples [LS]
+- DC  Removed fs_dclnative declarations from opts.h [LS]
+- DC  Ported lwIP/httpd example to the built-in network stack [LS]
+- DC  Added functions to set the icon and color of a VMU that is shown in
+      the BIOS menu, as well as functionality to read the VMU icons from the
+      BIOS font [AB]
+- DC  Added a function to draw an XBM image on a single VMU screen [AB]
+- *** Fixed issues with erasing long file name entries and empty files in
+      libkosfat [Thomas Sowell == TS]
+- *** Updated time_t to be 64-bits on Newlib 3.0 and later and fixed Newlib's
+      type for ino_t to be sensible in Newlib 3.3.0 patch [TS, LS]
+- *** Fixed argument check in sem_init. Thanks to TapamN at DCEmulation for
+      noticing the issue and proposing the fix [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
