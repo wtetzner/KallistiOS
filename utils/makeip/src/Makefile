@@ -10,7 +10,7 @@ STRIP = strip
 CFLAGS = -O2 -Wall -DMAKEIP_VERSION=\"$(VERSION)\" -I/usr/local/include
 LDFLAGS = -L/usr/local/lib -lpng -lz
 
-INSTALLDIR = $(KOS_BASE)/../bin
+INSTALLDIR = ..
 
 EXECUTABLEEXTENSION =
 ifeq ($(shell echo $(OS)),Windows_NT)
@@ -27,7 +27,7 @@ $(TARGET): $(OBJECTS)
 
 install:
 	mkdir -p $(INSTALLDIR)
-	cp $(OUTPUT) $(INSTALLDIR)
+	mv $(OUTPUT) $(INSTALLDIR)
 
 .PHONY: clean
 clean:
