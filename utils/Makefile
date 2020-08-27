@@ -4,7 +4,7 @@
 # (c)2001 Dan Potter
 #
 
-DIRS = genromfs wav2adpcm vqenc scramble dcbumpgen
+DIRS = genromfs wav2adpcm vqenc scramble dcbumpgen makeip
 
 # Ok for these to fail atm...
 
