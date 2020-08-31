@@ -1,64 +1,99 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# These version numbers are all that should ever have to be changed.
-export SH_GCC_VER=9.3.0
-export ARM_GCC_VER=8.4.0
-export BINUTILS_VER=2.34
-export NEWLIB_VER=3.3.0
-export GMP_VER=6.1.0
-export MPFR_VER=3.1.4
-export MPC_VER=1.0.3
+# Getting configuration from Makefile
+source ./scripts/common.sh
 
-while [ "$1" != "" ]; do
-    PARAM=`echo $1 | awk -F= '{print $1}'`
-    case $PARAM in
-        --no-gmp)
-            unset GMP_VER
-            ;;
-        --no-mpfr)
-            unset MPFR_VER
-            ;;
-        --no-mpc)
-            unset MPC_VER
-            ;;
-        --no-deps)
-            unset GMP_VER
-            unset MPFR_VER
-            unset MPC_VER
-            ;;
-        *)
-            echo "ERROR: unknown parameter \"$PARAM\""
-            exit 1
-            ;;
-    esac
-    shift
-done
+print_banner "Unpacker"
+
+function unpack()
+{
+  local name="$1"
+  local ver="$2"
+  local ext="$3"
+
+  local dirname=$(tolower $name)-$ver
+  local filename=$dirname.tar.$ext
+
+  if [ ! -f "$filename" ]; then
+    echo "Required file not found: $filename"
+    exit 1
+  fi
+
+  if [ ! -d "$dirname" ]; then
+    echo "Unpacking $name $ver..."
+    tar xf "$filename" || exit 1
+  fi
+}
+
+function unpack_dependency()
+{
+  local gcc_ver="$1"
+  local dep_name="$2"  
+  local dep_ver="$3"
+  local dep_type="$4"
+
+  local path=$(tolower "$dep_name")
+
+  if [ -n "$dep_ver" ]; then
+    echo "  Unpacking $dep_name $dep_ver..."
+    tar xf $path-$dep_ver.tar.$dep_type || exit 1
+    mv $path-$dep_ver gcc-$gcc_ver/$path
+  fi
+}
+
+function unpack_dependencies()
+{
+  local arch=$1
+
+  local gcc_ver=$SH_GCC_VER
+  local gmp_ver=$SH_GMP_VER
+  local mpfr_ver=$SH_MPFR_VER
+  local mpc_ver=$SH_MPC_VER
+  local isl_ver=$SH_ISL_VER
+  local gmp_tarball_type=$SH_GMP_TARBALL_TYPE
+  local mpfr_tarball_type=$SH_MPFR_TARBALL_TYPE
+  local mpc_tarball_type=$SH_MPC_TARBALL_TYPE
+  local isl_tarball_type=$SH_ISL_TARBALL_TYPE
+
+  if [ "$arch" == "arm" ]; then
+    gcc_ver=$ARM_GCC_VER
+    gmp_ver=$ARM_GMP_VER
+    mpfr_ver=$ARM_MPFR_VER
+    mpc_ver=$ARM_MPC_VER
+    isl_ver=$ARM_ISL_VER
+    gmp_tarball_type=$ARM_GMP_TARBALL_TYPE
+    mpfr_tarball_type=$ARM_MPFR_TARBALL_TYPE
+    mpc_tarball_type=$ARM_MPC_TARBALL_TYPE
+    isl_tarball_type=$ARM_ISL_TARBALL_TYPE
+  fi
+  
+  echo "Unpacking prerequisites for GCC ${gcc_ver}..."
+
+  if [ "$USE_CUSTOM_DEPENDENCIES" == "1" ]; then
+    unpack_dependency "$gcc_ver" "GMP"  "$gmp_ver"  "$gmp_tarball_type"
+    unpack_dependency "$gcc_ver" "MPFR" "$mpfr_ver" "$mpfr_tarball_type"
+    unpack_dependency "$gcc_ver" "MPC"  "$mpc_ver"  "$mpc_tarball_type"
+    unpack_dependency "$gcc_ver" "ISL"  "$isl_ver"  "$isl_tarball_type"
+  else
+    cd ./gcc-$gcc_ver && ./contrib/download_prerequisites && cd ..
+  fi
+}
 
 # Clean up from any old builds.
-rm -rf binutils-$BINUTILS_VER gcc-$SH_GCC_VER gcc-$ARM_GCC_VER newlib-$NEWLIB_VER
-rm -rf gmp-$GMP_VER mpfr-$MPFR_VER mpc-$MPC_VER
+echo "Preparing unpacking..."
+rm -rf binutils-$SH_BINUTILS_VER binutils-$ARM_BINUTILS_VER \
+       gcc-$SH_GCC_VER gcc-$ARM_GCC_VER \
+       newlib-$NEWLIB_VER
 
-# Unpack everything.
-tar xf binutils-$BINUTILS_VER.tar.xz || exit 1
-tar xf gcc-$SH_GCC_VER.tar.gz || exit 1
-tar xf gcc-$ARM_GCC_VER.tar.gz || exit 1
-tar xf newlib-$NEWLIB_VER.tar.gz || exit 1
+# Unpack SH components
+unpack "Binutils" $SH_BINUTILS_VER $SH_BINUTILS_TARBALL_TYPE
+unpack "GCC" $SH_GCC_VER $SH_GCC_TARBALL_TYPE
+unpack_dependencies "sh"
+unpack "Newlib" $NEWLIB_VER $NEWLIB_TARBALL_TYPE
 
-# Unpack the GCC dependencies and move them into their required locations.
-if [ -n "$GMP_VER" ]; then
-    tar jxf gmp-$GMP_VER.tar.bz2 || exit 1
-    cp -pr gmp-$GMP_VER gcc-$SH_GCC_VER/gmp
-    mv gmp-$GMP_VER gcc-$ARM_GCC_VER/gmp
-fi
+# Unpack ARM components
+unpack "Binutils" $ARM_BINUTILS_VER $ARM_BINUTILS_TARBALL_TYPE
+unpack "GCC" $ARM_GCC_VER $ARM_GCC_TARBALL_TYPE
+unpack_dependencies "arm"
 
-if [ -n "$MPFR_VER" ]; then
-    tar jxf mpfr-$MPFR_VER.tar.bz2 || exit 1
-    cp -pr mpfr-$MPFR_VER gcc-$SH_GCC_VER/mpfr
-    mv mpfr-$MPFR_VER gcc-$ARM_GCC_VER/mpfr
-fi
-
-if [ -n "$MPC_VER" ]; then
-    tar zxf mpc-$MPC_VER.tar.gz || exit 1
-    cp -pr mpc-$MPC_VER gcc-$SH_GCC_VER/mpc
-    mv mpc-$MPC_VER gcc-$ARM_GCC_VER/mpc
-fi
+echo "Done!"
