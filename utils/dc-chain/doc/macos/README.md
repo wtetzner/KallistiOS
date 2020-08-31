@@ -81,20 +81,12 @@ or `python`.
 
 ## Preparing the environment installation ##
 
-1. Enter the following to prepare **KallistiOS** and the toolchains:
+Enter the following to prepare **KallistiOS** and the toolchains:
 
-		mkdir -p /opt/toolchains/dc/
-		cd /opt/toolchains/dc/
-		git clone https://github.com/KallistiOS/KallistiOS.git kos
-		git clone https://github.com/KallistiOS/kos-ports.git
-
-2. Enter the following to prepare **dcload**/**dc-tool** (part of 
-   **KallistiOS**):
- 
-		mkdir -p /opt/toolchains/dc/dcload/
-		cd /opt/toolchains/dc/dcload/
-		git clone https://gitlab.com/kallistios/dcload-serial.git
-		git clone https://gitlab.com/kallistios/dcload-ip.git
+	mkdir -p /opt/toolchains/dc/
+	cd /opt/toolchains/dc/
+	git clone https://github.com/KallistiOS/KallistiOS.git kos
+	git clone https://github.com/KallistiOS/kos-ports.git
 
 Everything is ready, now it's time to make the toolchains.
 

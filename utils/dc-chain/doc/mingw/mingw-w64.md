@@ -98,14 +98,6 @@ By the way you can check the installation success by entering something like
 		git clone https://github.com/KallistiOS/KallistiOS.git kos
 		git clone https://github.com/KallistiOS/kos-ports.git
 
-3. Enter the following to prepare **dcload**/**dc-tool** (part of 
-   **KallistiOS**):
- 
-		mkdir -p /opt/toolchains/dc/dcload/
-		cd /opt/toolchains/dc/dcload/
-		git clone https://gitlab.com/kallistios/dcload-serial.git
-		git clone https://gitlab.com/kallistios/dcload-ip.git
-
 Everything is ready, now it's time to make the toolchains.
 
 ## Compilation ##
