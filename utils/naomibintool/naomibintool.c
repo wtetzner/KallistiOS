@@ -1,6 +1,6 @@
 /* KallistiOS ##version##
 
-   naomibin.c
+   naomibintool.c
    Copyright (C) 2020 Lawrence Sebald
 
 */
@@ -10,19 +10,69 @@
 #include <string.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <inttypes.h>
 
+#define NAOMI_REGION_JAPAN          0
+#define NAOMI_REGION_USA            1
+#define NAOMI_REGION_EXPORT         2
+#define NAOMI_REGION_KOREA          3
+#define NAOMI_REGION_AUSTRALIA      4
+
+typedef struct naomi_segment {
+    uint32_t rom_offset;
+    uint32_t ram_offset;
+    uint32_t size;
+} naomi_segment_t;
+
+/* NAOMI ROM header structure. Thanks to DragonMinded's documentation for the
+   data here (https://github.com/DragonMinded/netboot/blob/trunk/docs/naomi.md)
+ */
 typedef struct naomi_hdr {
     char signature[16];
     char developer[32];
     char region_title[8][32];
+    uint16_t mfg_year;
+    uint8_t mfg_month;
+    uint8_t mfg_day;
+    char serial_number[4];
+    uint16_t eightmb_mode;
+    uint16_t g1_init;
+    uint32_t g1_rrc;
+    uint32_t g1_rwc;
+    uint32_t g1_frc;
+    uint32_t g1_fwc;
+    uint32_t g1_crc;
+    uint32_t g1_cwc;
+    uint32_t g1_gdrc;
+    uint32_t g1_gdwc;
+    uint8_t m2m4_checksum[132];
+    struct {
+        uint8_t apply;
+        uint8_t system_settings;
+        uint8_t coin_chute;
+        uint8_t coin_setting;
+        uint8_t coin1_rate;
+        uint8_t coin2_rate;
+        uint8_t credit_rate;
+        uint8_t bonus_rate;
+        uint8_t seqtext_offset[8];
+    } eeprom[8];
+    char sequence_text[8][32];
+    naomi_segment_t segment[8];
+    naomi_segment_t test_segment[8];
+    uint32_t entry;
+    uint32_t test_entry;
+    uint8_t supported_regions;
+    uint8_t supported_players;
+    uint8_t supported_display_freq;
+    uint8_t supported_display_dir;
+    uint8_t check_eeprom;
+    uint8_t service_type;
+    uint8_t m1_checksums[138];
+    uint8_t padding[71];
+    uint8_t encrypted;
 } naomi_hdr_t;
-
-typedef struct naomi_segment {
-    uint32_t rom;
-    uint32_t ram;
-    uint32_t size;
-} naomi_segment_t;
 
 static void print_header(const naomi_hdr_t *hdr) {
     int i;
@@ -35,86 +85,88 @@ static void print_header(const naomi_hdr_t *hdr) {
     }
 }
 
-static naomi_segment_t *read_segments(FILE *fp, int *num_segments) {
-    int addr = 0x0360;
-    int ns = 0;
-    naomi_segment_t seg;
-
-    fseek(fp, addr, SEEK_SET);
-
-    while(addr < 0x0420) {
-        fread(&seg, sizeof(naomi_segment_t), 1, fp);
-
-        if(seg.size == 0 || (seg.rom & 0x80000000))
-            break;
-
-        printf("Segment %d\n", ns + 1);
-        printf("ROM Address: %08" PRIx32 "\n", seg.rom);
-        printf("RAM Address: %08" PRIx32 "\n", seg.ram);
-        printf("Length: %" PRIu32 "\n", seg.size);
-        addr += 12;
-        ++ns;
-    }
-
-    *num_segments = ns;
-
-    return NULL;
-}
-
-static int read_entry(FILE *fp, uint32_t *entry, uint32_t *entry2) {
-    fseek(fp, 0x0420, SEEK_SET);
-
-    fread(entry, sizeof(uint32_t), 1, fp);
-    fread(entry2, sizeof(uint32_t), 1, fp);
-
-    printf("Entry point: %08" PRIx32 "\n", *entry);
-    printf("Reset point: %08" PRIx32 "\n", *entry2);
-
-    return 0;
-}
-
-static int read_interrupts(FILE *fp) {
-    uint32_t vec[22];
+static void print_segments(const naomi_hdr_t *hdr) {
     int i;
 
-    fseek(fp, 0x0130, SEEK_SET);
+    for(i = 0; i < 8; ++i) {
+        if(hdr->segment[i].rom_offset == 0xFFFFFFFF)
+            break;
 
-    for(i = 0; i < 22; ++i) {
-        fread(vec + i, sizeof(uint32_t), 1, fp);
-        printf("Vector %d: %08" PRIx32 "\n", i, vec[i]);
+        printf("Segment %d\n"
+               "ROM Offset: %08" PRIx32 "\n"
+               "RAM Offset: %08" PRIx32 "\n"
+               "Size: %" PRIu32 "\n", i + 1, hdr->segment[i].rom_offset,
+               hdr->segment[i].ram_offset, hdr->segment[i].size);
     }
 
-    return 0;
+    for(i = 0; i < 8; ++i) {
+        if(hdr->test_segment[i].rom_offset == 0xFFFFFFFF)
+            break;
+
+        printf("Test Segment %d\n"
+               "ROM Offset: %08" PRIx32 "\n"
+               "RAM Offset: %08" PRIx32 "\n"
+               "Size: %" PRIu32 "\n", i + 1, hdr->test_segment[i].rom_offset,
+               hdr->test_segment[i].ram_offset, hdr->test_segment[i].size);
+    }
 }
 
-int main(int argc, char *argv[]) {
+static void print_entries(const naomi_hdr_t *hdr) {
+    printf("Entry point: %08" PRIx32 "\n"
+           "Test Entry point: %08" PRIx32 "\n", hdr->entry, hdr->test_entry);
+}
+
+void usage(const char *progname) {
+    printf("Usage: %s oper filename [args]\n\n", progname);
+    printf("Where oper is one of the following:\n"
+           "  read  -- Reads the header binary and prints out information.\n");
+}
+
+int read_header(int argc, char *argv[]) {
     FILE *fp;
     naomi_hdr_t hdr;
-    int tmp;
-    uint32_t entry, reset;
 
-    if(argc != 2) {
-        fprintf(stderr, "Usage: %s filename\n", argv[0]);
-        exit(EXIT_FAILURE);
+    if(argc != 3) {
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
-    fp = fopen(argv[1], "rb");
-    if(!fp) {
+    if(!(fp = fopen(argv[2], "rb"))) {
         perror("Error opening file");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     if(fread(&hdr, sizeof(naomi_hdr_t), 1, fp) != 1) {
         perror("Error reading file");
         fclose(fp);
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
+    }
+
+    fclose(fp);
+
+    if(memcmp(hdr.signature, "NAOMI           ", 16) &&
+       memcmp(hdr.signature, "Naomi2          ", 16)) {
+        fprintf(stderr, "File does not appear to be a NAOMI/NAOMI2 ROM.\n");
+        return EXIT_FAILURE;
     }
 
     print_header(&hdr);
-    read_segments(fp, &tmp);
-    read_entry(fp, &entry, &reset);
-    read_interrupts(fp);
+    print_segments(&hdr);
+    print_entries(&hdr);
 
-    fclose(fp);
     return 0;
+}
+
+int main(int argc, char *argv[]) {
+    if(argc < 3) {
+        usage(argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if(!strcmp(argv[1], "read")) {
+        return read_header(argc, argv);
+    }
+
+    usage(argv[0]);
+    return EXIT_FAILURE;
 }
