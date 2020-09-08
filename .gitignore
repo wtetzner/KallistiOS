@@ -26,6 +26,7 @@ utils/gentexfont/gentexfont
 utils/isotest/isotest
 utils/makejitter/makejitter
 utils/dcbumpgen/dcbumpgen
+utils/naomibintool/naomibintool
 examples/dreamcast/basic/exec/romdisk/sub.bin
 examples/dreamcast/kgl/basic/vq/fruit.vq
 examples/dreamcast/conio/adventure/data.c
