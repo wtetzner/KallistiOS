@@ -13,6 +13,15 @@
 #include <stddef.h>
 #include <inttypes.h>
 #include <unistd.h>
+#include <fcntl.h>
+
+#ifndef NO_LIBELF
+#include <libelf.h>
+
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#endif
 
 #define NAOMI_REGION_JAPAN          0
 #define NAOMI_REGION_USA            1
@@ -140,6 +149,11 @@ void usage(const char *progname) {
            "                   address is 0x8c020000.\n"
            "  -s addr        - Specify the entry point address\n"
            "                   (default: 0x8c020000).\n"
+#ifndef NO_LIBELF
+           "  -e file        - Specify an ELF binary to pack into rom. The\n"
+           "                   load address will be detected automatically,\n"
+           "                   as will the entry point.\n"
+#endif
            "Note: Currently only one bin can be packed into a rom.\n"
            "This will be fixed in a future version of this tool.\n");
 }
@@ -246,12 +260,188 @@ static int write_rom_bin(naomi_hdr_t *hdr, const char fn[], FILE *bin) {
     return 0;
 }
 
+#ifndef NO_LIBELF
+static int write_rom_elf(naomi_hdr_t *hdr, const char fn[], int bin) {
+    FILE *fp;
+    size_t sz, sz2;
+    Elf *e;
+    Elf32_Ehdr *ehdr;
+    Elf32_Shdr *shdr;
+    Elf_Scn *section = NULL;
+    Elf_Data *data;
+    Elf32_Word arch;
+    size_t index;
+    char *sn;
+    uint32_t base = 0;
+    long off;
+
+    if(elf_version(EV_CURRENT) == EV_NONE) {
+        fprintf(stderr, "Error initializing libelf: %s\n", elf_errmsg(-1));
+        return EXIT_FAILURE;
+    }
+
+    if((e = elf_begin(bin, ELF_C_READ, NULL)) == NULL) {
+        fprintf(stderr, "Error reading ELF: %s\n", elf_errmsg(-1));
+        return EXIT_FAILURE;
+    }
+
+    if(elf_kind(e) != ELF_K_ELF) {
+        fprintf(stderr, "Specified file is not an ELF binary.\n");
+        elf_end(e);
+        return EXIT_FAILURE;
+    }
+
+    if(!(ehdr = elf32_getehdr(e))) {
+        fprintf(stderr, "Unable to read ELF32 header: %s\n", elf_errmsg(-1));
+        elf_end(e);
+        return EXIT_FAILURE;
+    }
+
+    if(ehdr->e_machine != EM_SH) {
+        fprintf(stderr, "Binary is not a SuperH ELF file.\n");
+        elf_end(e);
+        return EXIT_FAILURE;
+    }
+
+    if(ehdr->e_ident[EI_CLASS] != ELFCLASS32) {
+        fprintf(stderr, "Binary is not a 32-bit ELF.\n");
+        elf_end(e);
+        return EXIT_FAILURE;
+    }
+
+    if(ehdr->e_ident[EI_DATA] != ELFDATA2LSB) {
+        fprintf(stderr, "Binary is not little endian.\n");
+        elf_end(e);
+        return EXIT_FAILURE;
+    }
+
+    arch = ehdr->e_flags & EF_SH_MACH_MASK;
+    if(arch != EF_SH4 && arch != EF_SH4_NOFPU && arch != EF_SH_UNKNOWN &&
+       arch != EF_SH4A && arch != EF_SH4A_NOFPU && arch != EF_SH4_NOMMU_NOFPU) {
+        fprintf(stderr, "Binary is not compiled for SH4.\n");
+        elf_end(e);
+        return EXIT_FAILURE;
+    }
+
+    if(!(fp = fopen(fn, "wb"))) {
+        perror("Cannot open file for writing");
+        return EXIT_FAILURE;
+    }
+
+    if(fseek(fp, 0x1000, SEEK_SET) < 0) {
+        perror("Cannot write file");
+        fclose(fp);
+        return EXIT_FAILURE;
+    }
+
+    hdr->entry = ehdr->e_entry;
+    hdr->test_entry = ehdr->e_entry;
+    printf("Entry point is 0x%08" PRIx32 "\n", hdr->entry);
+
+    if(elf_getshdrstrndx(e, &index)) {
+        fprintf(stderr, "Unable to read section index: %s\n", elf_errmsg(-1));
+        elf_end(e);
+        fclose(fp);
+        return EXIT_FAILURE;
+    }
+
+    /* Go through each section and add it to the binary. */
+    while((section = elf_nextscn(e, section))) {
+        if(!(shdr = elf32_getshdr(section))) {
+            fprintf(stderr, "Unable to read section header: %s\n",
+                    elf_errmsg(-1));
+            elf_end(e);
+            fclose(fp);
+            return EXIT_FAILURE;
+        }
+
+        if(!(sn = elf_strptr(e, index, shdr->sh_name))) {
+            fprintf(stderr, "Unable to read section name: %s\n",
+                    elf_errmsg(-1));
+            elf_end(e);
+            fclose(fp);
+            return EXIT_FAILURE;
+        }
+
+        if(!shdr->sh_addr)
+            continue;
+
+        data = elf_getdata(section, NULL);
+        if(!data->d_buf || !data->d_size)
+            continue;
+
+        printf("Section %-20s Address: 0x%08" PRIx32 ", size: %d\n",
+               sn, shdr->sh_addr, shdr->sh_size);
+
+        if(base == 0) {
+            base = shdr->sh_addr;
+            hdr->segment[0].ram_offset = base;
+            hdr->test_segment[0].ram_offset = base;
+        }
+
+        if(shdr->sh_addr < base) {
+            fprintf(stderr, "Section has invalid address\n");
+            elf_end(e);
+            fclose(fp);
+            return EXIT_FAILURE;
+        }
+
+        /* Move to the right place in our output binary... */
+        if(fseek(fp, 0x1000 + shdr->sh_addr - base, SEEK_SET) < 0) {
+            perror("Cannot write file");
+            elf_end(e);
+            fclose(fp);
+            return EXIT_FAILURE;
+        }
+
+        do {
+            if(fwrite(data->d_buf, 1, data->d_size, fp) != data->d_size) {
+                fprintf(stderr, "Cannot write file.\n");
+                elf_end(e);
+                fclose(fp);
+                return EXIT_FAILURE;
+            }
+        } while((data = elf_getdata(section, data)));
+    }
+
+    elf_end(e);
+
+    /* Figure out how much we wrote into the binary. */
+    off = ftell(fp) - 0x1000;
+    hdr->segment[0].rom_offset = 0x1000;
+    hdr->segment[0].ram_offset = base;
+    hdr->segment[0].size = (uint32_t)off;
+    hdr->test_segment[0].rom_offset = 0x1000;
+    hdr->test_segment[0].ram_offset = base;
+    hdr->test_segment[0].size = (uint32_t)off;
+
+    /* Rewind to the beginning to write the header. */
+    if(fseek(fp, 0, SEEK_SET) < 0) {
+        perror("Cannot write file");
+        fclose(fp);
+        return EXIT_FAILURE;
+    }
+
+    if(fwrite(hdr, sizeof(naomi_hdr_t), 1, fp) != 1) {
+        perror("Cannot write file");
+        fclose(fp);
+        return EXIT_FAILURE;
+    }
+
+    fclose(fp);
+
+    printf("Successfully wrote rom file.\n");
+    return 0;
+}
+#endif /* !NO_LIBELF */
+
 int build_rom(int argc, char *argv[]) {
     char *argv2[argc - 2];
     int i, j, k;
     naomi_hdr_t hdr;
     char *tmp, *tmp2;
     FILE *binfile = NULL;
+    int elffile = -1;
 
     /* Clear the header and set some reasonable defaults... */
     memset(&hdr, 0, sizeof(naomi_hdr_t));
@@ -290,7 +480,7 @@ int build_rom(int argc, char *argv[]) {
     }
 
     /* Parse arguments. */
-    while((i = getopt(argc - 2, argv2, "p:d:t:b:s:")) != -1) {
+    while((i = getopt(argc - 2, argv2, "p:d:t:b:s:e:")) != -1) {
         switch(i) {
             case 'p':
                 j = strlen(optarg);
@@ -371,7 +561,7 @@ int build_rom(int argc, char *argv[]) {
                 break;
 
             case 'b':
-                if(binfile) {
+                if(binfile || elffile >= 0) {
                     fprintf(stderr, "Cannot load multiple binaries!\n");
                     goto err;
                 }
@@ -403,6 +593,25 @@ int build_rom(int argc, char *argv[]) {
                 hdr.test_segment[0].size = hdr.segment[0].size;
                 break;
 
+            case 'e':
+#ifdef NO_LIBELF
+                fprintf(stderr, "-e option requires libelf.\n");
+                return EXIT_FAILURE;
+#else
+                if(binfile || elffile >= 0) {
+                    fprintf(stderr, "Cannot load multiple binaries!\n");
+                    goto err;
+                }
+
+                elffile = open(optarg, O_BINARY | O_RDONLY);
+                if(elffile < 0) {
+                    perror("Cannot open binary");
+                    return EXIT_FAILURE;
+                }
+
+                break;
+#endif
+
             case '?':
                 fprintf(stderr, "Unrecognized option: '-%c'\n", optopt);
                 goto err;
@@ -414,14 +623,22 @@ int build_rom(int argc, char *argv[]) {
     }
 
     /* Did we get a binary? */
-    if(!binfile) {
+    if(!binfile && elffile < 0) {
         fprintf(stderr, "You must specify a binary to pack into the rom!\n");
         return EXIT_FAILURE;
     }
 
     /* Write out our binary... */
-    i = write_rom_bin(&hdr, argv[2], binfile);
-    fclose(binfile);
+    if(binfile) {
+        i = write_rom_bin(&hdr, argv[2], binfile);
+        fclose(binfile);
+    }
+#ifndef NO_LIBELF
+    else {
+        i = write_rom_elf(&hdr, argv[2], elffile);
+        close(elffile);
+    }
+#endif
 
     return i;
 

@@ -6,8 +6,8 @@
 
 all: naomibintool
 
-naomibin: naomibintool.c
-	$(CC) -o naomibintool naomibintool.c
+naomibintool: naomibintool.c
+	$(CC) -o naomibintool naomibintool.c -lelf
 
 clean:
 	-rm -f naomibintool
