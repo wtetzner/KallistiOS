@@ -480,7 +480,7 @@ int build_rom(int argc, char *argv[]) {
     }
 
     /* Parse arguments. */
-    while((i = getopt(argc - 2, argv2, "p:d:t:b:s:e:")) != -1) {
+    while((i = getopt(argc - 2, argv2, ":p:d:t:b:s:e:")) != -1) {
         switch(i) {
             case 'p':
                 j = strlen(optarg);
