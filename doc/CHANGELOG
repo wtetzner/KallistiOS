@@ -129,6 +129,10 @@ KallistiOS version 2.1.0 -----------------------------------------------
       type for ino_t to be sensible in Newlib 3.3.0 patch [TS, LS]
 - *** Fixed argument check in sem_init. Thanks to TapamN at DCEmulation for
       noticing the issue and proposing the fix [LS]
+- NAO Updated the NAOMI header parsing tool to also support creating NAOMI
+      binaries and renamed it to naomibintool [LS]
+- NAO Added naominetboot - a tool to upload NAOMI formatted binaries to a
+      NetDIMM board for executing on the NAOMI [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
