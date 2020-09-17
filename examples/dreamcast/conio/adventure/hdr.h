@@ -56,8 +56,18 @@
 /* hdr.h: included by c advent files */
 #ifdef SETUP
 
+/* Detect MinGW/MSYS vs. MinGW-w64/MSYS2 */
 #ifdef __MINGW32__
-#ifdef __MINGW64__
+#include <_mingw.h>
+# ifdef __MINGW64_VERSION_MAJOR
+#  define __RT_MINGW_W64__
+# else
+#  define __RT_MINGW_ORG__
+# endif
+#endif /* __MINGW32__ */
+
+#ifdef __MINGW32__
+#ifdef __RT_MINGW_W64__
 /* MinGW-w64/MSYS2 */
 typedef unsigned long u_long;
 #else
