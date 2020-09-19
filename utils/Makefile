@@ -4,7 +4,8 @@
 # (c)2001 Dan Potter
 #
 
-DIRS = genromfs wav2adpcm vqenc scramble dcbumpgen makeip
+DIRS = genromfs wav2adpcm vqenc scramble dcbumpgen makeip naomibintool \
+       naominetboot
 
 # Ok for these to fail atm...
 
