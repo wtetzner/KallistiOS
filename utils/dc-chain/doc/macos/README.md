@@ -85,8 +85,8 @@ Enter the following to prepare **KallistiOS** and the toolchains:
 
 	mkdir -p /opt/toolchains/dc/
 	cd /opt/toolchains/dc/
-	git clone https://github.com/KallistiOS/KallistiOS.git kos
-	git clone https://github.com/KallistiOS/kos-ports.git
+	git clone git://git.code.sf.net/p/cadcdev/kallistios kos
+	git clone git://git.code.sf.net/p/cadcdev/kos-ports
 
 Everything is ready, now it's time to make the toolchains.
 
