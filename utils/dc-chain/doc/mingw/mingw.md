@@ -124,8 +124,8 @@ of the `/etc/fstab` file (i.e. `${MINGW_ROOT}\msys\1.0\etc\fstab`).
 
 		mkdir -p /opt/toolchains/dc/
 		cd /opt/toolchains/dc/
-		git clone https://github.com/KallistiOS/KallistiOS.git kos
-		git clone https://github.com/KallistiOS/kos-ports.git
+		git clone git://git.code.sf.net/p/cadcdev/kallistios kos
+		git clone git://git.code.sf.net/p/cadcdev/kos-ports
 
 Everything is ready, now it's time to make the toolchains.
 
