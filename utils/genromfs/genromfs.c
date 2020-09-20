@@ -80,7 +80,6 @@
 #   include <shlwapi.h>
 #   define lstat stat
 #else
-#   include <sys/sysmacros.h>
 #   include <netinet/in.h> /* Consts & structs defined by the internet system */
 #   include <fnmatch.h>
 #endif /* _WIN32 */
@@ -88,6 +87,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <inttypes.h>
+
+#if defined(linux) || defined(sun)
+#    include <sys/sysmacros.h>
+#endif
 
 struct romfh {
     int32_t nextfh;
