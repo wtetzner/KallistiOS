@@ -98,6 +98,11 @@ Building KallistiOS from source entirely requires two things:
   requisite target toolchain (so GCC or Clang based, basically) and
   GNU Make for your host platform
 
+If building KallistiOS to target NAOMI, additionally you will need to
+install libelf (and the development package, if applicable) for your
+host environment (or modify the utils/naomibintool Makefile to not
+use libelf and to define NO_LIBELF for building that tool).
+
 For the Dreamcast version, a Makefile is provided to build the requisite
 GCC, Binutils, and Newlib versions in the utils/dc-chain directory.
 
