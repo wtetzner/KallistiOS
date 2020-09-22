@@ -5,7 +5,7 @@
 # Initially adapted from Stalin's build script version 0.3.
 #
 
-# Please edit 'config.mk' to customize your 'dc-chain' setup.
+# Please create/edit 'config.mk' to customize your 'dc-chain' setup.
 #
 
 # Display startup banner
@@ -13,7 +13,12 @@ include scripts/banner-variables.mk
 include scripts/banner.mk
 
 # User configuration
-include config.mk
+config_file=config.mk
+ifneq ("$(wildcard $(config_file))","")
+  include $(config_file)
+else
+  $(error The required $(config_file) file is missing)
+endif
 
 # Detect host machine
 include scripts/host-detect.mk

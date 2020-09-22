@@ -63,14 +63,18 @@ If you need help on this step, everything is described in the `./doc` directory.
 
 ## Configuration
 
-The recommended settings are already set but if you want to tweak your setup,
-feel free to open the `config.mk` file in your favorite editor.
+In order to allow `dc-chain` to work, you'll need to provide a `config.mk` file.
+This file will contain the settings used for making the toolchains.
 
-Please find below every parameter available in the `config.mk` file.
+You may create this `config.mk` file from scratch or use a provided template
+as base.
+
+Please find below every parameter available in the `config.mk` file and more
+information about `config.mk` templates.
 
 ### Toolchains components
 
-All component's version of the toolchains are declared in the `config.mk` file.
+All component's versions of the toolchains are declared in the `config.mk` file.
 
 For the `sh-elf` toolchain, they are:
 
@@ -86,19 +90,27 @@ For the `arm-eabi` toolchain, they are:
 - `arm_gcc_ver`
 
 Speaking about the best versions of the components to use for the Dreamcast
-development, they are already set in the `config.mk` file. This is particularly
-true for **GCC** and **Newlib** as these components are patched to compile with
-**KallistiOS**. For **Binutils** or **GDB**, you may in theory use the latest
-available versions without problems.
+development, this is a very critical point. Indeed, **GCC** and **Newlib**
+versions are core components; they are patched to compile with **KallistiOS**.
+For **Binutils** or **GDB**, you may in theory use the latest available versions
+without problems.
 
-Well tested **GCC** and **Newlib** version combinations are:
+Working **GCC** and **Newlib** version combinations are:
 
 - GCC `9.3.0` with Newlib `3.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
-  (edge; default values in `config.mk`);
-- GCC `4.7.4` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (stable; the most
-  well tested combination, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724));
-- GCC `4.7.3` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (stable; previous
-  version, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724)).
+  (**edge**; the most modern combination);
+- GCC `4.7.4` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**stable**; the
+  most well tested combination, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724));
+- GCC `4.7.3` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**old-stable**; 
+  previous version, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724)).
+ 
+To help you on this, 2 `config.mk` templates are provided with `dc-chain`:
+
+- `config.mk.edge.sample` (edge);
+- `config.mk.stable.sample` (stable).
+
+Just copy the relevant `config.mk` sample file to `config.mk` and you are good
+to go.
 
 **Note:** The GCC's maximum version number possible for the `arm-eabi` toolchain
 is `8.4.0`. Support of the **ARM7** chip is dropped after that GCC version. So
@@ -116,7 +128,7 @@ extensions you want to download too; this may be useful if a package
 changes its extension on the servers. For example, for GCC `4.7.4`, there is no
 `xz` tarball file, so you may change this to `gz`.
 
-**Note:** All download url are computed in the `scripts/common.sh` file, but
+**Note:** All download URL are computed in the `scripts/common.sh` file, but
 you shouldn't update/change this.
 
 ### Toolchains base
@@ -153,7 +165,7 @@ inside the `config.mk` to set the number of jobs for the building phases.
 Set the `makejobs` variable in the `config.mk` to whatever you would normally
 feel the need to use on the command line, and it will do the right thing.
 
-In the old times, this option may breaks things, so, if you run into trouble,
+In the old times, this option may break things, so, if you run into trouble,
 you should clear this variable and try again with just one job running (i.e.
 `makejobs=`).
 
@@ -267,8 +279,8 @@ This will save a lot of space by removing all unnecessary files.
 ## Final note
 
 Please see the comments at the top of the `config.mk` file for more build
-options. For example if something goes wrong, you may restart the compilation
-of the bogus step only rather than running the whole process again.
+options. For example, if something goes wrong, you may restart the compilation
+of the problematic step only rather than running the whole process again.
 
 Interesting targets (you can `make` any of these):
 
