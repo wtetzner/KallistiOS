@@ -24,5 +24,5 @@ building them can take hours and don't change often.
 Of course, the Docker image produced here can be used for CI/CD pipelines!
 
 Don't hesitate to have multiple `config.mk` files; this may be useful for
-building customized toolchains (e.g. a `stable` Docker image with `gcc-9.3.0`
-and a `legacy` one with `gcc-4.7.4`...).
+building customized toolchains (e.g. a `testing` Docker image with `gcc-9.3.0`
+and a `stable` one with `gcc-4.7.4`...).

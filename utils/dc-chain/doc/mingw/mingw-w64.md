@@ -106,11 +106,8 @@ Everything is ready, now it's time to make the toolchains.
 toolchains from source codes: **dc-chain**.
 
 The **dc-chain** system is mainly composed by a `Makefile` doing all the
-necessary. Open the `config.mk` file with a text editor (e.g. `nano`). 
-You can tweak some parameters, but usually everything is ready to work
-out-of-the-box. For example, it isn't recommended to change the toolchains
-program versions. The highest versions confirmed to work with the **Dreamcast**
-are always already set in that `config.mk`.
+necessary. In order to work, you'll need to provide a `config.mk` file. Read
+the main `README.md` file at the root for more information.
 
 ### Making the toolchains ###
 

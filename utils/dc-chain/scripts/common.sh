@@ -34,6 +34,12 @@ function print_banner()
   printf "*** ${var} Utility for ${banner_text} ***\n\n" 
 }
 
+# Check for config.mk
+if [ ! -f "config.mk" ]; then
+  echo >&2 "The required config.mk file was not found!"
+  exit 1    
+fi
+  
 export CONFIG_GUESS="config.guess"
 
 export SH_BINUTILS_VER=`get_make_var sh_binutils_ver`
