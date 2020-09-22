@@ -18,6 +18,8 @@
  *     11 Jan 2001      special files of name @name,[cpub],major,minor
  *     21 Feb 2001              Cygwin build fixes
  *                      (Florian Schulze, Brian Peek)
+ *     13 Aug 2020              Mingw build fixes
+ *                      (Hayden Kowalchuk)
  */
 
 /*
@@ -67,26 +69,28 @@
 
 #include <stdio.h>  /* Userland pieces of the ANSI C standard I/O package  */
 #include <stdlib.h> /* Userland prototypes of the ANSI C std lib functions */
+#include <stdint.h>
 #include <string.h> /* Userland prototypes of the string handling funcs    */
 #include <unistd.h> /* Userland prototypes of the Unix std system calls    */
 #include <fcntl.h>  /* Flag value for file handling functions              */
 #include <time.h>
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #   include <getopt.h>
+#   include <winsock2.h>
+#   include <shlwapi.h>
+#   define lstat stat
 #else
+#   include <netinet/in.h> /* Consts & structs defined by the internet system */
 #   include <fnmatch.h>
 #endif /* _WIN32 */
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <inttypes.h>
 
-#include <netinet/in.h> /* Consts & structs defined by the internet system */
-
-/* good old times without autoconf... */
 #if defined(linux) || defined(sun)
-#include <sys/sysmacros.h>
+#    include <sys/sysmacros.h>
 #endif
-
 
 struct romfh {
     int32_t nextfh;
@@ -206,7 +210,11 @@ int nodematch(char *pattern, struct filenode *node) {
     /* XXX: ugly realbase is global */
     if(pattern[0] == '/') start = node->realname + realbase;
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+    return !PathMatchSpec(start, pattern);
+#else
     return fnmatch(pattern, start, FNM_PATHNAME | FNM_PERIOD);
+#endif
 }
 
 int findalign(struct filenode *node) {
@@ -314,8 +322,8 @@ void dumpri(struct romfh *ri, struct filenode *n, FILE *f) {
 #if 0
     fprintf(stderr, "RI: [at %06x] %08lx, %08lx, %08lx, %08lx [%s]\n",
             n->offset,
-            ntohl(ri->nextfh), ntohl(ri->spec),
-            ntohl(ri->size), ntohl(ri->checksum),
+            (long unsigned int)ntohl(ri->nextfh), (long unsigned int)ntohl(ri->spec),
+            (long unsigned int)ntohl(ri->size), (long unsigned int)ntohl(ri->checksum),
             n->name);
 #endif
 }
@@ -358,6 +366,7 @@ int dumpnode(struct filenode *node, FILE *f) {
 
         dumpri(&ri, node, f);
     }
+#if !defined(_WIN32) || defined(__CYGWIN__)
     else if(S_ISLNK(node->modes)) {
         ri.nextfh |= htonl(ROMFH_LNK);
         dumpri(&ri, node, f);
@@ -367,6 +376,7 @@ int dumpnode(struct filenode *node, FILE *f) {
         }
         dumpdataa(bigbuf, node->size, f);
     }
+#endif
     else if(S_ISREG(node->modes)) {
         int offset, len, fd, max, avail;
         ri.nextfh |= htonl(ROMFH_REG);
@@ -404,6 +414,7 @@ int dumpnode(struct filenode *node, FILE *f) {
             offset += avail;
         }
     }
+#if !defined(_WIN32) || defined(__CYGWIN__)
     else if(S_ISCHR(node->modes)) {
         ri.nextfh |= htonl(ROMFH_CHR);
         ri.spec = htonl(major(node->devnode) << 16 | minor(node->devnode));
@@ -422,6 +433,7 @@ int dumpnode(struct filenode *node, FILE *f) {
         ri.nextfh |= htonl(ROMFH_SCK);
         dumpri(&ri, node, f);
     }
+#endif
 
     p = node->dirlist.head;
 
@@ -547,7 +559,11 @@ struct filenode *findnode(struct filenode *node, dev_t dev, ino_t ino) {
         found = findnode(p, dev, ino);
 
         if(found)
+#if defined(_WIN32) && !defined(__CYGWIN__)
+            return NULL;
+#else
             return found;
+#endif
 
         p = p->next;
     }
@@ -638,6 +654,7 @@ int processdir(int level, const char *base, const char *dirname, struct stat *sb
             continue;
         }
 
+#if !defined(_WIN32) || defined(__CYGWIN__)
         /* Handle special names */
         if(n->name[0] == '@') {
             if(S_ISLNK(sb->st_mode)) {
@@ -691,15 +708,18 @@ int processdir(int level, const char *base, const char *dirname, struct stat *sb
                 }
             }
         }
+#endif
 
         setnode(n, sb->st_dev, sb->st_ino, sb->st_mode);
 
+#if !defined(_WIN32) || defined(__CYGWIN__)
         /* Skip unreadable files/dirs */
         if(!S_ISLNK(n->modes) && access(n->realname, R_OK)) {
             fprintf(stderr, "ignoring '%s' (access failed)\n", n->realname);
             freenode(n);
             continue;
         }
+#endif
 
         /* Look up old links */
         if(strcmp(n->name, ".") == 0) {
@@ -728,9 +748,11 @@ int processdir(int level, const char *base, const char *dirname, struct stat *sb
         else
             curroffset = alignnode(n, curroffset, 0);
 
+#if !defined(_WIN32) || defined(__CYGWIN__)
         if(S_ISLNK(sb->st_mode)) {
             n->size = sb->st_size;
         }
+#endif
 
         curroffset += spaceneeded(n);
 
@@ -866,7 +888,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(!volname) {
-        sprintf(buf, "rom %08lx", time(NULL));
+        sprintf(buf, "rom %" PRId64, (int64_t)time(NULL));
         volname = buf;
     }
 

@@ -98,6 +98,11 @@ Building KallistiOS from source entirely requires two things:
   requisite target toolchain (so GCC or Clang based, basically) and
   GNU Make for your host platform
 
+If building KallistiOS to target NAOMI, additionally you will need to
+install libelf (and the development package, if applicable) for your
+host environment (or modify the utils/naomibintool Makefile to not
+use libelf and to define NO_LIBELF for building that tool).
+
 For the Dreamcast version, a Makefile is provided to build the requisite
 GCC, Binutils, and Newlib versions in the utils/dc-chain directory.
 
@@ -252,7 +257,7 @@ to SourceForge for all console-related things.
 					http://gamedev.allusion.net/
 
 
-* "Sega" and "Dreamcast" are registered trademarks of Sega Enterprises, Ltd.
+* "Sega", "Dreamcast", and NAOMI are registered trademarks of Sega Corporation.
   "Nintendo" and "Gameboy Advance" are registered trademarks of Nintendo of America
   Kalisto Software is a registered trademark of Kalisto Software, Inc.
   "PlayStation" is a registered trademark of Sony Computer Entertainment America
