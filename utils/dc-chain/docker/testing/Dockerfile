@@ -1,5 +1,5 @@
 #
-# Dockerfile for Sega Dreamcast Toolchains Maker (dc-chain): Edge
+# Dockerfile for Sega Dreamcast Toolchains Maker (dc-chain): Testing
 #
 
 # Stage 1
@@ -28,7 +28,7 @@ RUN apk --update add --no-cache \
 RUN mkdir -p /opt/toolchains/dc \
 	&& git clone https://git.code.sf.net/p/cadcdev/kallistios /opt/toolchains/dc/kos \
 	&& cd /opt/toolchains/dc/kos/utils/dc-chain
-	&& cp config.mk.edge.sample config.mk
+	&& cp config.mk.testing.sample config.mk
 	&& ./download.sh && ./unpack.sh && make && make gdb \
 	&& rm -rf /opt/toolchains/dc/kos
 
