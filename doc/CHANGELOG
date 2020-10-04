@@ -133,6 +133,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
       binaries and renamed it to naomibintool [LS]
 - NAO Added naominetboot - a tool to upload NAOMI formatted binaries to a
       NetDIMM board for executing on the NAOMI [LS]
+- DC  Prevent double-initialization of Maple devices from breaking things [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]

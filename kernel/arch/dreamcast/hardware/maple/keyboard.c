@@ -22,10 +22,10 @@ repeat handling.
 
 */
 
-/* These are global timings for key repeat. It would be possible to put 
-    them in the state, but I don't see a reason to. 
-    It seems unreasonable that one might want different repeat 
-    timings set on each keyboard. 
+/* These are global timings for key repeat. It would be possible to put
+    them in the state, but I don't see a reason to.
+    It seems unreasonable that one might want different repeat
+    timings set on each keyboard.
     The values are arbitrary based off a survey of common values. */
 uint16 kbd_repeat_start = 600, kbd_repeat_interval = 20;
 
@@ -458,25 +458,25 @@ static void kbd_check_poll(maple_frame_t *frm) {
         state->kbd_repeat_key = KBD_KEY_NONE;
         state->kbd_repeat_timer = 0;
     }
-    
+
     /* Update modifiers and LEDs */
     state->shift_keys = cond->modifiers;
     mods = cond->modifiers | (cond->leds << 8);
 
     /* Process all pressed keys */
     for(i = 0; i < MAX_PRESSED_KEYS; i++) {
-        
+
         /* Once we get to a 'none', the rest will be 'none' */
 		if (cond->keys[i] == KBD_KEY_NONE){
-			/* This could be used to indicate how many keys are pressed by setting it to ~i or i+1 
+			/* This could be used to indicate how many keys are pressed by setting it to ~i or i+1
 				or similar. This could be useful, but would make it a weird exception. */
-			/* If the first key in the key array is none, there are no non-modifer keys pressed at all. */			
-			if (i==0)state->matrix[KBD_KEY_NONE] = KEY_STATE_PRESSED; 
+			/* If the first key in the key array is none, there are no non-modifer keys pressed at all. */
+			if (i==0)state->matrix[KBD_KEY_NONE] = KEY_STATE_PRESSED;
 			break;
 		}
         /* Between None and A are error indicators. This would be a good place to do... something. If an error occurs the whole array will be error.*/
 		else if (cond->keys[i]>KBD_KEY_NONE && cond->keys[i]<KBD_KEY_A) {
-            state->matrix[cond->keys[i]] = KEY_STATE_PRESSED; 
+            state->matrix[cond->keys[i]] = KEY_STATE_PRESSED;
             break;
         }
         /* The rest of the keys are treated normally */
@@ -497,7 +497,7 @@ static void kbd_check_poll(maple_frame_t *frm) {
 					if(time >= (state->kbd_repeat_timer)){
 						kbd_enqueue(state, cond->keys[i], mods);
 						state->kbd_repeat_timer = time + kbd_repeat_interval;
-					}				
+					}
 				}
 			}
 			else assert_msg(0, "invalid key matrix array detected");
@@ -506,15 +506,15 @@ static void kbd_check_poll(maple_frame_t *frm) {
 
     /* Now normalize the key matrix */
     /* If it was determined no keys are pressed, wipe the matrix */
-	if (state->matrix[KBD_KEY_NONE] == KEY_STATE_PRESSED) 
+	if (state->matrix[KBD_KEY_NONE] == KEY_STATE_PRESSED)
         memset (state->matrix, KEY_STATE_NONE, MAX_KBD_KEYS);
     /* Otherwise, walk through the whole matrix */
     else    {
         for(i = 0; i < MAX_KBD_KEYS; i++) {
             if (state->matrix[i] == KEY_STATE_NONE) continue;
-            
+
            else if (state->matrix[i] == KEY_STATE_WAS_PRESSED) state->matrix[i] = KEY_STATE_NONE;
-            
+
             else if (state->matrix[i] == KEY_STATE_PRESSED)	state->matrix[i] = KEY_STATE_WAS_PRESSED;
             else assert_msg(0, "invalid key matrix array detected");
         }
@@ -584,7 +584,7 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
        are on each device. The only one above the keyboard function is lightgun.
        Only if it is ALSO a lightgun, will the keyboard function be second. */
     if(dev->info.functions&MAPLE_FUNC_LIGHTGUN) d = 1;
-    
+
     /* Retrieve the region data */
     state->region = dev->info.function_data[d] & 0xFF;
 
@@ -594,7 +594,7 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
 
     /* Make sure all the queue variables are set up properly... */
     state->queue_tail = state->queue_head = state->queue_len = 0;
-    
+
     /* Make sure all the key repeat variables are set up properly too */
     state->kbd_repeat_key = KBD_KEY_NONE;
     state->kbd_repeat_timer = 0;
@@ -613,7 +613,9 @@ static maple_driver_t kbd_drv = {
 
 /* Add the keyboard to the driver chain */
 int kbd_init() {
-    return maple_driver_reg(&kbd_drv);
+    if(!kbd_drv.drv_list.le_prev)
+        return maple_driver_reg(&kbd_drv);
+    return -1;
 }
 
 void kbd_shutdown() {

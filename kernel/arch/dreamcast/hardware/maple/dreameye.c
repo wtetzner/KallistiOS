@@ -431,7 +431,9 @@ static maple_driver_t dreameye_drv = {
 
 /* Add the Dreameye to the driver chain */
 int dreameye_init() {
-    return maple_driver_reg(&dreameye_drv);
+    if(!dreameye_drv.drv_list.le_prev)
+        return maple_driver_reg(&dreameye_drv);
+    return -1;
 }
 
 void dreameye_shutdown() {

@@ -27,7 +27,9 @@ static maple_driver_t lightgun_drv = {
 
 /* Add the lightgun to the driver chain */
 int lightgun_init(void) {
-    return maple_driver_reg(&lightgun_drv);
+    if(!lightgun_drv.drv_list.le_prev)
+        return maple_driver_reg(&lightgun_drv);
+    return -1;
 }
 
 void lightgun_shutdown(void) {
