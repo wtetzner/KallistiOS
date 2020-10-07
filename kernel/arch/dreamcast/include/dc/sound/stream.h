@@ -2,6 +2,7 @@
 
    dc/sound/stream.h
    Copyright (C) 2002, 2004 Dan Potter
+   Copyright (C) 2020 Lawrence Sebald
 
 */
 
@@ -14,6 +15,8 @@
     to worry about that yourself (or use something in kos-ports).
 
     \author Dan Potter
+    \author Florian Schulze
+    \author Lawrence Sebald
 */
 
 #ifndef __DC_SOUND_STREAM_H
@@ -67,6 +70,29 @@ typedef void *(*snd_stream_callback_t)(snd_stream_hnd_t hnd, int smp_req,
     \param  cb              A pointer to the callback function.
 */
 void snd_stream_set_callback(snd_stream_hnd_t hnd, snd_stream_callback_t cb);
+
+/** \brief  Set the user data for a given stream.
+
+    This function sets the user data pointer for the given stream, overwriting
+    any existing one that may have been in place. This is designed to allow the
+    user the ability to associate a piece of data with the stream for instance
+    to assist in identifying what sound is playing on a stream. The driver does
+    not attempt to use this data in any way.
+
+    \param  hnd             The stream handle to look up.
+    \param  cb              A pointer to the user data.
+*/
+void snd_stream_set_userdata(snd_stream_hnd_t hnd, void *d);
+
+/** \brief  Get the user data for a given stream.
+
+    This function retrieves the set user data pointer for a given stream.
+
+    \param  handle          The stream handle to look up.
+    \return                 The user data pointer set for this stream or NULL
+                            if no data pointer has been set.
+*/
+void *snd_stream_get_userdata(snd_stream_hnd_t hnd);
 
 /* Add an effect filter to the sound stream chain. When the stream
    buffer filler needs more data, it starts out by calling the initial
@@ -255,4 +281,3 @@ void snd_stream_volume(snd_stream_hnd_t hnd, int vol);
 __END_DECLS
 
 #endif  /* __DC_SOUND_STREAM_H */
-

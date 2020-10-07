@@ -3,6 +3,7 @@
    snd_stream.c
    Copyright (C) 2000, 2001, 2002, 2003, 2004 Dan Potter
    Copyright (C) 2002 Florian Schulze
+   Copyright (C) 2020 Lawrence Sebald
 
    SH-4 support routines for SPU streaming sound driver
 */
@@ -77,6 +78,9 @@ typedef struct strchan {
 
     /* Have we been initialized yet? (and reserved a buffer, etc) */
     volatile int    initted;
+
+    /* User data. */
+    void *user_data;
 } strchan_t;
 
 // Our stream structs
@@ -98,6 +102,16 @@ int16 * sep_buffer[2] = { NULL, NULL };
 void snd_stream_set_callback(snd_stream_hnd_t hnd, snd_stream_callback_t cb) {
     CHECK_HND(hnd);
     streams[hnd].get_data = cb;
+}
+
+void snd_stream_set_userdata(snd_stream_hnd_t hnd, void *d) {
+    CHECK_HND(hnd);
+    streams[hnd].user_data = d;
+}
+
+void *snd_stream_get_userdata(snd_stream_hnd_t hnd) {
+    CHECK_HND(hnd);
+    return streams[hnd].user_data;
 }
 
 void snd_stream_filter_add(snd_stream_hnd_t hnd, snd_stream_filter_t filtfunc, void * obj) {
@@ -549,5 +563,3 @@ void snd_stream_volume(snd_stream_hnd_t hnd, int vol) {
     cmd->cmd_id = streams[hnd].ch[1];
     snd_sh4_to_aica(tmp, cmd->size);
 }
-
-
