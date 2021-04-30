@@ -149,6 +149,7 @@ up and placed at 0x000000 and 0x400000.
 */
 #define BUF_ALIGN 128
 #define BUF_ALIGN_MASK (BUF_ALIGN - 1)
+#define APPLY_ALIGNMENT(addr) (((addr) + BUF_ALIGN_MASK) & ~BUF_ALIGN_MASK)
 
 void pvr_allocate_buffers(pvr_init_params_t *params) {
     volatile pvr_ta_buffers_t   *buf;
@@ -242,23 +243,24 @@ void pvr_allocate_buffers(pvr_init_params_t *params) {
         buf->vertex_size = params->vertex_buf_size;
         outaddr += buf->vertex_size;
         /* N-byte align */
-        outaddr = (outaddr + BUF_ALIGN_MASK) & ~BUF_ALIGN_MASK;
+        outaddr = APPLY_ALIGNMENT(outaddr);
 
         /* Object Pointer Buffers */
         buf->opb = outaddr;
         buf->opb_size = opb_total_size;
-
         outaddr += opb_total_size;
 
         /* Set up the opb pointers to each section */
         opb_size_accum = 0;
         for(j = 0; j < PVR_OPB_COUNT; j++) {
             buf->opb_addresses[j] = buf->opb + opb_size_accum;
-            opb_size_accum += pvr_state.opb_size[j];
+            opb_size_accum += pvr_state.opb_size[j] * pvr_state.tw * pvr_state.th;
         }
 
+        assert(buf->opb_size == opb_size_accum);
+
         /* N-byte align */
-        outaddr = (outaddr + BUF_ALIGN_MASK) & ~BUF_ALIGN_MASK;
+        outaddr = APPLY_ALIGNMENT(outaddr);
 
         /* Tile Matrix */
         buf->tile_matrix = outaddr;
@@ -266,7 +268,7 @@ void pvr_allocate_buffers(pvr_init_params_t *params) {
         outaddr += buf->tile_matrix_size;
 
         /* N-byte align */
-        outaddr = (outaddr + BUF_ALIGN_MASK) & ~BUF_ALIGN_MASK;
+        outaddr = APPLY_ALIGNMENT(outaddr);
 
         /* Output buffer */
         fbuf->frame = outaddr;
@@ -274,7 +276,7 @@ void pvr_allocate_buffers(pvr_init_params_t *params) {
         outaddr += fbuf->frame_size;
 
         /* N-byte align */
-        outaddr = (outaddr + BUF_ALIGN_MASK) & ~BUF_ALIGN_MASK;
+        outaddr = APPLY_ALIGNMENT(outaddr);
     }
 
     /* Texture ram is whatever is left */
