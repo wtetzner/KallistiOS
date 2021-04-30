@@ -254,8 +254,10 @@ void pvr_allocate_buffers(pvr_init_params_t *params) {
         opb_size_accum = 0;
         for(j = 0; j < PVR_OPB_COUNT; j++) {
             buf->opb_addresses[j] = buf->opb + opb_size_accum;
-            opb_size_accum += pvr_state.opb_size[j];
+            opb_size_accum += pvr_state.opb_size[j] * pvr_state.tw * pvr_state.th;
         }
+
+        assert(buf->opb_size == opb_size_accum);
 
         /* N-byte align */
         outaddr = (outaddr + BUF_ALIGN_MASK) & ~BUF_ALIGN_MASK;
