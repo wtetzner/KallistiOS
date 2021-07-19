@@ -19,4 +19,4 @@ in the wiki at http://dcemulation.org/?title=Development
 
 Ask for help on the forums: http://dcemulation.org/phpBB/viewforum.php?f=29
 
-IRC chat: irc.freenode.net #dreamcastdev 
+IRC chat: irc.libera.chat #dreamcastdev
