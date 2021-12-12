@@ -6,6 +6,9 @@ if [ -z "${KOS_PORTS}" ] ; then
     export KOS_PORTS="${KOS_BASE}/../kos-ports"
 fi
 
+# Arch kernel folder
+export KOS_ARCH_DIR="${KOS_BASE}/kernel/arch/${KOS_ARCH}"
+
 # Pull in the arch environ file
 . ${KOS_BASE}/environ_${KOS_ARCH}.sh
 
@@ -49,8 +52,6 @@ case $KOS_GCCVER in
 esac
 
 # Some extra vars based on architecture
-export KOS_ARCH_DIR="${KOS_BASE}/kernel/arch/${KOS_ARCH}"
-
 case $KOS_GCCVER in
   2* | 3*)
     export KOS_START="${KOS_ARCH_DIR}/kernel/startup.o" ;;
