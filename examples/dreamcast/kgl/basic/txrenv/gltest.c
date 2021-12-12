@@ -1,7 +1,7 @@
 /*
    KallistiOS 2.0.0
 
-   main.c
+   gltest.c
    (C) 2014 Josh Pearson
 
    OpenGL Texture Environment Example.
