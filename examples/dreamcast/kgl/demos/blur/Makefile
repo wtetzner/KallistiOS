@@ -5,7 +5,7 @@
 
 TARGET = radial_blur.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = radial_blur.o pvr-texture.o
 
 OBJS += romdisk.o
 
