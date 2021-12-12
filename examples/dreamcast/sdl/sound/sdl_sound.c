@@ -1,6 +1,6 @@
 /* KallistiOS ##version##
 
-   sdl/sound/example.c
+   sdl/sound/sdl_sound.c
    Copyright (C) 2016 Lawrence Sebald
 */
 
