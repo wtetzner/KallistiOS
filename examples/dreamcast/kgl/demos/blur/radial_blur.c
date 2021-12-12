@@ -1,7 +1,7 @@
 /* 
    KallistiOS 2.0.0
 
-   main.c
+   radial_blur.c
    (c)2014 Josh Pearson
    (c)2001 Benoit Miller
    (c)2000 Tom Stanis/Jeff Molofee

@@ -6,7 +6,7 @@
 
 TARGET = nehe26.elf
 
-OBJS = main.o
+OBJS = nehe26.o
 
 OBJS += romdisk.o
 

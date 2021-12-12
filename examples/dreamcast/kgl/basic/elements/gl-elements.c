@@ -1,7 +1,7 @@
 /* 
    KallistiOS 2.0.0
 
-   main.c
+   gl-elements.c
    (c)2014 Josh Pearson
 
    Open GL example using Vertex Array Submission and GL Lighting.

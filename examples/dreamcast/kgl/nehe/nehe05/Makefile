@@ -6,7 +6,7 @@
 
 TARGET = nehe05.elf
 
-OBJS = main.o
+OBJS = nehe05.o
 
 all: rm-elf $(TARGET)
 

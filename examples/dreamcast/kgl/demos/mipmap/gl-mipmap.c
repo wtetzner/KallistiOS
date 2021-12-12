@@ -1,7 +1,7 @@
 /*
    KallistiOS 2.0.0
 
-   main.c
+   gl-mipmap.c
    (c)2014 Josh Pearson
 
    Open GL Mip-Map example.

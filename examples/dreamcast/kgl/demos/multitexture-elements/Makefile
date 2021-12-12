@@ -5,7 +5,7 @@
 
 TARGET = gl-multitex-elements.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = gl-multitex-elements.o pvr-texture.o
 
 OBJS += romdisk.o
 

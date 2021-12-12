@@ -1,7 +1,7 @@
 /* 
    KallistiOS 2.0.0
 
-   main.c
+   specular.c
    (c)2014 Josh Pearson
 
    Open GL Specular Lighting Example .

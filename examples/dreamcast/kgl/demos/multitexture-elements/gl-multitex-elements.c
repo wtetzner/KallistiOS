@@ -1,7 +1,7 @@
 /* 
    KallistiOS 2.0.0
 
-   main.c
+   gl-multitex-elements.c
    (c)2014 Josh Pearson
 
    Open GL Multi-Texture example using Vertex Array Submission.
@@ -30,16 +30,18 @@ GLfloat TEXCOORD_ARRAY[4 * 2] = { 0, 0,
 
 GLuint ARGB_ARRAY[4 * 1] = { 0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFFFF00 };
 
+GLubyte INDEX_ARRAY[4 * 1] = { 0, 1, 3, 2 };
 
 /* Multi-Texture Example using Open GL Vertex Buffer Submission. */
 void RenderCallback(GLuint texID0, GLuint texID1) {
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -3.0f);
-
+    
     /* Enable Client States for OpenGL Arrays Submission */
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_INDEX_ARRAY);
     
     /* Bind texture to GL_TEXTURE0_ARB and set texture parameters */
     glActiveTextureARB(GL_TEXTURE0_ARB); 
@@ -71,8 +73,8 @@ void RenderCallback(GLuint texID0, GLuint texID1) {
     /* Bind the Vertex Array */
     glVertexPointer(3, GL_FLOAT, 0, VERTEX_ARRAY);
     
-    /* Render the Vertices as Indexed Arrays using glDrawArrays */
-    glDrawArrays(GL_QUADS, 0, 4);
+    /* Render the Vertices as Indexed Arrays using glDrawElements */
+    glDrawElements(GL_TRIANGLE_STRIP, 4 * 1, GL_UNSIGNED_BYTE, INDEX_ARRAY);
     
     /* Disable GL_TEXTURE1 */
     glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -85,6 +87,7 @@ void RenderCallback(GLuint texID0, GLuint texID1) {
     glDisable(GL_TEXTURE_2D);
  
     /* Disable Vertex, Color and Texture Coord Arrays */
+    glDisableClientState(GL_INDEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -111,7 +114,7 @@ int main(int argc, char **argv) {
         /* Draw the "scene" */
         RenderCallback(texID0, texID1);
 
-        /* Finish the frame - Notice there is no glKosBegin/FinshFrame */
+        /* Finish the frame */
         glutSwapBuffers();
     }
 
