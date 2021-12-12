@@ -44,10 +44,10 @@ static const char copyright[] =
 
 #ifndef lint
 #if 0
-static char sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/2/93";
+static char sccsid[] = "@(#)adventure.c	8.1 (Berkeley) 6/2/93";
 #endif
 static const char rcsid[] =
-    "$FreeBSD: src/games/adventure/main.c,v 1.9.2.1 2001/03/05 11:43:11 kris Exp $";
+    "$FreeBSD: src/games/adventure/adventure.c,v 1.9.2.1 2001/03/05 11:43:11 kris Exp $";
 #endif /* not lint */
 
 /*      Re-coding of advent in C: main program                          */
