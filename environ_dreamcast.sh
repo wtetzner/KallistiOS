@@ -21,4 +21,9 @@ if [ x${KOS_ARCH} = xdreamcast ]; then
 	export DC_ARM_LD="${DC_ARM_BASE}/bin/${DC_ARM_PREFIX}-ld"
 	export DC_ARM_CFLAGS="-mcpu=arm7di -Wall -O2 -fno-strict-aliasing -Wl,--fix-v4bx -Wa,--fix-v4bx"
 	export DC_ARM_AFLAGS="-mcpu=arm7di --fix-v4bx"
+	export DC_ARM_MAKE="make"
+	export DC_ARM_START="${KOS_ARCH_DIR}/sound/arm/crt0.s"
+	export DC_ARM_LDFLAGS="${DC_ARM_LDFLAGS} -Wl,-Ttext=0x00000000,-N -nostartfiles -nostdlib -e reset"
+	export DC_ARM_LIB_PATHS=""
+	export DC_ARM_LIBS="-Wl,--start-group -lgcc -Wl,--end-group"	
 fi
