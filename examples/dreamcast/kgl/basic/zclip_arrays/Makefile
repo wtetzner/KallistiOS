@@ -5,7 +5,7 @@
 
 TARGET = gl-arrays.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = gl-arrays.o pvr-texture.o
 
 OBJS += romdisk.o
 
