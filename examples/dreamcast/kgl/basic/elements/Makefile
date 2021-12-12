@@ -5,7 +5,7 @@
 
 TARGET = gl-elements.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = gl-elements.o pvr-texture.o
 
 OBJS += romdisk.o
 
