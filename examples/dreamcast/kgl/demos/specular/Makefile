@@ -4,7 +4,7 @@
 
 TARGET = specular.elf
 
-OBJS = main.o vector.o input.o pvr-texture.o font.o timer.o
+OBJS = specular.o vector.o input.o pvr-texture.o font.o timer.o
 
 OBJS += romdisk.o
 
