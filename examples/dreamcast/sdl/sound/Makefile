@@ -1,5 +1,5 @@
 TARGET = sdl_sound.elf
-OBJS = example.o
+OBJS = sdl_sound.o
 
 all: clean $(TARGET)
 
