@@ -4,7 +4,7 @@
 # Copyright (C) 2001 Dan Potter
 #
 
-DIRS = genromfs wav2adpcm vqenc scramble dcbumpgen makeip
+DIRS = bin2c bincnv dcbumpgen genromfs isotest kmgenc makeip makejitter rdtest scramble vqenc wav2adpcm
 
 ifeq ($(KOS_SUBARCH), naomi)
 	DIRS += naomibintool naominetboot
