@@ -1,7 +1,7 @@
 /* 
    KallistiOS 2.0.0
 
-   main.c
+   gl-multitex-arrays.c
    (c)2014 Josh Pearson
 
    Open GL Multi-Texture example using Vertex Array Submission.
