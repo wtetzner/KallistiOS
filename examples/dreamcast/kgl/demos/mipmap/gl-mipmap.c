@@ -40,10 +40,10 @@ int InputCallback() {
         if(!state)
             return 0;
 
-       if(state->buttons & CONT_START)
+        if(state->buttons & CONT_START)
             return INP_EXIT;
 
-       if(state->buttons & CONT_DPAD_UP)
+        if(state->buttons & CONT_DPAD_UP)
             return INP_RESIZE_UP;
 
         if(state->buttons & CONT_DPAD_DOWN)
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
                 curTexID = texID1;
                 break;
 
-           case INP_EXIT:
+            case INP_EXIT:
                 return 0;
         }
 
