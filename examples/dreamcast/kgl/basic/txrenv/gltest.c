@@ -11,6 +11,7 @@
    the PVR hardware is used to perform transparency.
    User may press 'A' or 'B' to Enable or Disable rendering to Translucent list.
    Use D-Pad to toggle different blending modes.
+   Press 'Start' to exit.
 */
 
 #include <kos.h>
