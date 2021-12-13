@@ -71,14 +71,17 @@ void RenderCallback() {
     glutSwapBuffers();
 }
 
-void InputCallback() {
+int InputCallback() {
     maple_device_t *cont = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
 
     if(cont) {
         cont_state_t *state = (cont_state_t *)maple_dev_status(cont);
 
         if(!state)
-            return;
+            return 1;
+
+        if(state->buttons & CONT_START)
+            return 0;
 
         if(state->buttons & CONT_DPAD_UP) {
             ENV_MODE = 0;
@@ -108,6 +111,8 @@ void InputCallback() {
             BLEND = 0;
         }
     }
+
+    return 1;
 }
 
 extern uint8 romdisk[];
@@ -136,7 +141,9 @@ int main(int argc, char **argv) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_FILTER, GL_LINEAR);
 
     while(1) {
-        InputCallback();
+        if (!InputCallback())
+            return 0;
+
         RenderCallback();
     }
 
