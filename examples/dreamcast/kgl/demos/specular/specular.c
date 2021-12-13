@@ -28,6 +28,7 @@
    Hold Right trigger, then press A,B,X, or Y to Disable Light1->4
    D-pad to rotate camera
    A,B,X,Y to move camera
+   Start to exit
 
    As Vertex Clipping and Lighting is being applied using immediate mode,
    this really is a brute-force approach to the vertex submission pipeline.
@@ -956,14 +957,17 @@ extern uint8 romdisk[];
 KOS_INIT_ROMDISK(romdisk);
 
 static unsigned char LE[8] = {0, 1, 0, 0, 0, 0, 0, 0};
-void InputCb() {
+int InputCb() {
     maple_device_t *cont = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
 
     if(cont) {
         cont_state_t *state = (cont_state_t *)maple_dev_status(cont);
 
         if(!state)
-            return;
+            return 1;
+
+        if(state->buttons & CONT_START)
+            return 0;
 
         if(state->ltrig > 0) {
             if(state->buttons & CONT_A)
@@ -993,6 +997,8 @@ void InputCb() {
                 LE[4] = 0;
         }
     }
+
+    return 1;
 }
 
 int main() {
@@ -1077,7 +1083,8 @@ int main() {
 
         GLuint start = GetTime();
 
-        InputCb();
+        if (!InputCb())
+           return 0;
 
         glSetCameraPosition(camFrom, camTo);
 
