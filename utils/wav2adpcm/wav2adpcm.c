@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 static int diff_lookup[16] = {
@@ -166,19 +167,19 @@ void interleave(void *buffer, size_t size) {
 
 struct wavhdr_t {
     char hdr1[4];
-    long totalsize;
+    int32_t totalsize;
 
     char hdr2[8];
-    long hdrsize;
+    int32_t hdrsize;
     short format;
     short channels;
-    long freq;
-    long byte_per_sec;
+    int32_t freq;
+    int32_t byte_per_sec;
     short blocksize;
     short bits;
 
     char hdr3[4];
-    long datasize;
+    int32_t datasize;
 };
 
 int wav2adpcm(const char *infile, const char *outfile) {
