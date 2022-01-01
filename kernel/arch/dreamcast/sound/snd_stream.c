@@ -450,10 +450,10 @@ void snd_stream_stop(snd_stream_hnd_t hnd) {
 }
 
 /* The DMA will chain to this to start the second DMA. */
-/* static uint32 dmadest, dmacnt;
+static uint32 dmadest, dmacnt;
 static void dma_chain(ptr_t data) {
     spu_dma_transfer(sep_buffer[1], dmadest, dmacnt, 0, NULL, 0);
-} */
+}
 
 /* Poll streamer to load more data if neccessary */
 int snd_stream_poll(snd_stream_hnd_t hnd) {
@@ -526,16 +526,13 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
         }
 
         sep_data(data, needed_samples * 2, streams[hnd].stereo);
-        spu_memload(streams[hnd].spu_ram_sch[0] + (streams[hnd].last_write_pos * 2), (uint8*)sep_buffer[0], needed_samples * 2);
-        spu_memload(streams[hnd].spu_ram_sch[1] + (streams[hnd].last_write_pos * 2), (uint8*)sep_buffer[1], needed_samples * 2);
 
         // Second DMA will get started by the chain handler
-        /* dcache_flush_range(sep_buffer[0], needed_samples*2);
+		dcache_flush_range(sep_buffer[0], needed_samples*2);
         dcache_flush_range(sep_buffer[1], needed_samples*2);
-        dmadest = spu_ram_sch2 + (last_write_pos * 2);
+        dmadest = streams[hnd].spu_ram_sch[1] + (streams[hnd].last_write_pos * 2);
         dmacnt = needed_samples * 2;
-        spu_dma_transfer(sep_buffer[0], spu_ram_sch1 + (last_write_pos * 2), needed_samples * 2,
-            0, dma_chain, 0); */
+        spu_dma_transfer(sep_buffer[0], streams[hnd].spu_ram_sch[0] + (streams[hnd].last_write_pos * 2), needed_samples * 2, 0, dma_chain, 0);
 
         streams[hnd].last_write_pos += needed_samples;
 
