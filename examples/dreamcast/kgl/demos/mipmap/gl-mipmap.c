@@ -11,6 +11,7 @@
     Y = Use Base Texture
     D-pad UP = Scale image size up
     D-pad DOWN = Scale image size down
+    Start = Exit
 */
 
 #include <kos.h>
@@ -27,6 +28,7 @@ extern GLuint glTextureLoadPVR(char *fname, unsigned char isMipMapped, unsigned 
 #define INP_RESIZE_DOWN 2
 #define INP_USE_MIP_MAP 3
 #define INP_NO_MIP_MAP  4
+#define INP_EXIT        5
 
 /* Simple Input Callback with a return value */
 int InputCallback() {
@@ -37,6 +39,9 @@ int InputCallback() {
 
         if(!state)
             return 0;
+
+        if(state->buttons & CONT_START)
+            return INP_EXIT;
 
         if(state->buttons & CONT_DPAD_UP)
             return INP_RESIZE_UP;
@@ -127,6 +132,9 @@ int main(int argc, char **argv) {
             case INP_USE_MIP_MAP:
                 curTexID = texID1;
                 break;
+
+            case INP_EXIT:
+                return 0;
         }
 
         RenderTexturedQuadCentered(curTexID, width, height);
