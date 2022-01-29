@@ -309,6 +309,25 @@ typedef struct fs_socket_proto {
     int (*setsockopt)(net_socket_t *s, int level, int option_name,
                       const void *option_value, socklen_t option_len);
 
+    /** \brief  Get socket name.
+
+        This function should implement the ::getsockname() system call for the
+        given protocol. The semantics are exactly as defined for that function.
+
+        Currently all options (regardless of level) are passed onto the
+        protocol handler.
+
+        \param  s               The socket to get the name of.
+        \param  name            Pointer to a sockaddr structure which will hold
+                                the resulting address information.
+        \param  name_len        The amount of space pointed to by name, in
+                                bytes. On return, this is set to the actual size
+                                of the returned address information.
+        \retval -1              On error (set errno appropriately).
+        \retval 0               On success.
+    */
+    int (*getsockname)(net_socket_t *s, struct sockaddr *name, socklen_t *name_len);
+
     /** \brief  Manipulate file options.
 
         This function should implement the fcntl() system call for the given
