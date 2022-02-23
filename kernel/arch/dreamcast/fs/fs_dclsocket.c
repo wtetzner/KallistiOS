@@ -588,7 +588,7 @@ static int dcls_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
 
     memcpy(cmd->id, "DC13", 4);
     cmd->address = htonl((uint32) &filestat);
-    cmd->size = htonl(sizeof(struct stat));
+    cmd->size = htonl(sizeof(dcload_stat_t));
     strcpy((char *)(cmd->data), fn);
 
     send(dcls_socket, cmd, sizeof(command_t) + strlen(fn) + 1, 0);
