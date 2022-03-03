@@ -623,6 +623,7 @@ static int net_udp_socket(net_socket_t *hnd, int domain, int type, int proto) {
 static void net_udp_close(net_socket_t *hnd) {
     struct udp_sock *udpsock;
     struct udp_pkt *pkt;
+    struct udp_pkt *it;
 
     if(irq_inside_int()) {
         if(mutex_trylock(&udp_mutex) == -1) {
@@ -642,7 +643,11 @@ static void net_udp_close(net_socket_t *hnd) {
         return;
     }
 
-    TAILQ_FOREACH(pkt, &udpsock->packets, pkt_queue) {
+    it = udpsock->packets.tqh_first;
+    while(it) {
+        pkt = it;
+        it = it->pkt_queue.tqe_next;
+
         free(pkt->data);
         TAILQ_REMOVE(&udpsock->packets, pkt, pkt_queue);
         free(pkt);
