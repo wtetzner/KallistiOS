@@ -194,7 +194,7 @@ static uint16 net_dhcp_get_16bit(dhcp_pkt_t *pkt, uint8 opt, int len) {
     return 0;
 }
 
-int net_dhcp_request(void) {
+int net_dhcp_request(uint32* required_address) {
     uint8 pkt[1500];
     dhcp_pkt_t *req = (dhcp_pkt_t *)pkt;
     int optlen;
@@ -234,7 +234,7 @@ int net_dhcp_request(void) {
 
     /* Fill in options */
     optlen = net_dhcp_fill_options(net_default_dev, req, DHCP_MSG_DHCPDISCOVER,
-                                   0, 0);
+                                   0, (required_address) ? *required_address : 0);
 
     /* Add to our packet queue */
     qpkt = (struct dhcp_pkt_out *)malloc(sizeof(struct dhcp_pkt_out));
@@ -501,7 +501,7 @@ static void net_dhcp_thd(void *obj __attribute__((unused))) {
         state = DHCP_STATE_INIT;
         srv_addr.sin_addr.s_addr = INADDR_BROADCAST;
         memset(net_default_dev->ip_addr, 0, 4);
-        net_dhcp_request();
+        net_dhcp_request(NULL);
     }
     else if(rebind_time <= now &&
             (state == DHCP_STATE_BOUND || state == DHCP_STATE_RENEWING)) {
@@ -583,7 +583,7 @@ static void net_dhcp_thd(void *obj __attribute__((unused))) {
                     else if(found == DHCP_MSG_DHCPNAK) {
                         /* We got a NAK, try to discover again. */
                         state = DHCP_STATE_INIT;
-                        net_dhcp_request();
+                        net_dhcp_request(NULL);
                     }
 
                     /* Remove the old packet from our queue */

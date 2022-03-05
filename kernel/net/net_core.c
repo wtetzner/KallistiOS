@@ -180,14 +180,24 @@ int net_init(uint32 ip) {
     net_dhcp_init();
 
     if(net_default_dev) {
-        /* Did we get a requested IP address? If so, set it. */
-        if(ip)
-            net_ipv4_parse_address(ip, net_default_dev->ip_addr);
+        /* Did we get a requested IP address? If so, try to lease it over
+           DHCP */
+        if(ip) {
+            rv = net_dhcp_request(&ip);
+            if(rv < 0) {
+                dbglog(DBG_DEBUG, "Failed to acquire the specified IP with DHCP\n");
+
+                /* If that fails, set the address manually. Although gateway
+                   and dns etc. will also manually need setting */
+                net_ipv4_parse_address(ip, net_default_dev->ip_addr);
+                rv = 0;
+            }
+        }
 
         /* We didn't get a requested IP address, if we don't already have one
            set, then do so via DHCP. */
         else if(!net_default_dev->ip_addr[0])
-            rv = net_dhcp_request();
+            rv = net_dhcp_request(NULL);
     }
 
     net_initted = 1;
