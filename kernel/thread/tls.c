@@ -134,6 +134,7 @@ int kthread_setspecific(kthread_key_t key, const void *value) {
     /* Make sure the key is valid. */
     if(key >= next_key || key < 1) {
         errno = EINVAL;
+        spinlock_unlock(&mutex);
         return -1;
     }
 
