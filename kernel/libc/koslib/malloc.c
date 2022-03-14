@@ -53,8 +53,9 @@ int malloc_irq_safe() {
     return !spinlock_is_locked(&mALLOC_MUTEx);
 }
 
-/* This is arch-specific */
-// extern void * sbrk(size_t amt);
+/* <unistd.h> doesn't define this in strict standard-compliant mode, so do so
+   here instead. */
+extern void *sbrk (ptrdiff_t __incr);
 
 /* Next KOS-specific mods are around line 1600... */
 
