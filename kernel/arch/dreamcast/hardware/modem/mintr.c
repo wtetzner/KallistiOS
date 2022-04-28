@@ -33,6 +33,7 @@ void mintDelayCallback(void) {
     if(mintCounter >= 5) {
         modemIntResetTimeoutTimer();
         modemIntShutdownTimeoutTimer();
+        mintCounter = 0; /* Reset the counter for subsequent connections */
 
         modemCfg.flags &= ~MODEM_CFG_FLAG_CONNECTING;
         modemCfg.flags |= MODEM_CFG_FLAG_CONNECTED;
