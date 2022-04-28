@@ -177,30 +177,33 @@ void modemDataInternalHandleOutgoingData(void) {
         return;
 
     /* CTS needs to be set before any data can be copied into TBUFFER */
-    if(modemRead(REGLOC(0xF)) & 0x20) {
-        /* Copy data from the local TX FIFO buffer into the MDP's TX FIFO buffer
-           while there's data in the local buffer and there's space in the MDP's
-           buffer */
-        counter = 0;
-
-        while((modemRead(REGLOC(0x1D)) & 0x2) && bufferLength > 0 &&
-                counter < MODEM_DATA_LIMIT) { /* Checks TXFNF */
-            /* Read a byte from the chain buffer */
-            if(readFromChainBuffer(txBuffer, &data, 1) != 1)
-                assert(0); /* This should never happen */
-
-            /* Write the byte to TBUFFER */
-            modemWrite(REGLOC(0x10), data);
-
-            bufferLength--;
-            counter++;
-        }
-
-        /* If the buffer was emptied then generate the corresponding event
-           if the event handler is set */
-        if(bufferLength <= 0 && modemCfg.eventHandler)
-            modemCfg.eventHandler(MODEM_EVENT_TX_EMPTY);
+    while(!(modemRead(REGLOC(0xF)) & 0x20)) {
+        thd_pass();
     }
+
+    /* Copy data from the local TX FIFO buffer into the MDP's TX FIFO buffer
+        while there's data in the local buffer and there's space in the MDP's
+        buffer */
+    counter = 0;
+
+    while((modemRead(REGLOC(0x0D)) & 0x2) && bufferLength > 0 &&
+            counter < MODEM_DATA_LIMIT) { /* Checks TXFNF */
+        /* Read a byte from the chain buffer */
+        if(readFromChainBuffer(txBuffer, &data, 1) != 1)
+            assert(0); /* This should never happen */
+
+        /* Write the byte to TBUFFER */
+        modemWrite(REGLOC(0x10), data);
+
+        bufferLength--;
+        counter++;
+    }
+
+    /* If the buffer was emptied then generate the corresponding event
+        if the event handler is set */
+    if(bufferLength <= 0 && modemCfg.eventHandler)
+        modemCfg.eventHandler(MODEM_EVENT_TX_EMPTY);
+
 }
 
 /* Internal. Called by the interrupt service routine to update the receive
