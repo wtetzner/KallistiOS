@@ -38,7 +38,7 @@ endif
 # package. Copy the original file somewhere outside your MinGW/MSYS installation
 # and replace it with the provided patched version.
 #
-# The patched version is coming from the C::B Advanced package. The major fix 
+# The patched version is coming from the C::B Advanced package. The major fix
 # applied is the heap size increase, from 256 MB to more than 1024 MB.
 #
 # After building the whole toolchain, please remove the patched version and move
@@ -47,7 +47,7 @@ endif
 ifdef MINGW
   msys_patched_checksum = 2e627b60938fb8894b3536fc8fe0587a5477f570
   msys_checksum = $(shell sha1sum /bin/msys-1.0.dll | cut -c-40)
-  ifneq ($(msys_checksum),$(msys_patched_checksum))	
+  ifneq ($(msys_checksum),$(msys_patched_checksum))
     $(warning Please consider temporarily patching '/bin/msys-1.0.dll')
   endif
 endif
@@ -71,7 +71,7 @@ ifdef MACOS
     SH_CC_FOR_TARGET += $(macos_extra_args)
     SH_CXX_FOR_TARGET += $(macos_extra_args)
     macos_gcc_configure_args = --with-sysroot --with-native-system-header=/usr/include
-    macos_gdb_configure_args = --with-sysroot=$(sdkroot)  
+    macos_gdb_configure_args = --with-sysroot=$(sdkroot)
   endif
 endif
 
@@ -108,7 +108,7 @@ endif
 
 # Web downloaders command-lines
 wget_cmd=wget -c
-curl_cmd=curl -C - -O -J
+curl_cmd=curl -C - -O
 
 # Determine if we want to apply fixup sh4 newlib
 do_auto_fixup_sh4_newlib := 1
