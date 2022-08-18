@@ -1,9 +1,9 @@
 # Sega Dreamcast Toolchains Maker (`dc-chain`)
 
 The **Sega Dreamcast Toolchains Maker** (`dc-chain`) utility is a set of files
-made for building all the needed toolchains used in **Sega Dreamcast** 
-programming under the **KallistiOS** environment. It was first released by 
-*Jim Ursetto* back in 2004 and was initially adapted from *Stalin*'s build 
+made for building all the needed toolchains used in **Sega Dreamcast**
+programming under the **KallistiOS** environment. It was first released by
+*Jim Ursetto* back in 2004 and was initially adapted from *Stalin*'s build
 script v0.3. This utility is part of **KallistiOS** (**KOS**).
 
 By using this utility, 2 toolchains will be built for **Dreamcast** development:
@@ -11,14 +11,14 @@ By using this utility, 2 toolchains will be built for **Dreamcast** development:
 - A `sh-elf` toolchain, which is the main toolchain as it targets the CPU of the
   **Dreamcast**, i.e. the **Hitachi SH-4 CPU** (a.k.a. **SuperH**).
 - An `arm-eabi` toolchain, which is the toolchain used only for the **Yamaha
-  Super Intelligent Sound Processor** (**AICA**). This processor is based 
+  Super Intelligent Sound Processor** (**AICA**). This processor is based
   on an **ARM7** core. Under **KallistiOS**, only the sound driver is compiled
   with that toolchain, so you won't need to use it directly.
 
 The `dc-chain` package will build everything you need to compile **KallistiOS**
 and then finally develop for the **Sega Dreamcast** system. Please note that
 `dc-chain` optimize the both toolchains for the use of **KallistiOS** so if you
-plan to use another **Dreamcast** library (e.g. `libronin`), `dc-chain` may 
+plan to use another **Dreamcast** library (e.g. `libronin`), `dc-chain` may
 not be so useful for you, at least *out-of-the-box*.
 
 ## Overview
@@ -31,8 +31,8 @@ Components included in the toolchains built through `dc-chain` are:
 - **GNU Debugger** (`gdb`) - Optional;
 - **Insight** (A `gdb` UI based on **X11**) - Optional.
 
-**Binutils** and **GCC** are installed for both targets (i.e. `sh-elf` and 
-`arm-eabi`) where **Newlib** and **GNU Debugger** (**GDB**) are needed only 
+**Binutils** and **GCC** are installed for both targets (i.e. `sh-elf` and
+`arm-eabi`) where **Newlib** and **GNU Debugger** (**GDB**) are needed only
 for the main toolchain (`sh-elf`).
 
 ## Getting started
@@ -48,9 +48,9 @@ most of the time just out-of-the-box for your environment.
 
 ### `dc-chain` utility installation
 
-`dc-chain` is part of **KallistiOS** so you should have it installed in the 
-`$KOS_BASE/utils/dc-chain` directory. You don't need to have **KallistiOS** 
-configured (i.e. have the `$KOS_BASE/environ.sh` file created) as building 
+`dc-chain` is part of **KallistiOS** so you should have it installed in the
+`$KOS_BASE/utils/dc-chain` directory. You don't need to have **KallistiOS**
+configured (i.e. have the `$KOS_BASE/environ.sh` file created) as building
 toolchains is a prerequisite in order to build **KallistiOS** itself.
 
 ### Prerequisites installation
@@ -60,6 +60,12 @@ for your computer installed. Indeed, to build the cross-compilers you'll need a
 working compilation environment on your computer.
 
 If you need help on this step, everything is described in the `./doc` directory.
+
+Please note that you may be required to use older versions of some of the
+prerequisites in certain configurations. For instance, building GCC 4.7.4 may
+require an older version of the `flex` tool be installed. If you receive errors
+about tools you have installed, check your system's package manager for an older
+version of that tool.
 
 ## Configuration
 
@@ -101,9 +107,9 @@ Working **GCC** and **Newlib** version combinations are:
   (**testing**; the most modern combination);
 - GCC `4.7.4` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**stable**; the
   most well tested combination, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724));
-- GCC `4.7.3` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**old-stable**; 
+- GCC `4.7.3` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**old-stable**;
   previous version, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724)).
- 
+
 To help you on this, 2 `config.mk` templates are provided with `dc-chain`:
 
 - `config.mk.testing.sample` (testing);
@@ -118,12 +124,12 @@ don't try to update the version of the `arm-eabi-gcc` component.
 
 You have the possibility to **use custom dependencies for GCC** directly in the
 `config.mk` file. In that case, you have to define `use_custom_dependencies=1`.
-Doing so will use your custom versions of **GMP**, **MPC**, **MPFR** and 
+Doing so will use your custom versions of **GMP**, **MPC**, **MPFR** and
 **ISL** rather than the provided versions with GCC. You may also use this flag
 if you have trouble using the `contrib/download_prerequisites` script provided
 with GCC.
 
-Please note that you have the possibility to specify the `tarball_type` 
+Please note that you have the possibility to specify the `tarball_type`
 extensions you want to download too; this may be useful if a package
 changes its extension on the servers. For example, for GCC `4.7.4`, there is no
 `xz` tarball file, so you may change this to `gz`.
@@ -134,10 +140,10 @@ you shouldn't update/change this.
 ### Toolchains base
 
 `toolchains_base` indicates the root directory where toolchains will be
-installed. This should match your `environ.sh` configuration. Default is 
+installed. This should match your `environ.sh` configuration. Default is
 `/opt/toolchains/dc`.
 
-In clear, after building the toolchains, by using the default `toolchains_base`, 
+In clear, after building the toolchains, by using the default `toolchains_base`,
 you'll have two additional directories:
 
 - `/opt/toolchains/dc/arm-eabi`;
@@ -160,7 +166,7 @@ files.
 ### Make jobs
 
 You may attempt to spawn multiple jobs with `make`. Using `make -j2` is
-recommended for speeding up the building of the toolchain. There is an option 
+recommended for speeding up the building of the toolchain. There is an option
 inside the `config.mk` to set the number of jobs for the building phases.
 Set the `makejobs` variable in the `config.mk` to whatever you would normally
 feel the need to use on the command line, and it will do the right thing.
@@ -201,9 +207,9 @@ You must have either [Wget](https://www.gnu.org/software/wget/) or
 
 ### GCC threading model
 
-With GCC `4.x` versions and up, the patches provide a `kos` thread model, so you 
+With GCC `4.x` versions and up, the patches provide a `kos` thread model, so you
 should use it. If you really don't want threading support for C++, Objective C
-or Objective C++, you can set this to `single`. With GCC `3.x`, you probably 
+or Objective C++, you can set this to `single`. With GCC `3.x`, you probably
 want `posix` here; but this mode is deprecated as the GCC `3.x` branch is not
 supported anymore.
 
@@ -250,7 +256,7 @@ instructions in the `./doc` directory for your environment.
 2. Finally, input (for **BSD**, please use `gmake` instead):
 
 		make
-	
+
 Depending of your environment, this can take a bunch of hours. So please be
 patient!
 
