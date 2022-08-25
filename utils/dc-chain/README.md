@@ -59,6 +59,11 @@ You'll need your host toolchain (i.e. the regular `gcc` plus additional tools)
 for your computer installed. Indeed, to build the cross-compilers you'll need a
 working compilation environment on your computer.
 
+In addition, you must have `bash` installed on your host system. Other shells
+*may* work, but are not tested and not guaranteed to work. The `download.sh` and
+`unpack.sh` scripts should be able to find your system's installed `bash` so
+long as it is installed in a standard location.
+
 If you need help on this step, everything is described in the `./doc` directory.
 
 Please note that you may be required to use older versions of some of the
@@ -248,7 +253,8 @@ After installing all the prerequisites and tweaking the configuration with the
 Below you will find some generic instructions; you may find some specific
 instructions in the `./doc` directory for your environment.
 
-1. Execute the following for preparing the sources:
+1. Execute the following for preparing the sources (if you have any syntax
+   errors running the scripts, try running with `bash` explicitly):
 
 		./download.sh
 		./unpack.sh
@@ -276,7 +282,8 @@ documentation to learn more on this point.
 
 ### Removing all useless files
 
-After the toolchain compilation, you can cleanup everything by entering:
+After the toolchain compilation, you can cleanup everything by entering (if
+you had to use `bash` explicitly above, you will need to do so again here):
 
 	./cleanup.sh
 
