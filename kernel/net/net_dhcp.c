@@ -29,6 +29,9 @@
 #define DHCP_SERVER_PORT 67
 #define DHCP_CLIENT_PORT 68
 
+#define DHCP_MIN_OPTIONS_SIZE 64
+
+
 static int dhcp_sock = -1;
 struct sockaddr_in srv_addr;
 
@@ -117,7 +120,10 @@ static int net_dhcp_fill_options(netif_t *net, dhcp_pkt_t *req, uint8 msgtype,
     /* The End */
     req->options[pos++] = DHCP_OPTION_END;
 
-    return pos;
+    /* DHCP is an extension of the BOOTP RFC which specifies that the
+     * vendor specific area (which became 'options' in DHCP) is 64 bytes,
+     * some routers reject DHCP packets if the options area is less than this */
+    return (pos < DHCP_MIN_OPTIONS_SIZE) ? DHCP_MIN_OPTIONS_SIZE : pos;
 }
 
 static int net_dhcp_get_message_type(dhcp_pkt_t *pkt, int len) {
