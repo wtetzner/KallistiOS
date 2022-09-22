@@ -147,7 +147,7 @@ int net_dhcp_init(void);
 
 void net_dhcp_shutdown(void);
 
-int net_dhcp_request(uint32* required_address);
+int net_dhcp_request(uint32 required_address);
 
 __END_DECLS
 

@@ -194,8 +194,9 @@ static uint16 net_dhcp_get_16bit(dhcp_pkt_t *pkt, uint8 opt, int len) {
     return 0;
 }
 
-int net_dhcp_request(uint32* required_address) {
+int net_dhcp_request(uint32 required_address) {
     uint8 pkt[1500];
+    uint16_t pkt_len;
     dhcp_pkt_t *req = (dhcp_pkt_t *)pkt;
     int optlen;
     struct dhcp_pkt_out *qpkt;
@@ -234,7 +235,7 @@ int net_dhcp_request(uint32* required_address) {
 
     /* Fill in options */
     optlen = net_dhcp_fill_options(net_default_dev, req, DHCP_MSG_DHCPDISCOVER,
-                                   0, (required_address) ? *required_address : 0);
+                                   0, required_address);
 
     /* Add to our packet queue */
     qpkt = (struct dhcp_pkt_out *)malloc(sizeof(struct dhcp_pkt_out));
@@ -244,7 +245,9 @@ int net_dhcp_request(uint32* required_address) {
         return -1;
     }
 
-    qpkt->buf = (uint8 *)malloc(sizeof(dhcp_pkt_t) + optlen);
+    pkt_len = sizeof(dhcp_pkt_t) + optlen;
+
+    qpkt->buf = (uint8 *)malloc(pkt_len);
 
     if(!qpkt->buf) {
         free(qpkt);
@@ -252,8 +255,8 @@ int net_dhcp_request(uint32* required_address) {
         return -1;
     }
 
-    qpkt->size = sizeof(dhcp_pkt_t) + optlen;
-    memcpy(qpkt->buf, pkt, sizeof(dhcp_pkt_t) + optlen);
+    qpkt->size = pkt_len;
+    memcpy(qpkt->buf, pkt, pkt_len);
     qpkt->pkt_type = DHCP_MSG_DHCPDISCOVER;
     qpkt->next_send = 0;
     qpkt->next_delay = 2000;
@@ -501,7 +504,7 @@ static void net_dhcp_thd(void *obj __attribute__((unused))) {
         state = DHCP_STATE_INIT;
         srv_addr.sin_addr.s_addr = INADDR_BROADCAST;
         memset(net_default_dev->ip_addr, 0, 4);
-        net_dhcp_request(NULL);
+        net_dhcp_request(0);
     }
     else if(rebind_time <= now &&
             (state == DHCP_STATE_BOUND || state == DHCP_STATE_RENEWING)) {
@@ -583,7 +586,7 @@ static void net_dhcp_thd(void *obj __attribute__((unused))) {
                     else if(found == DHCP_MSG_DHCPNAK) {
                         /* We got a NAK, try to discover again. */
                         state = DHCP_STATE_INIT;
-                        net_dhcp_request(NULL);
+                        net_dhcp_request(0);
                     }
 
                     /* Remove the old packet from our queue */

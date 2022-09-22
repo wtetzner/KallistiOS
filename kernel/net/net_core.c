@@ -180,10 +180,9 @@ int net_init(uint32 ip) {
     net_dhcp_init();
 
     if(net_default_dev) {
-        /* Did we get a requested IP address? If so, try to lease it over
-           DHCP */
+        /* Did we get a requested IP address? this normally happens over dcload-ip. */
         if(ip) {
-            rv = net_dhcp_request(&ip);
+            rv = net_dhcp_request(ip);
             if(rv < 0) {
                 dbglog(DBG_DEBUG, "Failed to acquire the specified IP with DHCP\n");
 
@@ -197,7 +196,7 @@ int net_init(uint32 ip) {
         /* We didn't get a requested IP address, if we don't already have one
            set, then do so via DHCP. */
         else if(!net_default_dev->ip_addr[0])
-            rv = net_dhcp_request(NULL);
+            rv = net_dhcp_request(0);
     }
 
     net_initted = 1;
