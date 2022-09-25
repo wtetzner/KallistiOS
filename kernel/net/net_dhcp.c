@@ -202,6 +202,7 @@ static uint16 net_dhcp_get_16bit(dhcp_pkt_t *pkt, uint8 opt, int len) {
     return 0;
 }
 
+
 int net_dhcp_request(uint32 required_address) {
     uint8 pkt[1500];
     uint16_t pkt_len;
@@ -267,7 +268,7 @@ int net_dhcp_request(uint32 required_address) {
     memcpy(qpkt->buf, pkt, pkt_len);
     qpkt->pkt_type = DHCP_MSG_DHCPDISCOVER;
     qpkt->next_send = 0;
-    qpkt->next_delay = 2000;
+    qpkt->next_delay = 4000;
 
     STAILQ_INSERT_TAIL(&dhcp_pkts, qpkt, pkt_queue);
 
@@ -337,7 +338,7 @@ static void net_dhcp_send_request(dhcp_pkt_t *pkt, int pktlen, dhcp_pkt_t *pkt2,
     memcpy(qpkt->buf, buf, sizeof(dhcp_pkt_t) + optlen);
     qpkt->pkt_type = DHCP_MSG_DHCPREQUEST;
     qpkt->next_send = 0;
-    qpkt->next_delay = 2000;
+    qpkt->next_delay = 4000;
 
     STAILQ_INSERT_TAIL(&dhcp_pkts, qpkt, pkt_queue);
 
