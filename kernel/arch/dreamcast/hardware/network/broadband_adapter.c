@@ -1142,6 +1142,9 @@ static void bba_set_ispcfg() {
 
     if((isp.valid_fields & FLASHROM_ISP_BROADCAST)) {
         memcpy(bba_if.broadcast, isp.bc, 4);
+    } else {
+        /* Default to 255.255.255.255 */
+        memset(bba_if.broadcast, 255, 4);
     }
 }
 

@@ -730,6 +730,9 @@ static void la_set_ispcfg() {
 
     if((isp.valid_fields & FLASHROM_ISP_BROADCAST)) {
         memcpy(la_if.broadcast, isp.bc, 4);
+    } else {
+        /* Default to 255.255.255.255 */
+        memset(la_if.broadcast, 255, 4);
     }
 }
 
