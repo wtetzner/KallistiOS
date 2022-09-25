@@ -76,10 +76,12 @@ static int net_dhcp_fill_options(netif_t *net, dhcp_pkt_t *req, uint8 msgtype,
     req->options[pos++] = (net->mtu >> 0) & 0xFF;
 
     /* Host Name: Dreamcast */
+    const char* host_name = "KallistiOS";
+    const uint8 size = strlen(host_name);
     req->options[pos++] = DHCP_OPTION_HOST_NAME;
-    req->options[pos++] = 10; /* Length = 10 */
-    strcpy((char *)req->options + pos, "KallistiOS");
-    pos += 10;
+    req->options[pos++] = size;
+    memcpy(req->options + pos, host_name, size);
+    pos += size;
 
     /* Client Identifier: The network adapter's MAC address */
     req->options[pos++] = DHCP_OPTION_CLIENT_ID;
