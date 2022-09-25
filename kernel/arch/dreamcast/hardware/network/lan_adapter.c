@@ -705,22 +705,32 @@ static int la_if_set_mc(netif_t *self, const uint8 *list, int count) {
 /* Set ISP configuration from the flashrom, as long as we're configured staticly */
 static void la_set_ispcfg() {
     flashrom_ispcfg_t isp;
-    uint32 fields = FLASHROM_ISP_IP | FLASHROM_ISP_NETMASK |
-                    FLASHROM_ISP_BROADCAST | FLASHROM_ISP_GATEWAY;
 
     if(flashrom_get_ispcfg(&isp) == -1)
-        return;
-
-    if((isp.valid_fields & fields) != fields)
         return;
 
     if(isp.method != FLASHROM_ISP_STATIC)
         return;
 
-    memcpy(la_if.ip_addr, isp.ip, 4);
-    memcpy(la_if.netmask, isp.nm, 4);
-    memcpy(la_if.gateway, isp.gw, 4);
-    memcpy(la_if.broadcast, isp.bc, 4);
+    if((isp.valid_fields & FLASHROM_ISP_IP)) {
+        memcpy(la_if.ip_addr, isp.ip, 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_NETMASK)) {
+        memcpy(la_if.netmask, isp.nm, 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_GATEWAY)) {
+        memcpy(la_if.gateway, isp.gw, 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_DNS)) {
+        memcpy(la_if.dns, isp.dns[0], 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_BROADCAST)) {
+        memcpy(la_if.broadcast, isp.bc, 4);
+    }
 }
 
 /* Initialize */
