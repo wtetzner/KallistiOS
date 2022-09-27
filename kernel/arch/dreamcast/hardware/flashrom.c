@@ -267,8 +267,8 @@ typedef struct {
             /* Block 0xE0 */
             uint16  blockid;        /* Should be 0xE0 */
             uint8   prodname[4];    /* SEGA */
-            uint8   unk1;           /* 0x13 */
             uint8   method;
+            uint8   unk1;           /* 0x00 */
             uint8   unk2[2];        /* 0x00 0x00 */
             uint8   ip[4];          /* These are all in big-endian notation */
             uint8   nm[4];

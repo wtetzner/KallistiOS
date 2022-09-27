@@ -225,10 +225,12 @@ int flashrom_get_region();
 
     @{
 */
-#define FLASHROM_ISP_DHCP   0   /**< \brief DHCP-based ethernet */
-#define FLASHROM_ISP_STATIC 1   /**< \brief Static IP-based ethernet */
-#define FLASHROM_ISP_DIALUP 2   /**< \brief Dialup ISP */
-#define FLASHROM_ISP_PPPOE  4   /**< \brief PPPoE-based ethernet */
+#define FLASHROM_ISP_DIALUP 0   /**< \brief Dialup ISP */
+#define FLASHROM_ISP_DHCP   1   /**< \brief DHCP-based ethernet */
+#define FLASHROM_ISP_PPPOE  2   /**< \brief PPPoE-based ethernet */
+#define FLASHROM_ISP_STATIC 3   /**< \brief Static IP-based ethernet */
+
+
 /** @} */
 
 /** \defgroup fr_fields Valid field constants for the flashrom_ispcfg_t struct

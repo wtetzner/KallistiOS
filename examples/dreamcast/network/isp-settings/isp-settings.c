@@ -21,11 +21,10 @@ int main(int argc, char **argv) {
     else {
         if((cfg.valid_fields & FLASHROM_ISP_IP)) {
             static const char * methods[] = {
-                "DHCP",
-                "Static",
                 "Dialup(?)",
-                "Unused",
+                "DHCP",
                 "PPPoE"
+                "Static",
             };
             printf("Method:   %s\n", methods[cfg.method]);
             printf("IP:       %i.%i.%i.%i\n", cfg.ip[0], cfg.ip[1], cfg.ip[2], cfg.ip[3]);
