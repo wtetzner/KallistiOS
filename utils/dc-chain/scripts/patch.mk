@@ -32,6 +32,9 @@ patch_gcc           = patch-sh4-gcc patch-arm-gcc
 patch_newlib        = patch-sh4-newlib
 patch_kos           = patch-kos
 
+uname_p := $(shell uname -p)
+uname_s := $(shell uname -s)
+
 # This is a common 'patch_apply' function used in all the cases
 define patch_apply
 	@stamp_file=patch-$(stamp_radical_name).stamp; \
@@ -60,6 +63,11 @@ $(patch_gcc): src_dir = gcc-$(gcc_ver)
 $(patch_gcc): stamp_radical_name = $(src_dir)
 $(patch_gcc): diff_patches := $(wildcard $(patches)/$(src_dir)*.diff)
 $(patch_gcc): diff_patches += $(wildcard $(patches)/$(host_triplet)/$(src_dir)*.diff)
+ifeq ($(uname_s), Darwin)
+ifeq ($(uname_p), arm)
+$(patch_gcc): diff_patches := $(wildcard $(patches)/$(uname_p)-$(uname_s)/$(src_dir)*.diff)
+endif
+endif
 $(patch_gcc):
 	$(call patch_apply)
 
