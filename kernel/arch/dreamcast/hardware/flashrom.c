@@ -267,8 +267,8 @@ typedef struct {
             /* Block 0xE0 */
             uint16  blockid;        /* Should be 0xE0 */
             uint8   prodname[4];    /* SEGA */
-            uint8   unk1;           /* 0x13 */
             uint8   method;
+            uint8   unk1;           /* 0x00 */
             uint8   unk2[2];        /* 0x00 0x00 */
             uint8   ip[4];          /* These are all in big-endian notation */
             uint8   nm[4];
@@ -339,11 +339,51 @@ typedef struct {
             char    ppp_passwd[20];
             uint16  crc;
         } e9;
+
+        struct {
+            /* Block 0xC6 */
+            uint16  blockid;
+            char    prodname[4];
+            char    ppp_login[28];
+            char    ppp_passwd[16];
+            char    phone1_pt1[12];
+            uint16  crc;
+        } c6;
+
+        struct {
+            /* Block 0xC7 */
+            uint16  blockid;
+            char    phone1_pt2[15];
+            char    unk1[13];
+            char    phone2[27];
+            char    unk2[5];
+            uint16  crc;
+        } c7;
+
+        struct {
+            /* Block 0xC8 */
+            uint16  blockid;
+            char    unk1[8];
+            char    phone3[27];
+            char    unk4[13];
+            uint8   dns1[4];
+            uint8   dns2[4];
+            char    unk5[4];
+            uint16  crc;
+        } c8;
+
+        struct {
+            /* Block 0xEB */
+            uint16  blockid;
+            char    unk1[12];
+            char    atx[48];
+            uint16  crc;
+        } eb;
     };
 } isp_settings_t;
 
 int flashrom_get_ispcfg(flashrom_ispcfg_t * out) {
-    uint8       buffer[64];
+    uint8       buffer[sizeof(isp_settings_t)];
     isp_settings_t  * isp = (isp_settings_t *)buffer;
     int     found = 0;
 
@@ -430,6 +470,50 @@ int flashrom_get_ispcfg(flashrom_ispcfg_t * out) {
         memcpy(out->ppp_passwd, isp->e9.ppp_passwd, 20);
 
         out->valid_fields |= FLASHROM_ISP_PPP_PASS;
+        found++;
+    }
+
+    /* Grab block 0xC6 */
+    if(flashrom_get_block(FLASHROM_PT_BLOCK_1, FLASHROM_B1_DK_PPP1, buffer) >= 0) {
+        if(!(out->valid_fields & FLASHROM_ISP_PPP_USER)) {
+            /* Grab the PPP Username. */
+            strncpy(out->ppp_login, isp->c6.ppp_login, 28);
+            out->ppp_login[28] = '\0';
+            out->valid_fields |= FLASHROM_ISP_PPP_USER;
+        }
+
+        if(!(out->valid_fields & FLASHROM_ISP_PPP_PASS)) {
+            /* Grab the PPP Password. */
+            strncpy(out->ppp_passwd, isp->c6.ppp_passwd, 16);
+            out->ppp_passwd[16] = '\0';
+            out->valid_fields |= FLASHROM_ISP_PPP_PASS;
+        }
+
+        found++;
+    }
+
+    /* Grab block 0xC7 */
+    if(flashrom_get_block(FLASHROM_PT_BLOCK_1, FLASHROM_B1_DK_PPP2, buffer) >= 0) {
+        if(!(out->valid_fields & FLASHROM_ISP_PHONE1)) {
+            /* The full number is 27 digits in C6-C8,
+            so we truncate it to fit the phone1 field */
+            strncpy(out->phone1, isp->c6.phone1_pt1, 12);
+            strncpy(out->phone1 + 12, isp->c7.phone1_pt2, 25 - 12);
+            out->phone1[25] = '\0';
+            out->valid_fields |= FLASHROM_ISP_PHONE1;
+        }
+        found++;
+    }
+
+    if(flashrom_get_block(FLASHROM_PT_BLOCK_1, FLASHROM_B1_DK_DNS, buffer) >= 0) {
+        /* Only read if we didn't find it already */
+        if(!(out->valid_fields & FLASHROM_ISP_DNS)) {
+            /* Grab the two DNS addresses. */
+            memcpy(out->dns[0], isp->c8.dns1, 4);
+            memcpy(out->dns[1], isp->c8.dns2, 4);
+            out->valid_fields |= FLASHROM_ISP_DNS;
+        }
+
         found++;
     }
 
@@ -565,7 +649,7 @@ typedef struct {
             uint16  crc;
         } c5;
 
-        /* Blocks 0xC6 - 0xCB also appear to be used by PlanetWeb, but are
+        /* Blocks 0xC7 - 0xCB also appear to be used by PlanetWeb, but are
            always blank in my tests. My only guess is that they were storage
            for a potential second ISP setting set. */
     };

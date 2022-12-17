@@ -37,7 +37,7 @@
 #define RX_CONFIG               (RX_EARLY_THRESHOLD<<24) | (RX_FIFO_THRESHOLD<<13) | \
                                 (RX_BUFFER_LEN_SHIFT<<11) | (RX_MAX_DMA_BURST<<8) | \
                                 (RX_NOWRAP<<7)
-                                
+
 #define TX_MAX_DMA_BURST        6 /* 2^(4+n) bytes from 0-7 (16b - 2Kb) */
 #define TX_CONFIG               (TX_MAX_DMA_BURST<<8)
 
@@ -1117,22 +1117,35 @@ static void bba_if_netinput(uint8 *pkt, int pktsize) {
 /* Set ISP configuration from the flashrom, as long as we're configured staticly */
 static void bba_set_ispcfg() {
     flashrom_ispcfg_t isp;
-    uint32 fields = FLASHROM_ISP_IP | FLASHROM_ISP_NETMASK |
-                    FLASHROM_ISP_BROADCAST | FLASHROM_ISP_GATEWAY;
 
     if(flashrom_get_ispcfg(&isp) == -1)
-        return;
-
-    if((isp.valid_fields & fields) != fields)
         return;
 
     if(isp.method != FLASHROM_ISP_STATIC)
         return;
 
-    memcpy(bba_if.ip_addr, isp.ip, 4);
-    memcpy(bba_if.netmask, isp.nm, 4);
-    memcpy(bba_if.gateway, isp.gw, 4);
-    memcpy(bba_if.broadcast, isp.bc, 4);
+    if((isp.valid_fields & FLASHROM_ISP_IP)) {
+        memcpy(bba_if.ip_addr, isp.ip, 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_NETMASK)) {
+        memcpy(bba_if.netmask, isp.nm, 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_GATEWAY)) {
+        memcpy(bba_if.gateway, isp.gw, 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_DNS)) {
+        memcpy(bba_if.dns, isp.dns[0], 4);
+    }
+
+    if((isp.valid_fields & FLASHROM_ISP_BROADCAST)) {
+        memcpy(bba_if.broadcast, isp.bc, 4);
+    } else {
+        /* Default to 255.255.255.255 */
+        memset(bba_if.broadcast, 255, 4);
+    }
 }
 
 /* Initialize */

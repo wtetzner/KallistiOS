@@ -623,6 +623,7 @@ static int net_udp_socket(net_socket_t *hnd, int domain, int type, int proto) {
 static void net_udp_close(net_socket_t *hnd) {
     struct udp_sock *udpsock;
     struct udp_pkt *pkt;
+    struct udp_pkt *it;
 
     if(irq_inside_int()) {
         if(mutex_trylock(&udp_mutex) == -1) {
@@ -642,7 +643,11 @@ static void net_udp_close(net_socket_t *hnd) {
         return;
     }
 
-    TAILQ_FOREACH(pkt, &udpsock->packets, pkt_queue) {
+    it = udpsock->packets.tqh_first;
+    while(it) {
+        pkt = it;
+        it = it->pkt_queue.tqe_next;
+
         free(pkt->data);
         TAILQ_REMOVE(&udpsock->packets, pkt, pkt_queue);
         free(pkt);
@@ -1415,12 +1420,6 @@ static int net_udp_send_raw(netif_t *net, const struct sockaddr_in6 *src,
             srcaddr.__s6_addr.__s6_addr16[5] = 0xFFFF;
             srcaddr.__s6_addr.__s6_addr32[3] =
                 htonl(net_ipv4_address(net->ip_addr));
-
-            if(srcaddr.__s6_addr.__s6_addr32[3] == INADDR_ANY) {
-                errno = ENETDOWN;
-                ++udp_stats.pkt_send_failed;
-                return -1;
-            }
         }
         else {
             if(IN6_IS_ADDR_LOOPBACK(&dst->sin6_addr)) {
