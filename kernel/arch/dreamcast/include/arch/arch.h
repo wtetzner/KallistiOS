@@ -27,10 +27,10 @@ __BEGIN_DECLS
 #ifdef __KOS_GCC_32MB__
 extern uint32 _arch_mem_top;
 #else
-#warning Outdated toolchain: not patched for 32MB support, limiting KOS\
-         to 16MB-only behavior to retain maximum compatibility. Please\
-         update toolchain.
-#define _arch_mem_top   0x8d000000
+#pragma message "Outdated toolchain: not patched for 32MB support, limiting KOS"\
+         " to 16MB-only behavior to retain maximum compatibility. Please"\
+         " update toolchain."
+#define _arch_mem_top   ((uint32) 0x8d000000)
 #endif
 
 #define PAGESIZE        4096            /**< \brief Page size (for MMU) */
