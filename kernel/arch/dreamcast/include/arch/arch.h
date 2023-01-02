@@ -138,7 +138,7 @@ void __crtend_pullin();
 
 /** \defgroup hw_memsizes           Console memory sizes
     These are the various memory sizes, in bytes, that can be returned by the
-    hardware_memsize() function.
+    HW_MEMSIZE macro.
     @{
 */
 #define HW_MEM_16           16777216   /**< \brief 16M retail Dreamcast */
