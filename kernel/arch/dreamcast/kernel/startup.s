@@ -16,6 +16,7 @@
 .globl __arch_old_vbr
 .globl __arch_old_stack
 .globl __arch_old_fpscr
+.globl __arch_mem_top
 
 _start:
 start:
@@ -71,7 +72,28 @@ init:
 	! Save the current stack, and set a new stack (higher up in RAM)
 	mov.l	old_stack_addr,r0
 	mov.l	r15,@r0
-	mov.l	new_stack,r15
+	mov.l   new_stack_16m,r15
+
+	! Check if 0xadffffff is a mirror of 0xacffffff, or if unique
+	! If unique, then memory is 32MB instead of 16MB, and we must
+	! set up new stack even higher
+	mov.l	p2_mask,r0
+	mov	r0,r2
+	or	r15,r2
+	mov	#0xba,r1
+	mov.b	r1,@-r2			! Store 0xba to 0xacffffff
+	mov.l	new_stack_32m,r1
+	or	r0,r1
+	mov	#0xab,r0
+	mov.b	r0,@-r1			! Store 0xab in 0xadffffff
+	mov.b	@r1,r0
+	mov.b	@r2,r1			! Reloaded values
+	cmp/eq	r0,r1			! Check if values match
+	bt	memchk_done		! If so, mirror - we're done, move on
+	mov.l	new_stack_32m,r15	! If not, unique - set higher stack
+memchk_done:
+	mov.l	mem_top_addr,r0
+	mov.l	r15,@r0			! Save address of top of memory
 
 	! Save VBR
 	mov.l	old_vbr_addr,r0
@@ -119,7 +141,7 @@ _arch_real_exit:
 	nop				! 6
 	nop				! 7
 	nop				! 8
-	
+
 	! Restore VBR
 	mov.l	old_vbr,r0
 	ldc	r0,vbr
@@ -173,8 +195,14 @@ old_stack_addr:
 __arch_old_stack:
 old_stack:
 	.long	0
-new_stack:
+__arch_mem_top:
+	.long	0
+mem_top_addr:
+	.long	__arch_mem_top
+new_stack_16m:
 	.long	0x8d000000
+new_stack_32m:
+	.long	0x8e000000
 p2_mask:
 	.long	0xa0000000
 setup_cache_addr:

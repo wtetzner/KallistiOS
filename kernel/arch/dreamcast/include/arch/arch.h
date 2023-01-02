@@ -23,18 +23,17 @@ __BEGIN_DECLS
 
 #include <dc/video.h>
 
+/** \brief  Top of memory available, depending on memory size. */
+extern uint32 _arch_mem_top;
+
 #define PAGESIZE        4096            /**< \brief Page size (for MMU) */
 #define PAGESIZE_BITS   12              /**< \brief Bits for page size */
 #define PAGEMASK        (PAGESIZE - 1)  /**< \brief Mask for page offset */
 
-#ifndef _arch_sub_naomi
 /** \brief  Page count "variable".
 
     The number of pages is static, so we can optimize this quite a bit. */
-#define page_count      ((16*1024*1024 - 0x10000) / PAGESIZE)
-#else
-#define page_count      ((32*1024*1024 - 0x10000) / PAGESIZE)
-#endif
+#define page_count      ((_arch_mem_top - page_phys_base) / PAGESIZE)
 
 /** \brief  Base address of available physical pages. */
 #define page_phys_base  0x8c010000
@@ -129,6 +128,25 @@ void arch_dtors();
 
 /** \brief  Hook to ensure linking of crtend.c. */
 void __crtend_pullin();
+
+/** \defgroup hw_memsizes           Console memory sizes
+    These are the various memory sizes, in bytes, that can be returned by the
+    hardware_memsize() function.
+    @{
+*/
+#define HW_MEM_16           16777216   /**< \brief 16M retail Dreamcast */
+#define HW_MEM_32           33554432   /**< \brief 32M NAOMI/modded Dreamcast */
+/** @} */
+
+/** \brief  Determine how much memory is installed in current machine.
+    \return The total size of system memory in bytes.
+*/
+#define HW_MEMSIZE ((_arch_mem_top == 0x8e000000) ? HW_MEM_32 : HW_MEM_16)
+
+/** \brief Use this macro to easily determine if system has doubled RAM.
+    \return True if doubled RAM, false if standard RAM.
+*/
+#define DBL_MEM ((_arch_mem_top == 0x8e000000) ? 1 : 0 )
 
 /* These are in mm.c */
 /** \brief  Initialize the memory management system.
@@ -354,17 +372,13 @@ const char *kos_get_authors(void);
 */
 #define arch_fptr_next(fptr) (*((uint32*)(fptr+4)))
 
-#ifndef _arch_sub_naomi
 /** \brief  Returns true if the passed address is likely to be valid. Doesn't
             have to be exact, just a sort of general idea.
 
     \return                 Whether the address is valid or not for normal
                             memory access.
 */
-#define arch_valid_address(ptr) ((ptr_t)(ptr) >= 0x8c010000 && (ptr_t)(ptr) < 0x8d000000)
-#else
-#define arch_valid_address(ptr) ((ptr_t)(ptr) >= 0x8c010000 && (ptr_t)(ptr) < 0x8e000000)
-#endif
+#define arch_valid_address(ptr) ((ptr_t)(ptr) >= 0x8c010000 && (ptr_t)(ptr) < _arch_mem_top)
 
 __END_DECLS
 
