@@ -30,7 +30,7 @@ extern uint32 _arch_mem_top;
 #warning Outdated toolchain: not patched for 32MB support, limiting KOS\
          to 16MB-only behavior to retain maximum compatibility. Please\
          update toolchain.
-#define _arch_mem_top 0x8d000000
+#define _arch_mem_top   0x8d000000
 #endif
 
 #define PAGESIZE        4096            /**< \brief Page size (for MMU) */
@@ -148,12 +148,12 @@ void __crtend_pullin();
 /** \brief  Determine how much memory is installed in current machine.
     \return The total size of system memory in bytes.
 */
-#define HW_MEMSIZE ((_arch_mem_top == 0x8e000000) ? HW_MEM_32 : HW_MEM_16)
+#define HW_MEMSIZE (_arch_mem_top - 0x8c000000)
 
-/** \brief Use this macro to easily determine if system has doubled RAM.
-    \return True if doubled RAM, false if standard RAM.
+/** \brief Use this macro to easily determine if system has 32MB of RAM.
+    \return Non-zero if console has 32MB of RAM, zero otherwise
 */
-#define DBL_MEM ((_arch_mem_top == 0x8e000000) ? 1 : 0 )
+#define DBL_MEM (_arch_mem_top - 0x8d000000)
 
 /* These are in mm.c */
 /** \brief  Initialize the memory management system.
