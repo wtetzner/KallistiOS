@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
     setup();
 
     /* Start off with something obscene */
-    switch_tests(2000000 / 60);
+    switch_tests(200000 / 60);
     start = time(NULL);
 
     for(;;) {
