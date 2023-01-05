@@ -15,7 +15,6 @@ export KOS_ARCH="dreamcast"
 # that here; otherwise use "pristine".
 # Possible subarch options include:
 #  "pristine" - a normal Dreamcast console or HKT-0120 devkit
-#  "navi" - a Dreamcast with the navi mod applied to it
 #  "naomi" - a NAOMI or NAOMI 2 arcade board
 # You can also pre-define it in eg the build config of your IDE
 if [ -z "${KOS_SUBARCH}" ] ; then
