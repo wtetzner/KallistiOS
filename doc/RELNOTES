@@ -12,7 +12,8 @@ The first change is that all targets deprecated in 2.0.0 were removed entirely
 from the tree. That is to say, there are no remnants of the GBA, PS2, or ia32
 ports of KOS in the tree anymore. If someone REALLY wants them back, please let
 me know at some point and we can work that out. I doubt this will come up at
-all, however.
+all, however. In addition, the navi subarch was moved out of the main tree and
+into the libnavi addon library.
 
 Further standards compliance issues were worked out for this release. KOS' core
 should now compile cleanly with a relatively new GCC with the -std=c99 flag
@@ -88,6 +89,25 @@ addons tree. This driver supports FAT12, FAT16, and FAT32, including proper
 long filename support. FAT isn't quite as robust of a filesystem as ext2 is,
 but it is probably a lot easier to work with on SD cards, considering how
 widely supported FAT is on pretty much every OS ever.
+
+Basic support has been added for getting things up and running on a NAOMI or
+NAOMI 2 arcade board (since both are variants of the Dreamcast hardware). In
+order to do this, build KOS with the KOS_SUBARCH set to "naomi". Support is
+fairly basic at the moment, but will hopefully improve over time (if I can get
+a hold of working hardware again). Two utilities have been added to the utils/
+tree for network bootable NAOMI binaries and for actually network booting them,
+assuming you have the requisite hardware.
+
+Support was added for various mods that have been made for the Dreamcast
+hardware in recent years. Support for ATA devices on G1 was already mentioned
+up above, but also added was support for modified BIOSes (necessitating a
+change to the GD-ROM initialization code), and more interestingly for consoles
+with 32MiB of RAM.
+
+Support has been removed for using toolchains with GCC 3.x and older. Going
+forward, at least GCC 4.7.4 is required for building KOS. The GCC patches for
+4.x improved/cleaned up building with KOS a lot, and I doubt there's many good
+reasons to keep around support for the old patches with GCC 3.x.
 
 
 RELEASE NOTES for 2.0.0

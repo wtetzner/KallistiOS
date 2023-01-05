@@ -155,6 +155,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Added support for consoles modded with 32MiB of RAM [TS && EF]
 - DC  Fixed wildly out of range start for pvrmark benchmark [Falco Girgis == FG]
 - DC  Removed "navi" subarch, moved code to addons/libnavi [LS]
+- *** Removed (completely unsupported) support for GCC 3.x and older [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
