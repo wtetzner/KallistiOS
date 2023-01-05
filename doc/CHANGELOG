@@ -134,7 +134,27 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - NAO Added naominetboot - a tool to upload NAOMI formatted binaries to a
       NetDIMM board for executing on the NAOMI [LS]
 - DC  Prevent double-initialization of Maple devices from breaking things [LS]
-- DC  Add a user data pointer to snd_stream [LS]
+- DC  Added a user data pointer to snd_stream [LS]
+- DC  Added support for -fstack-protector to Newlib 3.3 patch [LS]
+- DC  Fixed wasted PVR ram in buffer allocation code [LB]
+- *** Added getsockopt to TCP and UDP [LB]
+- DC  Corrected sizeof in fs_dclsocket that referenced wrong struct [LB]
+- *** Fixed spinlock that was left locked on key error in the
+      kthread_getspecific function [LS]
+- DC  Added a modem PPP example [LB]
+- DC  Fixed register usage and counter in modem driver [LB]
+- *** Fixed invalid read when closing UDP socket [LB]
+- *** Fixed sending packets with an IP address of 0.0.0.0 [LB]
+- *** Added code to attempt to lease the specified address via DHCP, if set [LB]
+- DC  Fixed controller capability masks [Artemio Urbina == AU]
+- *** Added simple _times_r syscall for Newlib [LS]
+- *** Fixed length of DHCP options area to always be at least 64 [LB]
+- *** Fixed DHCP retransmit timeout to 4 seconds, per spec [LB]
+- DC  Added code to (partially) read DreamKey ISP information [LB]
+- DC  Fixed G1 reactivation code for modified BIOSes [Eric Fradella == EF]
+- DC  Added support for consoles modded with 32MiB of RAM [TS && EF]
+- DC  Fixed wildly out of range start for pvrmark benchmark [Falco Girgis == FG]
+- DC  Removed "navi" subarch, moved code to addons/libnavi [LS]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
