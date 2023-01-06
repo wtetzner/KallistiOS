@@ -1,10 +1,14 @@
 # KallistiOS ##version##
 #
 # utils/Makefile
-# (c)2001 Dan Potter
+# Copyright (C) 2001 Dan Potter
 #
 
-DIRS = genromfs wav2adpcm vqenc scramble dcbumpgen
+DIRS = bin2c bincnv dcbumpgen genromfs kmgenc makeip scramble vqenc wav2adpcm
+
+ifeq ($(KOS_SUBARCH), naomi)
+	DIRS += naomibintool naominetboot
+endif
 
 # Ok for these to fail atm...
 
@@ -13,5 +17,3 @@ all:
 
 clean:
 	for i in $(DIRS); do $(KOS_MAKE) -C $$i clean; done
-		
-

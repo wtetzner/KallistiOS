@@ -21,19 +21,21 @@ int main(int argc, char **argv) {
     else {
         if((cfg.valid_fields & FLASHROM_ISP_IP)) {
             static const char * methods[] = {
-                "DHCP",
-                "Static",
                 "Dialup(?)",
-                "Unused",
+                "DHCP",
                 "PPPoE"
+                "Static",
             };
             printf("Method:   %s\n", methods[cfg.method]);
             printf("IP:       %i.%i.%i.%i\n", cfg.ip[0], cfg.ip[1], cfg.ip[2], cfg.ip[3]);
             printf("Netmask:  %i.%i.%i.%i\n", cfg.nm[0], cfg.nm[1], cfg.nm[2], cfg.nm[3]);
             printf("Gateway:  %i.%i.%i.%i\n", cfg.gw[0], cfg.gw[1], cfg.gw[2], cfg.gw[3]);
+            printf("Hostname: '%s'\n", cfg.hostname);
+        }
+
+        if((cfg.valid_fields & FLASHROM_ISP_DNS)) {
             printf("DNS 1:    %i.%i.%i.%i\n", cfg.dns[0][0], cfg.dns[0][1], cfg.dns[0][2], cfg.dns[0][3]);
             printf("DNS 2:    %i.%i.%i.%i\n", cfg.dns[1][0], cfg.dns[1][1], cfg.dns[1][2], cfg.dns[1][3]);
-            printf("Hostname: '%s'\n", cfg.hostname);
         }
 
         if((cfg.valid_fields & FLASHROM_ISP_EMAIL))
@@ -62,6 +64,9 @@ int main(int argc, char **argv) {
 
         if((cfg.valid_fields & FLASHROM_ISP_PPP_PASS))
             printf("PPP Pass:   '%s'\n", cfg.ppp_passwd);
+
+        if((cfg.valid_fields & FLASHROM_ISP_PHONE1))
+            printf("PPP Phone1:   '%s'\n", cfg.phone1);
     }
 
     return 0;

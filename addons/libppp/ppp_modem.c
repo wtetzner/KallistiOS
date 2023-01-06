@@ -39,6 +39,7 @@ static int ppp_modem_tx(ppp_device_t *self, const uint8_t *data, size_t len,
 
     /* As long as we have something to send, do so. */
     while(done < len) {
+        /* FIXME: This will loop infinitely if modem_write_data always fails */
         done += modem_write_data((unsigned char *)data + done, (int)len - done);
     }
 

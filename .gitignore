@@ -12,10 +12,10 @@ romdisk.img
 kernel/stubs/*.c
 kernel/exports/kernel_exports.c
 kernel/arch/dreamcast/kernel/arch_exports.c
+kernel/arch/dreamcast/kernel/banner.h
 lib/dreamcast/*.a
 addons/lib/dreamcast/*.a
 utils/bincnv/bincnv
-utils/gba-crcfix/gba-crcfix
 utils/genromfs/genromfs
 utils/vqenc/vqenc
 utils/wav2adpcm/wav2adpcm
@@ -26,10 +26,14 @@ utils/gentexfont/gentexfont
 utils/isotest/isotest
 utils/makejitter/makejitter
 utils/dcbumpgen/dcbumpgen
+utils/scramble/scramble
+utils/makeip/makeip
+utils/naomibintool/naomibintool
+utils/naominetboot/naominetboot
 examples/dreamcast/basic/exec/romdisk/sub.bin
 examples/dreamcast/kgl/basic/vq/fruit.vq
 examples/dreamcast/conio/adventure/data.c
-examples/dreamcast/conio/adventure/setup
+examples/dreamcast/conio/adventure/datagen
 examples/dreamcast/png/romdisk_boot.img
 examples/dreamcast/pvr/modifier_volume_tex/romdisk/fruit.kmg
 examples/dreamcast/pvr/texture_render/texture_render.bin
@@ -41,4 +45,3 @@ utils/dc-chain/gcc-*
 utils/dc-chain/newlib-*
 utils/dc-chain/gdb-*
 utils/dc-chain/insight-*
-utils/scramble/scramble

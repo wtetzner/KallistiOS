@@ -1,8 +1,13 @@
 
 # Makefile for the genromfs program.
+ifeq ($(OS), Windows_NT)
+	LDLIBS = -lshlwapi -lws2_32
+else
+#	Nothing
+endif
 
 CFLAGS = -O2 -Wall #-g#
-#LDFLAGS = -s -g
+LDFLAGS = -s
 
 all: genromfs
 

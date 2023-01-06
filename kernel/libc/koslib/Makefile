@@ -16,11 +16,4 @@ OBJS = abort.o byteorder.o memset2.o memset4.o memcpy2.o memcpy4.o \
 	gethostbyname.o getaddrinfo.o dirfd.o nanosleep.o basename.o dirname.o \
 	sched_yield.o
 
-GCC_MAJORMINOR = $(basename $(KOS_GCCVER))
-GCC_MAJOR = $(basename $(GCC_MAJORMINOR))
-
-ifeq ($(strip $(GCC_MAJOR)), 3)
-OBJS += crtbegin.o crtend.o
-endif
-
 include $(KOS_BASE)/Makefile.prefab

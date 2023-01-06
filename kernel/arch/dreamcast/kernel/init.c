@@ -24,16 +24,15 @@ extern int _bss_start, end;
 
 void _atexit_call_all();
 
+/* ctor/dtor stuff from libgcc. */
 #if __GNUC__ == 4
 #define _init init
 #define _fini fini
 #endif
 
-#if __GNUC__ >= 4
 void _init(void);
 void _fini(void);
 void __verify_newlib_patch();
-#endif
 
 int main(int argc, char **argv);
 uint32 _fs_dclsocket_get_ip(void);
@@ -63,10 +62,12 @@ int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
    this to be linked into your code (and do the same with the
    arch_auto_shutdown function too). */
 int  __attribute__((weak)) arch_auto_init() {
+#ifndef _arch_sub_naomi
     union {
         uint32 ipl;
         uint8 ipb[4];
     } ip;
+#endif
 
     /* Initialize memory management */
     mm_init();
@@ -215,11 +216,6 @@ int arch_main() {
     *DMAOR = 0x8201;
 #endif /* _arch_sub_naomi */
 
-    /* Ensure that we pull in crtend.c in the linking process */
-#if __GNUC__ < 4
-    __crtend_pullin();
-#endif
-
     /* Ensure that UBC is not enabled from a previous session */
     ubc_disable_all();
 
@@ -230,12 +226,8 @@ int arch_main() {
     arch_auto_init();
 
     /* Run ctors */
-#if __GNUC__ < 4
-    arch_ctors();
-#else
     __verify_newlib_patch();
     _init();
-#endif
 
     /* Call the user's main function */
     rv = main(0, NULL);
@@ -257,12 +249,7 @@ void arch_set_exit_path(int path) {
 void arch_shutdown() {
     /* Run dtors */
     _atexit_call_all();
-
-#if __GNUC__ < 4
-    arch_dtors();
-#else
     _fini();
-#endif
 
     dbglog(DBG_CRITICAL, "arch: shutting down kernel\n");
 

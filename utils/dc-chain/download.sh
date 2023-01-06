@@ -1,89 +1,100 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# These version numbers are all that should ever have to be changed.
-export SH_GCC_VER=9.3.0
-export ARM_GCC_VER=8.4.0
-export BINUTILS_VER=2.34
-export NEWLIB_VER=3.3.0
-export GMP_VER=6.1.0
-export MPFR_VER=3.1.4
-export MPC_VER=1.0.3
+# Getting configuration from Makefile
+source ./scripts/common.sh
+
+print_banner "Downloader"
 
 while [ "$1" != "" ]; do
     PARAM=`echo $1 | awk -F= '{print $1}'`
     case $PARAM in
-        --no-gmp)
-            unset GMP_VER
-            ;;
-        --no-mpfr)
-            unset MPFR_VER
-            ;;
-        --no-mpc)
-            unset MPC_VER
-            ;;
-        --no-deps)
-            unset GMP_VER
-            unset MPFR_VER
-            unset MPC_VER
+        --config-guess-only)
+            CONFIG_GUESS_ONLY=1
             ;;
         *)
-            echo "ERROR: unknown parameter \"$PARAM\""
+            echo "error: unknown parameter \"$PARAM\""
             exit 1
             ;;
     esac
     shift
 done
 
+function download()
+{
+  local name=$1
+  local ver=$2
+  local url=$3
+  local filename=$(basename $url)
+
+  if [ -n "$ver" ]; then
+    if [ ! -f $filename ]; then
+      echo "Downloading ${name} ${ver}..."
+      ${WEB_DOWNLOADER} "${DOWNLOAD_PROTOCOL}${url}" || exit 1
+    else
+      echo "$name $ver was already downloaded"
+	fi
+  fi
+}
+
+function download_dependencies()
+{
+  local arch=$1
+
+  local gmp_ver=$SH_GMP_VER
+  local mpfr_ver=$SH_MPFR_VER
+  local mpc_ver=$SH_MPC_VER
+  local isl_ver=$SH_ISL_VER
+  local gmp_url=$SH_GMP_URL
+  local mpfr_url=$SH_MPFR_URL
+  local mpc_url=$SH_MPC_URL
+  local isl_url=$SH_ISL_URL
+
+  if [ "$arch" == "arm" ]; then
+    gmp_ver=$ARM_GMP_VER
+    mpfr_ver=$ARM_MPFR_VER
+    mpc_ver=$ARM_MPC_VER
+    isl_ver=$ARM_ISL_VER
+    gmp_url=$ARM_GMP_URL
+    mpfr_url=$ARM_MPFR_URL
+    mpc_url=$ARM_MPC_URL
+    isl_url=$ARM_ISL_URL
+  fi
+
+  if [ "$USE_CUSTOM_DEPENDENCIES" == "1" ]; then
+    download "GMP"  "$gmp_ver"   "$gmp_url"
+    download "MPFR" "$mpfr_ver"  "$mpfr_url"
+    download "MPC"  "$mpc_ver"   "$mpc_url"
+    download "ISL"  "$isl_ver"   "$isl_url"
+  fi
+}
+
 # Download everything.
-if command -v curl >/dev/null 2>&1; then
-    echo "Downloading Binutils $BINUTILS_VER..."
-    curl --progress-bar -C - -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
-    echo "Downloading GCC $SH_GCC_VER..."
-    curl --progress-bar -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.gz || exit 1
-    echo "Downloading GCC $ARM_GCC_VER..."
-    curl --progress-bar -C - -O https://ftp.gnu.org/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.gz || exit 1
-    echo "Downloading Newlib $NEWLIB_VER..."
-    curl --progress-bar -C - -O https://sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.gz || exit 1
+if [ -z "${CONFIG_GUESS_ONLY}" ]; then
+  # Downloading SH components
+  download "Binutils" "$SH_BINUTILS_VER" "$SH_BINUTILS_URL"
+  download "GCC" "$SH_GCC_VER" "$SH_GCC_URL"
+  download_dependencies "sh"
+  download "Newlib" "$NEWLIB_VER" "$NEWLIB_URL"
 
-    if [ -n "$GMP_VER" ]; then
-        echo "Downloading GMP $GMP_VER..."
-        curl --progress-bar -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2 || exit 1
-    fi
-
-    if [ -n "$MPFR_VER" ]; then
-        echo "Downloading MPFR $MPFR_VER..."
-        curl --progress-bar -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2 || exit 1
-    fi
-
-    if [ -n "$MPC_VER" ]; then
-        echo "Downloading MPC $MPC_VER..."
-        curl --progress-bar -C - -O https://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz || exit 1
-    fi
-elif command -v wget >/dev/null 2>&1; then
-    echo "Downloading binutils-$BINUTILS_VER..."
-    wget -c https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz || exit 1
-    echo "Downloading GCC $SH_GCC_VER..."
-    wget -c https://ftp.gnu.org/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.gz || exit 1
-    echo "Downloading GCC $ARM_GCC_VER..."
-    wget -c https://ftp.gnu.org/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.gz || exit 1
-    echo "Downloading Newlib $NEWLIB_VER..."
-    wget -c https://sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.gz || exit 1
-
-    if [ -n "$GMP_VER" ]; then
-        echo "Downloading GMP $GMP_VER..."
-        wget -c https://gcc.gnu.org/pub/gcc/infrastructure/gmp-$GMP_VER.tar.bz2 || exit 1
-    fi
-
-    if [ -n "$MPFR_VER" ]; then
-        echo "Downloading MPFR $MPFR_VER..."
-        wget -c https://gcc.gnu.org/pub/gcc/infrastructure/mpfr-$MPFR_VER.tar.bz2 || exit 1
-    fi
-
-    if [ -n "$MPC_VER" ]; then
-        echo "Downloading MPC $MPC_VER..."
-        wget -c https://gcc.gnu.org/pub/gcc/infrastructure/mpc-$MPC_VER.tar.gz || exit 1
-    fi
-else
-    echo >&2 "You must have either wget or cURL installed to use this script!"
-    exit 1
+  # Downloading ARM components
+  download "Binutils" "$ARM_BINUTILS_VER" "$ARM_BINUTILS_URL"
+  download "GCC" "$ARM_GCC_VER" "$ARM_GCC_URL"
+  download_dependencies "arm"
 fi
+
+# Downloading config.guess.
+if [ ! -f ${CONFIG_GUESS} ]; then
+  WEB_DOWNLOAD_OUTPUT_SWITCH="-O"
+  if [ ! -z "${IS_CURL}" ] && [ "${IS_CURL}" != "0" ]; then
+    WEB_DOWNLOADER="$(echo ${WEB_DOWNLOADER} | cut -c-9)"
+    WEB_DOWNLOAD_OUTPUT_SWITCH="-o"
+  fi
+
+  echo "Downloading ${CONFIG_GUESS}..."
+  ${WEB_DOWNLOADER} ${WEB_DOWNLOAD_OUTPUT_SWITCH} ${CONFIG_GUESS} "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=${CONFIG_GUESS};hb=HEAD" || exit 1
+
+  # This is needed for all systems except MinGW.
+  chmod +x "./${CONFIG_GUESS}"
+fi
+
+echo "Done!"

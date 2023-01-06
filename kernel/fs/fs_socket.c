@@ -567,6 +567,25 @@ int shutdown(int sock, int how) {
     return hnd->protocol->shutdownsock(hnd, how);
 }
 
+int getsockname(int sock, struct sockaddr *name, socklen_t *name_len) {
+    net_socket_t *hnd;
+
+    hnd = (net_socket_t *)fs_get_handle(sock);
+
+    if(hnd == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+
+    /* Make sure this is actually a socket. */
+    if(fs_get_handler(sock) != &vh) {
+        errno = ENOTSOCK;
+        return -1;
+    }
+
+    return hnd->protocol->getsockname(hnd, name, name_len);
+}
+
 int getsockopt(int sock, int level, int option_name, void *option_value,
                socklen_t *option_len) {
     net_socket_t *hnd;

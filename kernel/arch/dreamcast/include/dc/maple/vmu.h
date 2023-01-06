@@ -27,6 +27,51 @@ __BEGIN_DECLS
 #include <arch/types.h>
 #include <dc/maple.h>
 
+/** \brief  Enable custom color of a VMU
+
+    This function enables/disables the custom color of a specific VMU. 
+    This color is only displayed in the Dreamcast's file manager.
+
+    \param  dev             The device to enable custom color.
+    \param  enable          Values other than 0 enables. Equal to 0 disables.
+    \retval 0               On success
+    \retval -1              On failure
+*/
+int vmu_use_custom_color(maple_device_t * dev, int enable);
+
+/** \brief  Set custom color of a VMU
+
+    This function sets the custom color of a specific VMU. This color is only
+    displayed in the Dreamcast's file manager. This function also enables the 
+    use of the custom color. Otherwise it wouldn't show up.
+
+    \param  dev             The device to change the color of.
+    \param  red             The red component. 0-255
+    \param  green           The green component. 0-255
+    \param  blue            The blue component. 0-255
+    \param  alpha           The alpha component. 0-255; 100-255 Recommended
+    \retval 0               On success
+    \retval -1              On failure
+*/
+int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blue, uint8 alpha);
+
+/** \brief  Set icon shape of a VMU
+
+    This function sets the icon shape of a specific VMU. The icon shape is a 
+    vmu icon that is displayed on the LCD screen while navigating the Dreamcast
+    BIOS menu and is the GUI representation of the VMU in the menu's file manager. 
+    The Dreamcast BIOS provides a set of 124 icons to choose from. The set of icons 
+    you can choose from are located in biosfont.h and start with BFONT_VMUICON and 
+    end with BFONT_EMBROIDERY.
+
+    \param  dev             The device to change the icon shape of.
+    \param  icon_shape      The valid values for icon_shape are BFONT_* listed in 
+                            the biosfont.h
+    \retval 0               On success
+    \retval -1              On failure
+*/
+int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape);
+
 /** \brief  Make a VMU beep.
 
     This function sends a raw beep to a VMU, causing the speaker to emit a tone
@@ -53,6 +98,19 @@ int vmu_beep_raw(maple_device_t * dev, uint32 beep);
     \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
 */
 int vmu_draw_lcd(maple_device_t * dev, void *bitmap);
+
+/** \brief  Display a Xwindows XBM image on a VMU screen.
+
+    This function takes in a Xwindows XBM, converts it to a raw bitmap, and sends 
+    it to a VMU to display on its screen. This XBM image is 48x32 in size.
+
+    \param  dev             The device to draw to.
+    \param  vmu_icon        The icon to set.
+    \retval MAPLE_EOK       On success.
+    \retval MAPLE_EAGAIN    If the command couldn't be sent. Try again later.
+    \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
+*/
+int vmu_draw_lcd_xbm(maple_device_t * dev, const char *vmu_icon);
 
 /** \brief  Read a block from a memory card.
 

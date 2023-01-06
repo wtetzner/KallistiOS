@@ -1,14 +1,10 @@
 # KallistiOS ##version##
 #
 # arch/dreamcast Makefile
-# (c)2001 Dan Potter
+# Copyright (C) 2001 Dan Potter
 #
-	
-SUBDIRS=fs hardware kernel math sound util
 
-ifeq ($(KOS_SUBARCH), navi)
-	SUBDIRS += navi
-endif
+SUBDIRS=fs hardware kernel math sound util
 
 include $(KOS_BASE)/Makefile.rules
 

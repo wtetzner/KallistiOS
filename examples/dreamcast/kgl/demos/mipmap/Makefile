@@ -5,7 +5,7 @@
 
 TARGET = gl-mipmap.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = gl-mipmap.o pvr-texture.o
 
 OBJS += romdisk.o
 

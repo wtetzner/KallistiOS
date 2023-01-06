@@ -5,7 +5,7 @@
 
 TARGET = gltest.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = gltest.o pvr-texture.o
 
 OBJS += romdisk.o
 

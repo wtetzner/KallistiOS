@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    controller.c
-   (C)2002 Dan Potter
+   Copyright (C) 2002 Dan Potter
 
  */
 
@@ -108,7 +108,9 @@ static maple_driver_t controller_drv = {
 
 /* Add the controller to the driver chain */
 int cont_init() {
-    return maple_driver_reg(&controller_drv);
+    if(!controller_drv.drv_list.le_prev)
+        return maple_driver_reg(&controller_drv);
+    return -1;
 }
 
 void cont_shutdown() {

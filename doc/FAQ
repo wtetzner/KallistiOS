@@ -241,12 +241,13 @@ the ethernet for you.
 
 - VMU -- mounts on /vmu, what it sounds like. This dynamic file system
 shows all detected VMU or memory cards on the maple bus and lets you
-browse and read/write them. Note that it's fairly primitive right now
-and has been known to corrupt cards on writing. This is DC-only.
+browse and read/write them. This is DC-only. Note that in order for files
+to show up in the BIOS menu, they must have a specific format, which is
+handled by the vmu_pkg code.
 
 - Romdisk -- mounts on /rd. This is an implementation of the Linux ROMFS
-file system. Right now it supports nested directories but no listings. As
-time goes on I will be working on this to make it more fully functional.
+file system. One may be built-in to your program to mount on /rd on boot.
+In addition, you may load other images and mount them freely at runtime.
 
 - Ramdisk -- mounts on /ram. Works exactly as you expect -- putting files
 here eats up core RAM, deleting them recovers it. Otherwise it works

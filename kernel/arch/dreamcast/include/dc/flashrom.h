@@ -54,6 +54,9 @@ __BEGIN_DECLS
 #define FLASHROM_B1_PW_EMAIL1       0xC3    /**< \brief PlanetWeb Email settings (BLOCK_1) */
 #define FLASHROM_B1_PW_EMAIL2       0xC4    /**< \brief PlanetWeb Email settings (BLOCK_1) */
 #define FLASHROM_B1_PW_EMAIL_PROXY  0xC5    /**< \brief PlanetWeb Email/Proxy settings (BLOCK_1) */
+#define FLASHROM_B1_DK_PPP1         0xC6    /**< \brief DreamKey PPP settings (also seen in PW) */
+#define FLASHROM_B1_DK_PPP2         0xC7    /**< \brief DreamKey PPP settings (also seen in PW) */
+#define FLASHROM_B1_DK_DNS          0xC8    /**< \brief DreamKey PPP settings (also seen in PW) */
 #define FLASHROM_B1_IP_SETTINGS     0xE0    /**< \brief IP settings for BBA (BLOCK_1) */
 #define FLASHROM_B1_EMAIL           0xE2    /**< \brief Email address (BLOCK_1) */
 #define FLASHROM_B1_SMTP            0xE4    /**< \brief SMTP server setting (BLOCK_1) */
@@ -62,6 +65,7 @@ __BEGIN_DECLS
 #define FLASHROM_B1_POP3PASSWD      0xE7    /**< \brief POP3 password setting + proxy (BLOCK_1) */
 #define FLASHROM_B1_PPPLOGIN        0xE8    /**< \brief PPP username + proxy (BLOCK_1) */
 #define FLASHROM_B1_PPPPASSWD       0xE9    /**< \brief PPP passwd (BLOCK_1) */
+#define FLASHROM_B1_PPPMODEM        0xEB    /**< \brief PPP modem settings */
 /** @} */
 
 #define FLASHROM_OFFSET_CRC         62      /**< \brief Location of CRC in each block */
@@ -225,10 +229,12 @@ int flashrom_get_region();
 
     @{
 */
-#define FLASHROM_ISP_DHCP   0   /**< \brief DHCP-based ethernet */
-#define FLASHROM_ISP_STATIC 1   /**< \brief Static IP-based ethernet */
-#define FLASHROM_ISP_DIALUP 2   /**< \brief Dialup ISP */
-#define FLASHROM_ISP_PPPOE  4   /**< \brief PPPoE-based ethernet */
+#define FLASHROM_ISP_DIALUP 0   /**< \brief Dialup ISP */
+#define FLASHROM_ISP_DHCP   1   /**< \brief DHCP-based ethernet */
+#define FLASHROM_ISP_PPPOE  2   /**< \brief PPPoE-based ethernet */
+#define FLASHROM_ISP_STATIC 3   /**< \brief Static IP-based ethernet */
+
+
 /** @} */
 
 /** \defgroup fr_fields Valid field constants for the flashrom_ispcfg_t struct

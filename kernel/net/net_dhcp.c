@@ -29,6 +29,9 @@
 #define DHCP_SERVER_PORT 67
 #define DHCP_CLIENT_PORT 68
 
+#define DHCP_MIN_OPTIONS_SIZE 64
+
+
 static int dhcp_sock = -1;
 struct sockaddr_in srv_addr;
 
@@ -73,10 +76,12 @@ static int net_dhcp_fill_options(netif_t *net, dhcp_pkt_t *req, uint8 msgtype,
     req->options[pos++] = (net->mtu >> 0) & 0xFF;
 
     /* Host Name: Dreamcast */
+    const char* host_name = "KallistiOS";
+    const uint8 size = strlen(host_name);
     req->options[pos++] = DHCP_OPTION_HOST_NAME;
-    req->options[pos++] = 10; /* Length = 10 */
-    strcpy((char *)req->options + pos, "KallistiOS");
-    pos += 10;
+    req->options[pos++] = size;
+    memcpy(req->options + pos, host_name, size);
+    pos += size;
 
     /* Client Identifier: The network adapter's MAC address */
     req->options[pos++] = DHCP_OPTION_CLIENT_ID;
@@ -117,7 +122,10 @@ static int net_dhcp_fill_options(netif_t *net, dhcp_pkt_t *req, uint8 msgtype,
     /* The End */
     req->options[pos++] = DHCP_OPTION_END;
 
-    return pos;
+    /* DHCP is an extension of the BOOTP RFC which specifies that the
+     * vendor specific area (which became 'options' in DHCP) is 64 bytes,
+     * some routers reject DHCP packets if the options area is less than this */
+    return (pos < DHCP_MIN_OPTIONS_SIZE) ? DHCP_MIN_OPTIONS_SIZE : pos;
 }
 
 static int net_dhcp_get_message_type(dhcp_pkt_t *pkt, int len) {
@@ -194,8 +202,10 @@ static uint16 net_dhcp_get_16bit(dhcp_pkt_t *pkt, uint8 opt, int len) {
     return 0;
 }
 
-int net_dhcp_request(void) {
+
+int net_dhcp_request(uint32 required_address) {
     uint8 pkt[1500];
+    uint16_t pkt_len;
     dhcp_pkt_t *req = (dhcp_pkt_t *)pkt;
     int optlen;
     struct dhcp_pkt_out *qpkt;
@@ -234,7 +244,7 @@ int net_dhcp_request(void) {
 
     /* Fill in options */
     optlen = net_dhcp_fill_options(net_default_dev, req, DHCP_MSG_DHCPDISCOVER,
-                                   0, 0);
+                                   0, required_address);
 
     /* Add to our packet queue */
     qpkt = (struct dhcp_pkt_out *)malloc(sizeof(struct dhcp_pkt_out));
@@ -244,7 +254,9 @@ int net_dhcp_request(void) {
         return -1;
     }
 
-    qpkt->buf = (uint8 *)malloc(sizeof(dhcp_pkt_t) + optlen);
+    pkt_len = sizeof(dhcp_pkt_t) + optlen;
+
+    qpkt->buf = (uint8 *)malloc(pkt_len);
 
     if(!qpkt->buf) {
         free(qpkt);
@@ -252,11 +264,11 @@ int net_dhcp_request(void) {
         return -1;
     }
 
-    qpkt->size = sizeof(dhcp_pkt_t) + optlen;
-    memcpy(qpkt->buf, pkt, sizeof(dhcp_pkt_t) + optlen);
+    qpkt->size = pkt_len;
+    memcpy(qpkt->buf, pkt, pkt_len);
     qpkt->pkt_type = DHCP_MSG_DHCPDISCOVER;
     qpkt->next_send = 0;
-    qpkt->next_delay = 2000;
+    qpkt->next_delay = 4000;
 
     STAILQ_INSERT_TAIL(&dhcp_pkts, qpkt, pkt_queue);
 
@@ -326,7 +338,7 @@ static void net_dhcp_send_request(dhcp_pkt_t *pkt, int pktlen, dhcp_pkt_t *pkt2,
     memcpy(qpkt->buf, buf, sizeof(dhcp_pkt_t) + optlen);
     qpkt->pkt_type = DHCP_MSG_DHCPREQUEST;
     qpkt->next_send = 0;
-    qpkt->next_delay = 2000;
+    qpkt->next_delay = 4000;
 
     STAILQ_INSERT_TAIL(&dhcp_pkts, qpkt, pkt_queue);
 
@@ -501,7 +513,7 @@ static void net_dhcp_thd(void *obj __attribute__((unused))) {
         state = DHCP_STATE_INIT;
         srv_addr.sin_addr.s_addr = INADDR_BROADCAST;
         memset(net_default_dev->ip_addr, 0, 4);
-        net_dhcp_request();
+        net_dhcp_request(0);
     }
     else if(rebind_time <= now &&
             (state == DHCP_STATE_BOUND || state == DHCP_STATE_RENEWING)) {
@@ -583,7 +595,7 @@ static void net_dhcp_thd(void *obj __attribute__((unused))) {
                     else if(found == DHCP_MSG_DHCPNAK) {
                         /* We got a NAK, try to discover again. */
                         state = DHCP_STATE_INIT;
-                        net_dhcp_request();
+                        net_dhcp_request(0);
                     }
 
                     /* Remove the old packet from our queue */

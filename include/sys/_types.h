@@ -13,6 +13,7 @@
 __BEGIN_DECLS
 
 #include <sys/lock.h>
+#include <newlib.h>
 
 // This part copied from newlib's sys/_types.h.
 #ifndef __off_t_defined
@@ -127,7 +128,11 @@ typedef unsigned short __nlink_t;
 typedef long        __suseconds_t;  /* microseconds (signed) */
 typedef unsigned long   __useconds_t;   /* microseconds (unsigned) */
 
+#if __NEWLIB__ > 3
+#define _TIME_T  long long
+#else
 #define _TIME_T_ long
+#endif
 typedef _TIME_T_    __time_t;
 
 #ifndef __clockid_t_defined

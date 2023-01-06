@@ -1440,7 +1440,7 @@ void pvr_mem_stats();
 /* Scene rendering ***************************************************/
 
 /* This API is used to submit triangle strips to the PVR via the TA
-   interace in the chip.
+   interface in the chip.
 
    An important side note about the PVR is that all primitive types
    must be submitted grouped together. If you have 10 polygons for each

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+/* This utility requires the "libimageload" KallistiOS Port. */
 #include <imageload/jitterdefs.h>
 
 int ijitter[JITTER_TABLE_SIZE];

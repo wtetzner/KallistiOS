@@ -343,6 +343,8 @@ _off64_t fs_tell64(file_t hnd);
 
     \param  hnd             The file descriptor to retrieve the size from.
     \return                 The length of the file on success, -1 on failure.
+    \note                   size_t is unsigned, so the error return value is not
+                            less than 0.
 */
 size_t fs_total(file_t hnd);
 
@@ -353,6 +355,8 @@ size_t fs_total(file_t hnd);
 
     \param  hnd             The file descriptor to retrieve the size from.
     \return                 The length of the file on success, -1 on failure.
+    \note                   uint64 is unsigned, so the error return value is not
+                            less than 0.
 */
 uint64 fs_total64(file_t hnd);
 

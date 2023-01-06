@@ -623,6 +623,7 @@ static int net_udp_socket(net_socket_t *hnd, int domain, int type, int proto) {
 static void net_udp_close(net_socket_t *hnd) {
     struct udp_sock *udpsock;
     struct udp_pkt *pkt;
+    struct udp_pkt *it;
 
     if(irq_inside_int()) {
         if(mutex_trylock(&udp_mutex) == -1) {
@@ -642,7 +643,11 @@ static void net_udp_close(net_socket_t *hnd) {
         return;
     }
 
-    TAILQ_FOREACH(pkt, &udpsock->packets, pkt_queue) {
+    it = udpsock->packets.tqh_first;
+    while(it) {
+        pkt = it;
+        it = it->pkt_queue.tqe_next;
+
         free(pkt->data);
         TAILQ_REMOVE(&udpsock->packets, pkt, pkt_queue);
         free(pkt);
@@ -937,6 +942,78 @@ static int net_udp_setsockopt(net_socket_t *hnd, int level, int option_name,
 ret_inval:
     mutex_unlock(&udp_mutex);
     errno = EINVAL;
+    return -1;
+
+ret_success:
+    mutex_unlock(&udp_mutex);
+    return 0;
+}
+
+static int net_udp_getsockname(net_socket_t *hnd, struct sockaddr *name,
+                               socklen_t *name_len) {
+    struct udp_sock *sock;
+    struct sockaddr_in realaddr;
+    struct sockaddr_in6 realaddr6;
+
+    if(!name || !name_len) {
+        errno = EFAULT;
+        return -1;
+    }
+
+    if(irq_inside_int()) {
+        if(mutex_trylock(&udp_mutex) == -1) {
+            errno = EWOULDBLOCK;
+            return -1;
+        }
+    }
+    else {
+        mutex_lock(&udp_mutex);
+    }
+
+    if(!(sock = (struct udp_sock *)hnd->data)) {
+        mutex_unlock(&udp_mutex);
+        errno = EBADF;
+        return -1;
+    }
+
+    if(sock->domain == AF_INET) {
+        memset(&realaddr, 0, sizeof(struct sockaddr_in));
+        realaddr.sin_family = AF_INET;
+        realaddr.sin_addr.s_addr =
+            sock->local_addr.sin6_addr.__s6_addr.__s6_addr32[3];
+        realaddr.sin_port = sock->local_addr.sin6_port;
+
+        if(*name_len <= sizeof(struct sockaddr_in)) {
+            /* Passed in a structure not big enough so truncate*/
+            memcpy(name, &realaddr, *name_len);
+        } else {
+            memcpy(name, &realaddr, sizeof(struct sockaddr_in));
+        }
+
+        *name_len = sizeof(struct sockaddr_in);
+
+        goto ret_success;
+
+    } else if(sock->domain == AF_INET6) {
+        memset(&realaddr6, 0, sizeof(struct sockaddr_in6));
+        realaddr6.sin6_family = AF_INET6;
+        realaddr6.sin6_addr = sock->local_addr.sin6_addr;
+        realaddr6.sin6_port = sock->local_addr.sin6_port;
+
+        if(*name_len <= sizeof(struct sockaddr_in6)) {
+            /* Passed in a structure not big enough */
+            memcpy(name, &realaddr6, *name_len);
+        } else {
+            memcpy(name, &realaddr6, sizeof(struct sockaddr_in6));
+        }
+
+        *name_len = sizeof(struct sockaddr_in6);
+
+        goto ret_success;
+    }
+
+    mutex_unlock(&udp_mutex);
+    errno = ENOTSOCK;
     return -1;
 
 ret_success:
@@ -1343,12 +1420,6 @@ static int net_udp_send_raw(netif_t *net, const struct sockaddr_in6 *src,
             srcaddr.__s6_addr.__s6_addr16[5] = 0xFFFF;
             srcaddr.__s6_addr.__s6_addr32[3] =
                 htonl(net_ipv4_address(net->ip_addr));
-
-            if(srcaddr.__s6_addr.__s6_addr32[3] == INADDR_ANY) {
-                errno = ENETDOWN;
-                ++udp_stats.pkt_send_failed;
-                return -1;
-            }
         }
         else {
             if(IN6_IS_ADDR_LOOPBACK(&dst->sin6_addr)) {
@@ -1436,6 +1507,7 @@ static fs_socket_proto_t proto = {
     net_udp_input,
     net_udp_getsockopt,
     net_udp_setsockopt,
+    net_udp_getsockname,
     net_udp_fcntl,
     net_udp_poll
 };
@@ -1457,6 +1529,7 @@ static fs_socket_proto_t proto_lite = {
     net_udp_input,
     net_udp_getsockopt,
     net_udp_setsockopt,
+    net_udp_getsockname,
     net_udp_fcntl,
     net_udp_poll
 };

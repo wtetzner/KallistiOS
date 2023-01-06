@@ -340,6 +340,22 @@ int shutdown(int socket, int how);
 */
 int socket(int domain, int type, int protocol);
 
+/** \brief  Get socket name.
+
+    This function returns the locally bound address information for a specified
+    socket.
+
+    \param  s               The socket to get the name of.
+    \param  name            Pointer to a sockaddr structure which will hold the
+                            resulting address information.
+    \param  name_len        The amount of space pointed to by name, in bytes.
+                            On return, this is set to the actual size of the
+                            returned address information.
+    \retval -1              On error, sets errno as appropriate.
+    \retval 0               On success.
+*/
+int getsockname(int socket, struct sockaddr *name, socklen_t *name_len);
+
 /** \brief  Get socket options.
 
     This function retrieves options associated with a socket. This function

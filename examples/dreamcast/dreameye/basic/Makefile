@@ -4,26 +4,26 @@
 # Copyright (C) 2009 Lawrence Sebald
 #
 
-all: rm-elf dreameye_test.elf
+TARGET = dreameye.elf
+OBJS = dreameye.o
+
+all: rm-elf $(TARGET)
 
 include $(KOS_BASE)/Makefile.rules
-
-OBJS = dreameye.o
 
 clean: rm-elf
 	-rm -f $(OBJS)
 
 rm-elf:
-	-rm -f dreameye_test.elf
+	-rm -f $(TARGET)
 
-dreameye_test.elf: $(OBJS)
-	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o dreameye_test.elf $(KOS_START) \
+$(TARGET): $(OBJS)
+	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o $(TARGET) $(KOS_START) \
 	$(OBJS) $(DATAOBJS) $(OBJEXTRA) $(KOS_LIBS)
 
-
-run: dreameye_test.elf
-	$(KOS_LOADER) dreameye_test.elf
+run: $(TARGET).elf
+	$(KOS_LOADER) $(TARGET).elf
 
 dist:
 	rm -f $(OBJS)
-	$(KOS_STRIP) dreameye_test.elf
+	$(KOS_STRIP) $(TARGET).elf

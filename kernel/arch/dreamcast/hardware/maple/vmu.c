@@ -12,6 +12,8 @@
 #include <kos/genwait.h>
 #include <dc/maple.h>
 #include <dc/maple/vmu.h>
+#include <dc/biosfont.h>
+#include <dc/vmufs.h>
 #include <arch/timer.h>
 
 /*
@@ -38,11 +40,78 @@ static maple_driver_t vmu_drv = {
 
 /* Add the VMU to the driver chain */
 int vmu_init() {
-    return maple_driver_reg(&vmu_drv);
+    if(!vmu_drv.drv_list.le_prev)
+        return maple_driver_reg(&vmu_drv);
+    return -1;
 }
 
 void vmu_shutdown() {
     maple_driver_unreg(&vmu_drv);
+}
+
+int vmu_use_custom_color(maple_device_t * dev, int enable) {
+    vmu_root_t root;
+
+    if(vmufs_root_read(dev, &root) < 0)
+        return -1;
+
+    /* 1 - Enables the use of the custom color. 0 - Disables */
+    root.use_custom = (enable != 0) ? 1 : 0;
+
+    if(vmufs_root_write(dev, &root) < 0)
+        return -1;
+
+    return 0;
+}
+
+/* The custom color is used while navigating the Dreamcast's file manager.
+   You set the RGBA parameters, each with valid range of 0-255 */
+int vmu_set_custom_color(maple_device_t * dev, uint8 red, uint8 green, uint8 blue, uint8 alpha) {
+    vmu_root_t root;
+
+    if(vmufs_root_read(dev, &root) < 0)
+        return -1;
+
+    /* 1 - Enables the use of the custom color. 0 - Disables */
+    root.use_custom = 1;
+    root.custom_color[0] = blue;
+    root.custom_color[1] = green;
+    root.custom_color[2] = red;
+    root.custom_color[3] = alpha;
+
+    if(vmufs_root_write(dev, &root) < 0)
+        return -1;
+
+    return 0;
+}
+
+/* The icon shape is used while navigating the BIOS menu. The values
+   for icon_shape are listed in the biosfont.h and start with
+   BFONT_ICON_VMUICON. */
+int vmu_set_icon_shape(maple_device_t * dev, uint8 icon_shape) {
+#ifdef _arch_sub_naomi
+    vmu_root_t root;
+
+    if(icon_shape < BFONT_ICON_VMUICON || icon_shape > BFONT_ICON_EMBROIDERY)
+        return -1;
+
+    if(vmufs_root_read(dev, &root) < 0)
+        return -1;
+
+    /* Valid value range is 0-123 and starts with BFONT_ICON_VMUICON which
+       has a value of 5.  This is because we cant use the first 5 icons
+       found in the bios so we must subtract 5 */
+    root.icon_shape = icon_shape - BFONT_ICON_VMUICON;
+
+    if(vmufs_root_write(dev, &root) < 0)
+        return -1;
+
+    return 0;
+#else
+    (void)dev;
+    (void)icon_shape;
+    return -1;
+#endif
 }
 
 /* These interfaces will probably change eventually, but for now they
@@ -135,6 +204,31 @@ int vmu_draw_lcd(maple_device_t * dev, void *bitmap) {
     }
 
     return MAPLE_EOK;
+}
+
+/* This function converts a xbm image to a 1-bit bitmap that can
+   be displayed on LCD screen of VMU */
+static void vmu_xbm_to_bitmap(uint8 *bitmap, const char *vmu_icon) {
+    int x, y, xi, xb;
+    memset(bitmap, 0, 48 * 32 / 8);
+
+    if(vmu_icon) {
+        for(y = 0; y < 32; y++)
+            for(x = 0; x < 48; x++) {
+                xi = x / 8;
+                xb = 0x80 >> (x % 8);
+
+                if(vmu_icon[(31 - y) * 48 + (47 - x)] == '.')
+                    bitmap[y * (48 / 8) + xi] |= xb;
+            }
+    }
+}
+
+int vmu_draw_lcd_xbm(maple_device_t * dev, const char *vmu_icon) {
+    uint8   bitmap[48 * 32 / 8];
+    vmu_xbm_to_bitmap(bitmap, vmu_icon);
+
+    return vmu_draw_lcd(dev, bitmap);
 }
 
 /* Read the data in block blocknum into buffer, return a -1
@@ -349,24 +443,11 @@ int vmu_block_write(maple_device_t * dev, uint16 blocknum, uint8 *buffer) {
 /* Utility function which sets the icon on all available VMUs
    from an Xwindows XBM. Imported from libdcutils. */
 void vmu_set_icon(const char *vmu_icon) {
-    int x, y, xi, xb, i;
-    uint8   bitmap[48 * 32 / 8];
+    int i = 0;
     maple_device_t * dev;
+    uint8   bitmap[48 * 32 / 8];
 
-    memset(bitmap, 0, 48 * 32 / 8);
-
-    if(vmu_icon) {
-        for(y = 0; y < 32; y++)
-            for(x = 0; x < 48; x++) {
-                xi = x / 8;
-                xb = 0x80 >> (x % 8);
-
-                if(vmu_icon[(31 - y) * 48 + (47 - x)] == '.')
-                    bitmap[y * (48 / 8) + xi] |= xb;
-            }
-    }
-
-    i = 0;
+    vmu_xbm_to_bitmap(bitmap, vmu_icon);
 
     while((dev = maple_enum_type(i++, MAPLE_FUNC_LCD))) {
         vmu_draw_lcd(dev, bitmap);

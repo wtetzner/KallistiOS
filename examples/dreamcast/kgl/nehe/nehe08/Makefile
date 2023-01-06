@@ -6,7 +6,7 @@
 
 TARGET = nehe08.elf
 
-OBJS = main.o pvr-texture.o
+OBJS = nehe08.o pvr-texture.o
 
 OBJS += romdisk.o
 

@@ -1,6 +1,22 @@
-diff -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-new/gcc/configure
---- gcc-4.7.4/gcc/configure	2014-02-12 16:43:47.000000000 +0000
-+++ gcc-4.7.4-new/gcc/configure	2020-03-25 14:40:04.452765679 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/gcc/config/sh/sh.h gcc-4.7.4-kos/gcc/config/sh/sh.h
+--- gcc-4.7.4/gcc/config/sh/sh.h	2023-01-02 13:58:37.404216244 -0600
++++ gcc-4.7.4-kos/gcc/config/sh/sh.h	2023-01-02 14:01:27.796461128 -0600
+@@ -93,6 +93,12 @@
+     builtin_define ("__FMOVD_ENABLED__"); \
+   builtin_define (TARGET_LITTLE_ENDIAN \
+ 		  ? "__LITTLE_ENDIAN__" : "__BIG_ENDIAN__"); \
++  /* Custom built-in defines for KallistiOS */ \
++  builtin_define ("__KOS_GCC_PATCHED__"); \
++  cpp_define_formatted (pfile, "__KOS_GCC_PATCHLEVEL__=%d", \
++			2023010200); \
++  /* Toolchain supports setting up stack for 32MB */ \
++  builtin_define ("__KOS_GCC_32MB__"); \
+ } while (0)
+ 
+ /* Value should be nonzero if functions must have frame pointers.
+diff --color -ruN --no-dereference gcc-4.7.4/gcc/configure gcc-4.7.4-kos/gcc/configure
+--- gcc-4.7.4/gcc/configure	2023-01-02 13:58:36.285214636 -0600
++++ gcc-4.7.4-kos/gcc/configure	2023-01-02 13:58:54.491240801 -0600
 @@ -11338,7 +11338,7 @@
      target_thread_file='single'
      ;;
@@ -10,9 +26,9 @@ diff -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-new/gcc/configure
      target_thread_file=${enable_threads}
      ;;
    *)
-diff -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-new/gcc/cp/cfns.h
---- gcc-4.7.4/gcc/cp/cfns.h	2009-04-21 20:03:23.000000000 +0100
-+++ gcc-4.7.4-new/gcc/cp/cfns.h	2020-03-25 14:40:04.460765725 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-kos/gcc/cp/cfns.h
+--- gcc-4.7.4/gcc/cp/cfns.h	2023-01-02 13:58:37.377216206 -0600
++++ gcc-4.7.4-kos/gcc/cp/cfns.h	2023-01-02 13:58:54.491240801 -0600
 @@ -53,6 +53,9 @@
  static unsigned int hash (const char *, unsigned int);
  #ifdef __GNUC__
@@ -32,9 +48,9 @@ diff -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-new/gcc/cp/cfns.h
  
    switch (hval)
      {
-diff -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-new/gcc/doc/gcc.texi
---- gcc-4.7.4/gcc/doc/gcc.texi	2010-06-10 00:46:33.000000000 +0100
-+++ gcc-4.7.4-new/gcc/doc/gcc.texi	2020-03-25 14:40:04.464765748 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-kos/gcc/doc/gcc.texi
+--- gcc-4.7.4/gcc/doc/gcc.texi	2023-01-02 13:58:36.278214626 -0600
++++ gcc-4.7.4-kos/gcc/doc/gcc.texi	2023-01-02 13:58:54.491240801 -0600
 @@ -86,9 +86,9 @@
  @item GNU Press
  @tab Website: www.gnupress.org
@@ -47,32 +63,14 @@ diff -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-new/gcc/doc/gcc.texi
  @item 51 Franklin Street, Fifth Floor
  @tab Tel 617-542-5942
  @item Boston, MA 02110-1301 USA
-diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.S
---- gcc-4.7.4/libgcc/config/sh/crt1.S	2011-11-02 14:33:56.000000000 +0000
-+++ gcc-4.7.4-new/libgcc/config/sh/crt1.S	2020-03-25 14:40:04.485765870 +0000
-@@ -1,1369 +1,202 @@
+diff --color -ruN --no-dereference gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-kos/libgcc/config/sh/crt1.S
+--- gcc-4.7.4/libgcc/config/sh/crt1.S	2023-01-02 13:58:36.183214490 -0600
++++ gcc-4.7.4-kos/libgcc/config/sh/crt1.S	2023-01-02 13:59:37.563302704 -0600
+@@ -1,1369 +1,225 @@
 -/* Copyright (C) 2000, 2001, 2003, 2004, 2005, 2006, 2009, 2011
 -   Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
-+! KallistiOS ##version##
-+!
-+! startup.s
-+! (c)2000-2001 Dan Potter
-+!
-+! This file must appear FIRST in your linking order, or your program won't
-+! work correctly as a raw binary.
-+!
-+! This is very loosely based on Marcus' crt0.s/startup.s
-+!
-+
-+.globl start
-+.globl _start
-+.globl _arch_real_exit
-+.globl __arch_old_sr
-+.globl __arch_old_vbr
-+.globl __arch_old_stack
-+.globl __arch_old_fpscr
- 
+-
 -This file is part of GCC.
 -
 -GCC is free software; you can redistribute it and/or modify it
@@ -216,8 +214,7 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	shori	sym & 65535, reg
 -#endif
 -	.global start
-+_start:
- start:
+-start:
 -	LOAD_ADDR (_stack, r15)
 -
 -#ifdef MMU_SUPPORT
@@ -762,12 +759,32 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	.long 0
 -#endif
 -
--
++! KallistiOS ##version##
++!
++! startup.s
++! (c)2000-2001 Dan Potter
++!
++! This file must appear FIRST in your linking order, or your program won't
++! work correctly as a raw binary.
++!
++! This is very loosely based on Marcus' crt0.s/startup.s
++!
++
++.globl start
++.globl _start
++.globl _arch_real_exit
++.globl __arch_old_sr
++.globl __arch_old_vbr
++.globl __arch_old_stack
++.globl __arch_old_fpscr
++.globl __arch_mem_top
+ 
 -	.section .text
 -	.global	start
 -	.import ___rtos_profiler_start_timer
 -	.weak   ___rtos_profiler_start_timer
--start:
++_start:
+ start:
 -	mov.l	stack_k,r15
 -
 -#if defined (__SH3__) || (defined (__SH_FPU_ANY__) && ! defined (__SH2A__)) || defined (__SH4_NOFPU__)
@@ -908,21 +925,37 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
  
 -	! call init
 -	mov.l	init_k,r0
--	jsr	@r0
--	nop
 +	! Save the current stack, and set a new stack (higher up in RAM)
 +	mov.l	old_stack_addr,r0
 +	mov.l	r15,@r0
-+	mov.l	new_stack,r15
++	mov.l   new_stack_16m,r15
++
++	! Check if 0xadffffff is a mirror of 0xacffffff, or if unique
++	! If unique, then memory is 32MB instead of 16MB, and we must
++	! set up new stack even higher
++	mov.l	p2_mask,r0
++	mov	r0,r2
++	or	r15,r2
++	mov	#0xba,r1
++	mov.b	r1,@-r2			! Store 0xba to 0xacffffff
++	mov.l	new_stack_32m,r1
++	or	r0,r1
++	mov	#0xab,r0
++	mov.b	r0,@-r1			! Store 0xab in 0xadffffff
++	mov.b	@r1,r0
++	mov.b	@r2,r1			! Reloaded values
++	cmp/eq	r0,r1			! Check if values match
++	bt	memchk_done		! If so, mirror - we're done, move on
++	mov.l	new_stack_32m,r15	! If not, unique - set higher stack
++memchk_done:
++	mov.l	mem_top_addr,r0
++	mov.l	r15,@r0			! Save address of top of memory
 +
 +	! Save VBR
 +	mov.l	old_vbr_addr,r0
 +	stc	vbr,r1
 +	mov.l	r1,@r0
- 
--	! call the mainline	
--	mov.l	main_k,r0
-+#if defined (__SH_FPU_ANY__)
++
 +	! Save FPSCR
 +	mov.l	old_fpscr_addr,r0
 +	sts	fpscr,r1
@@ -934,13 +967,22 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
  	jsr	@r0
 -	nop
 +	shll16	r4
-+#endif
+ 
+-	! call the mainline	
+-	mov.l	main_k,r0
+-	jsr	@r0
+-	nop
++	! Setup a sentinel value for frame pointer in case we're using
++	! FRAME_POINTERS for stack tracing.
++	mov	#-1,r14
  
 -	! call exit
 -	mov	r0,r4
 -	mov.l	exit_k,r0
--	jsr	@r0
--	nop
++	! Jump to the kernel main
++	mov.l	main_addr,r0
+ 	jsr	@r0
+ 	nop
 -	
 -		.balign 4
 -#ifdef PROFILE
@@ -949,17 +991,11 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	mov.l	profiling_enabled_k2, r0
 -	mov	#0, r1
 -	mov.l	r1, @r0
-+	! Setup a sentinel value for frame pointer in case we're using
-+	! FRAME_POINTERS for stack tracing.
-+	mov	#-1,r14
  
 -	# call mcleanup
 -	mov.l	mcleanup_k, r0
 -	jmp	@r0
-+	! Jump to the kernel main
-+	mov.l	main_addr,r0
-+	jsr	@r0
- 	nop
+-	nop
 -		
 -		.balign 4
 -mcleanup_k:
@@ -979,7 +1015,7 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -set_fpscr_k:
 -	.long	___set_fpscr
 -#endif /*  defined (__SH_FPU_ANY__) */
- 
+-
 -stack_k:
 -	.long	_stack	
 -edata_k:
@@ -1008,32 +1044,7 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	! Whether profiling or not, keep interrupts masked,
 -	! the RTOS will enable these if required.
 -	.long 0x600000f1 
-+	! Program can return here (not likely) or jump here directly
-+	! from anywhere in it to go straight back to the monitor
-+_arch_real_exit:
-+	! Reset SR
-+	mov.l	old_sr,r0
-+	ldc	r0,sr
-+
-+	! Disable MMU, invalidate TLB
-+	mov	#4,r0
-+	mov.l	mmu_addr,r1
-+	mov.l	r0,@r1
-+
-+	! Wait (just in case)
-+	nop				! 1
-+	nop				! 2
-+	nop				! 3
-+	nop				! 4
-+	nop				! 5
-+	nop				! 6
-+	nop				! 7
-+	nop				! 8
-+	
-+	! Restore VBR
-+	mov.l	old_vbr,r0
-+	ldc	r0,vbr
- 
+-
 -rtos_start_fn:
 -	.long ___rtos_profiler_start_timer
 -	
@@ -1043,33 +1054,19 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	! For bare machine, we need to enable interrupts to get profiling working
 -	.long 0x60000001
 -#else
-+	! If we're working under dcload, call its EXIT syscall
-+	mov.l	dcload_magic_addr,r0
-+	mov.l	@r0,r0
-+	mov.l	dcload_magic_value,r1
-+	cmp/eq	r0,r1
-+	bf	normal_exit
- 
+-
 -sr_initial_bare:
 -	! Privileged mode RB 1 BL 0. Keep BL 0 to allow default trap handlers to work.
 -	! Keep interrupts disabled - the application will enable as required.
 -	.long 0x600000f1
 -#endif
-+	mov.l	dcload_syscall,r0
-+	mov.l	@r0,r0
-+	jsr	@r0
-+	mov	#15,r4
- 
+-
 -	! supplied for backward compatibility only, in case of linking
 -	! code whose main() was compiled with an older version of GCC.
 -	.global ___main
 -___main:
-+	! Set back the stack and return (presumably to a serial debug)
-+normal_exit:
-+	mov.l	old_stack,r15
-+	lds.l	@r15+,pr
- 	rts
- 	nop
+-	rts
+-	nop
 -#ifdef VBR_SETUP
 -! Exception handlers	
 -	.section .text.vbr, "ax"
@@ -1111,6 +1108,31 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	mov.l	r6,@-r15
 -	mov.l	r7,@-r15
 -	sts.l	pr,@-r15
++	! Program can return here (not likely) or jump here directly
++	! from anywhere in it to go straight back to the monitor
++_arch_real_exit:
++	! Reset SR
++	mov.l	old_sr,r0
++	ldc	r0,sr
++
++	! Disable MMU, invalidate TLB
++	mov	#4,r0
++	mov.l	mmu_addr,r1
++	mov.l	r0,@r1
++
++	! Wait (just in case)
++	nop				! 1
++	nop				! 2
++	nop				! 3
++	nop				! 4
++	nop				! 5
++	nop				! 6
++	nop				! 7
++	nop				! 8
++
++	! Restore VBR
++	mov.l	old_vbr,r0
++	ldc	r0,vbr
  
 -	! r4 is frompc.
 -	! r5 is selfpc
@@ -1224,56 +1246,12 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	! jmp to trap handler to avoid disturbing pr. 
 -	jmp @r2
 -	nop
-+! Misc variables
-+	.align	2
-+dcload_magic_addr:
-+	.long	0x8c004004
-+dcload_magic_value:
-+	.long	0xdeadbeef
-+dcload_syscall:
-+	.long	0x8c004008
-+__arch_old_sr:
-+old_sr:
-+	.long	0
-+__arch_old_vbr:
-+old_vbr:
-+	.long	0
-+__arch_old_fpscr:
-+old_fpscr:
-+	.long	0
-+init_sr:
-+	.long	0x500000f0
-+old_sr_addr:
-+	.long	old_sr
-+old_vbr_addr:
-+	.long	old_vbr
-+old_fpscr_addr:
-+	.long	old_fpscr
-+old_stack_addr:
-+	.long	old_stack
-+__arch_old_stack:
-+old_stack:
-+	.long	0
-+new_stack:
-+	.long	0x8d000000
-+p2_mask:
-+	.long	0xa0000000
-+setup_cache_addr:
-+	.long	setup_cache
-+init_addr:
-+	.long	init
-+main_addr:
-+	.long	_arch_main
-+mmu_addr:
-+	.long	0xff000010
-+kos_init_flags_addr:
-+	.long	___kos_init_flags
-+ccr_addr:
-+	.long	0xff00001c
-+ccr_data:
-+	.word	0x090d
-+ccr_data_ocram:
-+	.word	0x092d
++	! If we're working under dcload, call its EXIT syscall
++	mov.l	dcload_magic_addr,r0
++	mov.l	@r0,r0
++	mov.l	dcload_magic_value,r1
++	cmp/eq	r0,r1
++	bf	normal_exit
  
 -	.org 0x600
 -vbr_600:
@@ -1307,7 +1285,8 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	mov.l	pervading_precision_k,r0
 -	fmov	fr4,@-r15
 -	fmov	fr5,@-r15
--	mov.l	@r0,r0
++	mov.l	dcload_syscall,r0
+ 	mov.l	@r0,r0
 -	fmov	fr6,@-r15
 -	fmov	fr7,@-r15
 -	lds	r0,fpscr
@@ -1390,10 +1369,7 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	.long __timer_stack	! The high end of the stack
 -timer_handler_k:
 -	.long __profil_counter
-+#if defined (__SH_FPU_ANY__)
-+fpscr_addr:
-+	.long	___set_fpscr	! in libgcc
- #endif
+-#endif
 -expevt_k:
 -	.long 0xff000024 ! Address of expevt
 -chandler_k:	
@@ -1428,7 +1404,15 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	mov	r14,r15
 -	mov.l	@r15+,r14
 -	rts	
--	nop
++	jsr	@r0
++	mov	#15,r4
++
++	! Set back the stack and return (presumably to a serial debug)
++normal_exit:
++	mov.l	old_stack,r15
++	lds.l	@r15+,pr
++	rts
+ 	nop
 -.LFE1:
 -.Lfe1:
 -	.size	__superh_trap_handler,.Lfe1-__superh_trap_handler
@@ -1601,9 +1585,68 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-new/libgcc/config/sh/crt1.
 -	.ualong	0x0
 -#endif /* VBR_SETUP */
 -#endif /* ! __SH5__ */
-diff -ruN gcc-4.7.4/libgcc/config/sh/fake-kos.S gcc-4.7.4-new/libgcc/config/sh/fake-kos.S
---- gcc-4.7.4/libgcc/config/sh/fake-kos.S	1970-01-01 01:00:00.000000000 +0100
-+++ gcc-4.7.4-new/libgcc/config/sh/fake-kos.S	2020-03-25 14:40:04.486765876 +0000
++
++! Misc variables
++	.align	2
++dcload_magic_addr:
++	.long	0x8c004004
++dcload_magic_value:
++	.long	0xdeadbeef
++dcload_syscall:
++	.long	0x8c004008
++__arch_old_sr:
++old_sr:
++	.long	0
++__arch_old_vbr:
++old_vbr:
++	.long	0
++__arch_old_fpscr:
++old_fpscr:
++	.long	0
++init_sr:
++	.long	0x500000f0
++old_sr_addr:
++	.long	old_sr
++old_vbr_addr:
++	.long	old_vbr
++old_fpscr_addr:
++	.long	old_fpscr
++old_stack_addr:
++	.long	old_stack
++__arch_old_stack:
++old_stack:
++	.long	0
++__arch_mem_top:
++	.long	0
++mem_top_addr:
++	.long	__arch_mem_top
++new_stack_16m:
++	.long	0x8d000000
++new_stack_32m:
++	.long	0x8e000000
++p2_mask:
++	.long	0xa0000000
++setup_cache_addr:
++	.long	setup_cache
++init_addr:
++	.long	init
++main_addr:
++	.long	_arch_main
++mmu_addr:
++	.long	0xff000010
++fpscr_addr:
++	.long	___set_fpscr	! in libgcc
++kos_init_flags_addr:
++	.long	___kos_init_flags
++ccr_addr:
++	.long	0xff00001c
++ccr_data:
++	.word	0x090d
++ccr_data_ocram:
++	.word	0x092d
+diff --color -ruN --no-dereference gcc-4.7.4/libgcc/config/sh/fake-kos.S gcc-4.7.4-kos/libgcc/config/sh/fake-kos.S
+--- gcc-4.7.4/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.4-kos/libgcc/config/sh/fake-kos.S	2023-01-02 13:58:54.492240803 -0600
 @@ -0,0 +1,75 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1681,9 +1724,9 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/fake-kos.S gcc-4.7.4-new/libgcc/config/sh/f
 +    mov     #-1, r0
 +    
 \ No newline at end of file
-diff -ruN gcc-4.7.4/libgcc/config/sh/gthr-kos.h gcc-4.7.4-new/libgcc/config/sh/gthr-kos.h
---- gcc-4.7.4/libgcc/config/sh/gthr-kos.h	1970-01-01 01:00:00.000000000 +0100
-+++ gcc-4.7.4-new/libgcc/config/sh/gthr-kos.h	2020-03-25 14:40:04.486765876 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/libgcc/config/sh/gthr-kos.h gcc-4.7.4-kos/libgcc/config/sh/gthr-kos.h
+--- gcc-4.7.4/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.4-kos/libgcc/config/sh/gthr-kos.h	2023-01-02 13:58:54.492240803 -0600
 @@ -0,0 +1,355 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012 Lawrence Sebald */
 +
@@ -2040,9 +2083,9 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/gthr-kos.h gcc-4.7.4-new/libgcc/config/sh/g
 +#endif /* _LIBOBJC */
 +
 +#endif /* ! GCC_GTHR_KOS_H */
-diff -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-new/libgcc/config/sh/t-sh
---- gcc-4.7.4/libgcc/config/sh/t-sh	2011-11-07 17:14:32.000000000 +0000
-+++ gcc-4.7.4-new/libgcc/config/sh/t-sh	2020-03-25 14:40:04.488765888 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-kos/libgcc/config/sh/t-sh
+--- gcc-4.7.4/libgcc/config/sh/t-sh	2023-01-02 13:58:36.183214490 -0600
++++ gcc-4.7.4-kos/libgcc/config/sh/t-sh	2023-01-02 13:58:54.492240803 -0600
 @@ -24,6 +24,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -2052,9 +2095,9 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-new/libgcc/config/sh/t-sh
  crt1.o: $(srcdir)/config/sh/crt1.S
  	$(gcc_compile) -c $<
  
-diff -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-new/libgcc/configure
---- gcc-4.7.4/libgcc/configure	2012-08-06 15:34:27.000000000 +0100
-+++ gcc-4.7.4-new/libgcc/configure	2020-03-25 14:40:04.508766004 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/libgcc/configure gcc-4.7.4-kos/libgcc/configure
+--- gcc-4.7.4/libgcc/configure	2023-01-02 13:58:36.168214468 -0600
++++ gcc-4.7.4-kos/libgcc/configure	2023-01-02 13:58:54.492240803 -0600
 @@ -4480,6 +4480,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -2063,9 +2106,9 @@ diff -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-new/libgcc/configure
  esac
  
  # Substitute configuration variables
-diff -ruN gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h gcc-4.7.4-new/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h	2020-03-25 15:15:51.300215413 +0000
-+++ gcc-4.7.4-new/libstdc++-v3/config/cpu/sh/atomicity.h	2020-03-25 15:16:20.010371542 +0000
+diff --color -ruN --no-dereference gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h
+--- gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h	2023-01-02 13:58:35.186213057 -0600
++++ gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-01-02 13:58:54.493240804 -0600
 @@ -80,7 +80,12 @@
  
  namespace 

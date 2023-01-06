@@ -3,6 +3,7 @@
    snd_stream.c
    Copyright (C) 2000, 2001, 2002, 2003, 2004 Dan Potter
    Copyright (C) 2002 Florian Schulze
+   Copyright (C) 2020 Lawrence Sebald
 
    SH-4 support routines for SPU streaming sound driver
 */
@@ -14,6 +15,7 @@
 #include <malloc.h>
 #include <sys/queue.h>
 
+#include <arch/cache.h>
 #include <arch/timer.h>
 #include <dc/g2bus.h>
 #include <dc/spu.h>
@@ -77,6 +79,9 @@ typedef struct strchan {
 
     /* Have we been initialized yet? (and reserved a buffer, etc) */
     volatile int    initted;
+
+    /* User data. */
+    void *user_data;
 } strchan_t;
 
 // Our stream structs
@@ -98,6 +103,16 @@ int16 * sep_buffer[2] = { NULL, NULL };
 void snd_stream_set_callback(snd_stream_hnd_t hnd, snd_stream_callback_t cb) {
     CHECK_HND(hnd);
     streams[hnd].get_data = cb;
+}
+
+void snd_stream_set_userdata(snd_stream_hnd_t hnd, void *d) {
+    CHECK_HND(hnd);
+    streams[hnd].user_data = d;
+}
+
+void *snd_stream_get_userdata(snd_stream_hnd_t hnd) {
+    CHECK_HND(hnd);
+    return streams[hnd].user_data;
 }
 
 void snd_stream_filter_add(snd_stream_hnd_t hnd, snd_stream_filter_t filtfunc, void * obj) {
@@ -436,10 +451,11 @@ void snd_stream_stop(snd_stream_hnd_t hnd) {
 }
 
 /* The DMA will chain to this to start the second DMA. */
-/* static uint32 dmadest, dmacnt;
+static uint32 dmadest, dmacnt;
 static void dma_chain(ptr_t data) {
+    (void)data;
     spu_dma_transfer(sep_buffer[1], dmadest, dmacnt, 0, NULL, 0);
-} */
+}
 
 /* Poll streamer to load more data if neccessary */
 int snd_stream_poll(snd_stream_hnd_t hnd) {
@@ -512,16 +528,13 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
         }
 
         sep_data(data, needed_samples * 2, streams[hnd].stereo);
-        spu_memload(streams[hnd].spu_ram_sch[0] + (streams[hnd].last_write_pos * 2), (uint8*)sep_buffer[0], needed_samples * 2);
-        spu_memload(streams[hnd].spu_ram_sch[1] + (streams[hnd].last_write_pos * 2), (uint8*)sep_buffer[1], needed_samples * 2);
 
         // Second DMA will get started by the chain handler
-        /* dcache_flush_range(sep_buffer[0], needed_samples*2);
-        dcache_flush_range(sep_buffer[1], needed_samples*2);
-        dmadest = spu_ram_sch2 + (last_write_pos * 2);
+        dcache_flush_range((uint32)sep_buffer[0], needed_samples*2);
+        dcache_flush_range((uint32)sep_buffer[1], needed_samples*2);
+        dmadest = streams[hnd].spu_ram_sch[1] + (streams[hnd].last_write_pos * 2);
         dmacnt = needed_samples * 2;
-        spu_dma_transfer(sep_buffer[0], spu_ram_sch1 + (last_write_pos * 2), needed_samples * 2,
-            0, dma_chain, 0); */
+        spu_dma_transfer(sep_buffer[0], streams[hnd].spu_ram_sch[0] + (streams[hnd].last_write_pos * 2), needed_samples * 2, 0, dma_chain, 0);
 
         streams[hnd].last_write_pos += needed_samples;
 
@@ -549,5 +562,3 @@ void snd_stream_volume(snd_stream_hnd_t hnd, int vol) {
     cmd->cmd_id = streams[hnd].ch[1];
     snd_sh4_to_aica(tmp, cmd->size);
 }
-
-
