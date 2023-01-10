@@ -246,7 +246,7 @@ int cdrom_get_status(int *status, int *disc_type);
     \return                 \ref cd_cmd_response
     \see    cd_read_sector_part
 */
-int cdrom_change_dataype(int sector_part, int cdxa, int sector_size);
+int cdrom_change_datatype(int sector_part, int cdxa, int sector_size);
 
 /** \brief  Re-initialize the GD-ROM drive.
 
@@ -288,7 +288,7 @@ int cdrom_read_toc(CDROM_TOC *toc_buffer, int session);
 
     This function reads the specified number of sectors from the disc, starting
     where requested. This will respect the size of the sectors set with
-    cdrom_change_dataype(). The buffer must have enough space to store the
+    cdrom_change_datatype(). The buffer must have enough space to store the
     specified number of sectors.
 
     \param  buffer          Space to store the read sectors.
