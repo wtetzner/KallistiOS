@@ -234,6 +234,16 @@ int cdrom_get_status(int *status, int *disc_type);
 
 /** \brief    Change the datatype of disc.
 
+    \note                   This function is formally deprecated. It should not
+                            be used in any future code, and may be removed in
+                            the future. You should instead use
+                            cdrom_change_datatype.
+*/
+int cdrom_change_dataype(int sector_part, int cdxa, int sector_size)
+                        __depr("Use cdrom_change_datatype instead.");
+
+/** \brief    Change the datatype of disc.
+
     This function will take in all parameters to pass to the change_datatype 
     syscall. This allows these parameters to be modified without a reinit. 
     Each parameter allows -1 as a default, which is tied to the former static 
@@ -246,7 +256,7 @@ int cdrom_get_status(int *status, int *disc_type);
     \return                 \ref cd_cmd_response
     \see    cd_read_sector_part
 */
-int cdrom_change_dataype(int sector_part, int cdxa, int sector_size);
+int cdrom_change_datatype(int sector_part, int cdxa, int sector_size);
 
 /** \brief  Re-initialize the GD-ROM drive.
 
@@ -288,7 +298,7 @@ int cdrom_read_toc(CDROM_TOC *toc_buffer, int session);
 
     This function reads the specified number of sectors from the disc, starting
     where requested. This will respect the size of the sectors set with
-    cdrom_change_dataype(). The buffer must have enough space to store the
+    cdrom_change_datatype(). The buffer must have enough space to store the
     specified number of sectors.
 
     \param  buffer          Space to store the read sectors.
