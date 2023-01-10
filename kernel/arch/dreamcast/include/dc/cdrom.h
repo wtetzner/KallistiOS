@@ -237,9 +237,8 @@ int cdrom_get_status(int *status, int *disc_type);
     \note                   This function is formally deprecated. It should not
                             be used in any future code, and may be removed in
                             the future. You should instead use
-                            cdrom_change_dataype.
+                            cdrom_change_datatype.
 */
-
 int cdrom_change_dataype(int sector_part, int cdxa, int sector_size)
                         __depr("Use cdrom_change_datatype instead.");
 
