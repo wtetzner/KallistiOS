@@ -185,8 +185,13 @@ int cdrom_get_status(int *status, int *disc_type) {
     return rv;
 }
 
-/* Wrapper for the change datatype syscall */
+/* Helper function to account for long-standing typo */
 int cdrom_change_dataype(int sector_part, int cdxa, int sector_size) {
+    return cdrom_change_datatype(sector_part, cdxa, sector_size);
+}
+
+/* Wrapper for the change datatype syscall */
+int cdrom_change_datatype(int sector_part, int cdxa, int sector_size) {
     int rv = ERR_OK;
     uint32  params[4];
 
@@ -271,7 +276,7 @@ int cdrom_reinit_ex(int sector_part, int cdxa, int sector_size) {
         return r;
     }
 
-    r = cdrom_change_dataype(sector_part, cdxa, sector_size);
+    r = cdrom_change_datatype(sector_part, cdxa, sector_size);
     mutex_unlock(&_g1_ata_mutex);
     
     return r;
