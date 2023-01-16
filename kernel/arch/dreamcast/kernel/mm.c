@@ -46,7 +46,7 @@ void* mm_sbrk(unsigned long increment) {
 
     sbrk_base = (void *)(increment + (unsigned long)sbrk_base);
 
-    if(((uint32)sbrk_base) >= (0x8d000000 - 65536)) {
+    if(((uint32)sbrk_base) >= (_arch_mem_top - 65536)) {
         dbglog(DBG_DEAD, "Requested sbrk_base %p, was %p, diff %lu\n",
                sbrk_base, base, increment);
         arch_panic("out of memory; about to run over kernel stack");
