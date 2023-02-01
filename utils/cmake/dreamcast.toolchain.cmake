@@ -52,8 +52,8 @@ ADD_DEFINITIONS(
 
 if($ENV{KOS_SUBARCH} MATCHES naomi)
     ADD_DEFINITONS(
-        -D_arch_sub_naomi
         -D__NAOMI__
+        -D_arch_sub_naomi
     )
 else()
     ADD_DEFINITIONS(-D_arch_sub_pristine)
