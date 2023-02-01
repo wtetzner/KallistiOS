@@ -12,8 +12,14 @@
 #
 # The toolchain enables the options required for the compiler to use the 
 # special SH4 instructions for sin/cos and invSqrt when in release build
-# and disables them in debug builds. Frame pointers are enabled in debug
-# builds as these are required for stack traces and GDB.
+# and disables them in debug builds. Note that even when these options
+# are present, they are not activated unless -ffast-math is also provied. 
+# Typically you will want to provide a project-level option for enabling
+# this flag, which will make the toolchain's SH4 instruction flags also
+# take effect.
+#
+# Frame pointers are enabled in debug builds as these are required for 
+# stack traces and GDB. They are disabled in release.
 # 
 # The original toolchain file was created by Kazade for the Simulant 
 # engine who has graciously allowed the rest of the scene to warez it. 
@@ -56,8 +62,8 @@ endif()
 ##### Configure Build Flags #####
 add_compile_options(-ml -m4-single-only -ffunction-sections -fdata-sections)
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -ffp-contract=fast -ffast-math -fomit-frame-pointer -g0")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -ffp-contract=fast -ffast-math -fomit-frame-pointer -g0")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -fomit-frame-pointer -g0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -fomit-frame-pointer -g0")
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFRAME_POINTERS -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFRAME_POINTERS -fno-omit-frame-pointer")
