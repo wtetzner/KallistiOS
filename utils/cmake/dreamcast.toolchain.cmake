@@ -42,8 +42,16 @@ ADD_DEFINITIONS(
     -D__DREAMCAST__
     -D_arch_dreamcast
     -D__arch_dreamcast
-    -D_arch_sub_pristine
 )
+
+if($ENV{KOS_SUBARCH} MATCHES naomi)
+    ADD_DEFINITONS(
+        -D_arch_sub_naomi
+        -D__NAOMI__
+    )
+else()
+    ADD_DEFINITIONS(-D_arch_sub_pristine)
+endif()
 
 ##### Configure Build Flags #####
 add_compile_options(-ml -m4-single-only -ffunction-sections -fdata-sections)
@@ -70,11 +78,11 @@ INCLUDE_DIRECTORIES(
 ##### Configure Libraries #####
 set(CMAKE_SYSTEM_LIBRARY_PATH "${CMAKE_SYSTEM_LIBRARY_PATH} $ENV{KOS_BASE}/addons/lib/dreamcast $ENV{KOS_PORTS}/lib")
 
-IF($ENV{KOS_SUBARCH} MATCHES naomi)
+if($ENV{KOS_SUBARCH} MATCHES naomi)
     set(CMAKE_EXE_LINKER_FLAGS " -ml -m4-single-only -Wl,-Ttext=0x8c020000 -Wl,--gc-sections -T$ENV{KOS_BASE}/utils/ldscripts/shlelf-naomi.xc -nodefaultlibs" CACHE INTERNAL "" FORCE)
-ELSE()
+else()
     set(CMAKE_EXE_LINKER_FLAGS " -ml -m4-single-only -Wl,-Ttext=0x8c010000 -Wl,--gc-sections -T$ENV{KOS_BASE}/utils/ldscripts/shlelf.xc -nodefaultlibs" CACHE INTERNAL "" FORCE)
-ENDIF()
+endif()
 
 LINK_DIRECTORIES(
     $ENV{KOS_BASE}/addons/lib/dreamcast
