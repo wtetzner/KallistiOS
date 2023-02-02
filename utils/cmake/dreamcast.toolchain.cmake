@@ -11,12 +11,11 @@
 #     cmake /path/to/src -DCMAKE_TOOLCHAIN_FILE=${KOS_CMAKE_TOOLCHAIN}
 #
 # The toolchain enables the options required for the compiler to use the 
-# special SH4 instructions for sin/cos and invSqrt when in release build
-# and disables them in debug builds. Note that even when these options
-# are present, they are not activated unless -ffast-math is also provied. 
-# Typically you will want to provide a project-level option for enabling
-# this flag, which will make the toolchain's SH4 instruction flags also
-# take effect.
+# special SH4 instructions for sin/cos and invSqrt. Note that even when 
+# these options are present, they are not activated unless -ffast-math 
+# is also provied. Typically you will want to provide a project-level 
+# option for enabling this flag, which will make the toolchain's SH4 
+# instruction flags also take effect.
 #
 # Frame pointers are enabled in debug builds as these are required for 
 # stack traces and GDB. They are disabled in release.
@@ -47,7 +46,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 ADD_DEFINITIONS(
     -D__DREAMCAST__
     -D_arch_dreamcast
-    -D__arch_dreamcast
 )
 
 if($ENV{KOS_SUBARCH} MATCHES naomi)
@@ -62,11 +60,17 @@ endif()
 ##### Configure Build Flags #####
 add_compile_options(-ml -m4-single-only -ffunction-sections -fdata-sections)
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -fomit-frame-pointer -g0")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -fomit-frame-pointer -g0")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DFRAME_POINTERS -mfsrra -mfsca -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFRAME_POINTERS -mfsrra -mfsca -fno-omit-frame-pointer")
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFRAME_POINTERS -fno-omit-frame-pointer")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFRAME_POINTERS -fno-omit-frame-pointer")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mfsrra -mfsca -fomit-frame-pointer")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfsrra -mfsca -fomit-frame-pointer")
+
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -mfsrra -mfsca -fomit-frame-pointer")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -mfsrra -mfsca -fomit-frame-pointer")
+
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -DFRAME_POINTERS -mfsrra -mfsca -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DFRAME_POINTERS -mfsrra -mfsca -fno-omit-frame-pointer")
 
 set(CMAKE_ASM_FLAGS "")
 set(CMAKE_ASM_FLAGS_RELEASE "")
