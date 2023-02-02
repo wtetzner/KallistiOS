@@ -41,7 +41,7 @@ printf "$KOS_BASE" >> banner.h
 printf '\\n"\n' >> banner.h
 
 printf '"  ' >> banner.h
-tmp = `$KOS_CC --version | head -n 1`
+tmp=`$KOS_CC --version | head -n 1`
 printf "$tmp" >> banner.h 
 printf '\\n"\n' >> banner.h
 printf ';\n' >> banner.h
