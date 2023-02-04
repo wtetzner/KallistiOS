@@ -4,7 +4,7 @@ KOS is an unofficial development environment for the SEGA Dreamcast game console
 
 KOS was developed from scratch over the internet by a group of free software developers and has no relation to the official Sega Katana or Microsoft Windows CE Dreamcast development kits. This has allowed it to fuel a thriving Dreamcast homebrew scene, powering many commercial releases for the platform over the years. It supports a signficiant portion of the Dreamcast's hardware capabilities and a wide variety of peripherals, accessories, and add-ons for the console, including custom hardware modifications that have been created by the scene. 
 
-Despite the console's age, KOS offers an extremely modern, programmer-friendly development environment, supporting C17 and C++17, with the majority of their standard libraries fully supported and additional support for many POSIX APIs. Additionally, KOS-ports offers a rich set of add-on libraries such as SDL, OpenGL, and Lua for the platform. 
+Despite the console's age, KOS offers an extremely modern, programmer-friendly development environment, supporting C17 and C++20, with the majority of their standard libraries fully supported and additional support for many POSIX APIs. Additionally, KOS-ports offers a rich set of add-on libraries such as SDL, OpenGL, and Lua for the platform. 
 
 ## Features
 ##### Core Functionality
