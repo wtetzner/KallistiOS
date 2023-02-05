@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
                           << static_cast<double>(bytes.capacity()) 
                                 / 1024.0 / 1024.0 << "MB" 
                           << std::endl;
+                          
                 // Remember, std::vector typically requests RAM in 
                 // powers-of-two, so the actual requested allocation
                 // was probably 2x the size of the vector.
