@@ -18,15 +18,15 @@
 # insight
 
 # Toolchain versions for SH
-sh_binutils_ver=2.40
-sh_gcc_ver=12.2.0
-newlib_ver=4.3.0.20230120
-gdb_ver=12.1
+sh_binutils_ver=2.34
+sh_gcc_ver=4.7.4
+newlib_ver=2.0.0
+gdb_ver=9.2
 insight_ver=6.8-1
 
 # Tarball extensions to download for SH
 sh_binutils_tarball_type=xz
-sh_gcc_tarball_type=xz
+sh_gcc_tarball_type=bz2
 newlib_tarball_type=gz
 gdb_tarball_type=xz
 insight_tarball_type=bz2
@@ -34,12 +34,12 @@ insight_tarball_type=bz2
 # Toolchain for ARM
 # The ARM version of binutils/gcc is separated out as the particular CPU
 # versions we need may not be available in newer versions of GCC.
-arm_binutils_ver=2.40
-arm_gcc_ver=8.4.0
+arm_binutils_ver=2.34
+arm_gcc_ver=4.7.4
 
 # Tarball extensions to download for ARM
 arm_binutils_tarball_type=xz
-arm_gcc_tarball_type=xz
+arm_gcc_tarball_type=bz2
 
 # GCC custom dependencies
 # Specify here if you want to use custom GMP, MPFR and MPC libraries as they are
@@ -55,10 +55,10 @@ arm_gcc_tarball_type=xz
 # only if the 'use_custom_dependencies' flag is set to '1'.
 
 # GCC dependencies for SH
-sh_gmp_ver=6.1.0
-sh_mpfr_ver=3.1.4
-sh_mpc_ver=1.0.3
-sh_isl_ver=0.18
+sh_gmp_ver=4.3.2
+sh_mpfr_ver=2.4.2
+sh_mpc_ver=0.8.1
+#sh_isl_ver=0.18
 
 # Tarball extensions to download for GCC dependencies for SH
 sh_gmp_tarball_type=bz2
@@ -67,10 +67,10 @@ sh_mpc_tarball_type=gz
 sh_isl_tarball_type=bz2
 
 # GCC dependencies for ARM
-arm_gmp_ver=6.1.0
-arm_mpfr_ver=3.1.4
-arm_mpc_ver=1.0.3
-arm_isl_ver=0.18
+arm_gmp_ver=4.3.2
+arm_mpfr_ver=2.4.2
+arm_mpc_ver=0.8.1
+#arm_isl_ver=0.18
 
 # Tarball extensions to download for GCC dependencies for ARM
 arm_gmp_tarball_type=bz2

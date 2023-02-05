@@ -108,17 +108,18 @@ without problems.
 
 Working **GCC** and **Newlib** version combinations are:
 
-- GCC `9.3.0` with Newlib `3.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
+- GCC `12.2.0` with Newlib `4.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
   (**testing**; the most modern combination);
-- GCC `4.7.4` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**stable**; the
-  most well tested combination, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724));
-- GCC `4.7.3` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**old-stable**;
-  previous version, [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724)).
+- GCC `9.3.0` with Newlib `3.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
+  (**stable**; the most widely used, widely tested combination);
+- GCC `4.7.4` with Newlib `2.0.0` for `sh-elf` and `arm-eabi` (**legacy**; the
+  oldest supported combination, previously stable [some issues may happen in C++](https://dcemulation.org/phpBB/viewtopic.php?f=29&t=104724));
 
-To help you on this, 2 `config.mk` templates are provided with `dc-chain`:
+To help you on this, 3 `config.mk` templates are provided with `dc-chain`:
 
 - `config.mk.testing.sample` (testing);
-- `config.mk.stable.sample` (stable).
+- `config.mk.stable.sample` (stable);
+- `config.mk.legacy.sample` (legacy).
 
 Just copy the relevant `config.mk` sample file to `config.mk` and you are good
 to go.
