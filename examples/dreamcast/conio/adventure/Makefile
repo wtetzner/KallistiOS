@@ -29,7 +29,7 @@ all: rm-elf $(TARGET)
 
 include $(KOS_BASE)/Makefile.rules
 
-OBJS = porthelper.o crc.o done.o init.o io.o adventure.o save.o subr.o vocab.o wizard.o data.o
+OBJS = porthelper.o crc.o done.o init.o io.o adventure.o save.o subr.o vocab.o wizard.o data.o globalvars.o
 
 $(DATA_TARGET):
 	$(HOST_CC) -o $(SETUP_TARGET) $(SETUP_SOURCE) $(SETUP_CFLAGS)
