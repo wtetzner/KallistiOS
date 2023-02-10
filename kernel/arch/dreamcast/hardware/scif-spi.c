@@ -2,6 +2,7 @@
 
    hardware/scif-spi.c
    Copyright (C) 2012 Lawrence Sebald
+   Copyright (C) 2023 Ruslan Rostovtsev (SWAT)
 */
 
 #include <dc/scif.h>
@@ -183,42 +184,164 @@ void scif_spi_write_byte(uint8 b) {
 }
 
 uint8 scif_spi_read_byte(void) {
-    uint8 rv = 0;
-    uint16 tmp;
+    uint8 b = 0xff;
+    uint16 tmp = (scsptr2 & ~PTR2_CTSDT) | PTR2_SPB2DT;
 
     /* Read the data in, one bit at a time (most significant bit first) */
-    SCSPTR2 = tmp = scsptr2 | PTR2_SPB2DT | PTR2_CTSDT;
-    SD_WAIT();
-    rv = SCSPTR2 & PTR2_SPB2DT;                 /* 7 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 6 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 7 */
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 5 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 6 */
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 4 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 5 */
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 3 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 4 */
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 2 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 3 */
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 1 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 2 */
     SCSPTR2 = tmp;
-    SD_WAIT();
-    rv = (rv << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
-    SCSPTR2 = tmp & ~PTR2_CTSDT;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 1 */
+    SCSPTR2 = tmp;
+    SCSPTR2 = tmp | PTR2_CTSDT;
+    b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* read 0 */
 
-    return rv;
+    return b;
+}
+
+
+void scif_spi_read_data(uint8 *buffer, size_t len) {
+
+    if ((uint32)buffer & 0x03 || len % 4) {
+        while(len--) {
+            *buffer++ = scif_spi_read_byte();
+        }
+        return;
+    }
+
+    uint8 b = 0xff;
+    uint16 tmp = (scsptr2 & ~PTR2_CTSDT) | PTR2_SPB2DT;
+    uint32 data;
+    uint32 *ptr = (uint32 *)buffer;
+
+    SCSPTR2 = tmp;
+
+    for(; len > 0; len -= 4) {
+
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 7 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 6 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 5 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 4 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 3 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 2 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 1 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
+        SCSPTR2 = tmp;
+
+        data = b;
+
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 7 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 6 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 5 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 4 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 3 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 2 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 1 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
+        SCSPTR2 = tmp;
+
+        data |= b << 8;
+
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 7 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 6 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 5 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 4 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 3 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 2 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 1 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
+        SCSPTR2 = tmp;
+
+        data |= b << 16;
+
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 7 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 6 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 5 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 4 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 3 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 2 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 1 */
+        SCSPTR2 = tmp;
+        SCSPTR2 = tmp | PTR2_CTSDT;
+        b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
+        SCSPTR2 = tmp;
+
+        data |= b << 24;
+        *ptr++ = data;
+    }
 }
