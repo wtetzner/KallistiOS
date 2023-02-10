@@ -9,6 +9,8 @@
 	.globl _icache_flush_range
 	.globl _dcache_inval_range
 	.globl _dcache_flush_range
+	.globl _dcache_purge_range
+	.globl _dcache_pref_range
 
 ! r4 is starting address
 ! r5 is count
@@ -52,7 +54,7 @@ flush_loop:
 	mov	r4,r7		! v & 0xfffffc00
 	and	r3,r7
 
-	add	#32,r4		! += L1_CACHE_BYTES
+	add	#32,r4		! += CPU_CACHE_BLOCK_SIZE
 	cmp/hs	r4,r5
 	bt/s	flush_loop
 	mov.l	r7,@r6		! *addr = data	
@@ -96,26 +98,10 @@ _dcache_inval_range:
 
 dinval_loop:
 	! Invalidate the O cache
-	ocbi	@r4		! r4
-	
-	mov	#0x10,r0	! r4 | 0x1000
-	shll8	r0
-	or	r4,r0
-	ocbi	@r0
-	
-	mov	#0x20,r0	! r4 | 0x2000
-	shll8	r0
-	or	r4,r0
-	ocbi	@r0
-	
-	mov	#0x30,r0	! r4 | 0x3000
-	shll8	r0
-	or	r4,r0
-	ocbi	@r0
-	
+	ocbi	@r4
 	cmp/hs	r4,r5
 	bt/s	dinval_loop
-	add	#32,r4		! += L1_CACHE_BYTES
+	add	#32,r4		! += CPU_CACHE_BLOCK_SIZE
 
 	rts
 	nop
@@ -135,31 +121,55 @@ _dcache_flush_range:
 dflush_loop:
 	! Write back the O cache
 	ocbwb	@r4
-
-	mov	#0x10,r0	! r4 | 0x1000
-	shll8	r0
-	or	r4,r0
-	ocbwb	@r0
-	
-	mov	#0x20,r0	! r4 | 0x2000
-	shll8	r0
-	or	r4,r0
-	ocbwb	@r0
-	
-	mov	#0x30,r0	! r4 | 0x3000
-	shll8	r0
-	or	r4,r0
-	ocbwb	@r0
-	
 	cmp/hs	r4,r5
 	bt/s	dflush_loop
-	add	#32,r4		! += L1_CACHE_BYTES
+	add	#32,r4		! += CPU_CACHE_BLOCK_SIZE
 
 	rts
 	nop
 
 
+! This routine just goes through and forces a write-back and invalidate
+! on the specified data range.
+! r4 is starting address
+! r5 is count
+_dcache_purge_range:
+	! Get ending address from count and align start address
+	add	r4,r5
+	mov.l	l1align,r0
+	and	r0,r4
+
+dpurge_loop:
+	! Write back and invalidate the O cache
+	ocbp	@r4
+	cmp/hs	r4,r5
+	bt/s	dpurge_loop
+	add	#32,r4		! += CPU_CACHE_BLOCK_SIZE
+
+	rts
+	nop
+
+! This routine prefetch to operand cache the specified data range. 
+! r4 is starting address
+! r5 is count
+_dcache_pref_range:
+	! Get ending address from count and align start address
+	add	r4,r5
+	mov.l	l1align,r0
+	and	r0,r4
+	mov	r4,r6
+
+dpref_loop:
+	! Prefetch to the O cache
+	pref	@r4
+	cmp/hs	r4,r5
+	bt/s	dpref_loop
+	add	#32,r4		! += CPU_CACHE_BLOCK_SIZE
+
+	rts
+	mov	r6,r0
+
 
 	.align	2
 l1align:
-	.long	~31		! ~(L1_CACHE_BYTES-1)
+	.long	~31		! ~(CPU_CACHE_BLOCK_SIZE-1)
