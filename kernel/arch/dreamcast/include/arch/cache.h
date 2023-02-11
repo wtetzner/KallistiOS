@@ -2,7 +2,7 @@
 
    arch/dreamcast/include/cache.h
    Copyright (C) 2001 Dan Potter
-   Copyright (C) 2014, 2016, 2023 Ruslan Rostovtsev (SWAT)
+   Copyright (C) 2014, 2016, 2023 Ruslan Rostovtsev
 
 */
 
@@ -14,7 +14,7 @@
     allocate the caches.
 
     \author Dan Potter
-    \author Ruslan Rostovtsev (SWAT)
+    \author Ruslan Rostovtsev
 */
 
 #ifndef __ARCH_CACHE_H
@@ -93,19 +93,17 @@ void *dcache_pref_range(uint32 start, uint32 count);
     \param  src             The buffer to prefetch.
     \return                 The buffer aligned to cache block size.
 */
-static inline __attribute__((always_inline))
-    void *dcache_pref_block(const void *src)
-{
-	uint32 __cache_aligned = ((uint32)src) & ~(CPU_CACHE_BLOCK_SIZE - 1);
-	__asm__ volatile ("pref @%[ptr]\n"
-		:
-		: [ptr] "r" (__cache_aligned)
-		:
-	);
-	return (void *)__cache_aligned;
+static __always_inline void *dcache_pref_block(const void *src) {
+    uint32 __cache_aligned = ((uint32)src) & ~(CPU_CACHE_BLOCK_SIZE - 1);
+    __asm__ __volatile__("pref @%[ptr]\n"
+                         :
+                         : [ptr] "r" (__cache_aligned)
+                         :
+    );
+
+    return (void *)__cache_aligned;
 }
 
 __END_DECLS
 
 #endif  /* __ARCH_CACHE_H */
-

@@ -2,7 +2,7 @@
 
    hardware/scif-spi.c
    Copyright (C) 2012 Lawrence Sebald
-   Copyright (C) 2023 Ruslan Rostovtsev (SWAT)
+   Copyright (C) 2023 Ruslan Rostovtsev
 */
 
 #include <dc/scif.h>
@@ -218,23 +218,27 @@ uint8 scif_spi_read_byte(void) {
 
 
 void scif_spi_read_data(uint8 *buffer, size_t len) {
+    uint8 b = 0xff;
+    uint16 tmp;
+    uint32 data;
+    uint32 *ptr;
 
-    if ((uint32)buffer & 0x03 || len % 4) {
+    /* Less optimized version for unaligned buffers or lengths not divisible by
+       four. */
+    if((((uint32)buffer) & 0x03) || (len & 0x03)) {
         while(len--) {
             *buffer++ = scif_spi_read_byte();
         }
+
         return;
     }
 
-    uint8 b = 0xff;
-    uint16 tmp = (scsptr2 & ~PTR2_CTSDT) | PTR2_SPB2DT;
-    uint32 data;
-    uint32 *ptr = (uint32 *)buffer;
-
+    b = 0xff;
+    tmp = (scsptr2 & ~PTR2_CTSDT) | PTR2_SPB2DT;
+    ptr = (uint32 *)buffer;
     SCSPTR2 = tmp;
 
     for(; len > 0; len -= 4) {
-
         SCSPTR2 = tmp | PTR2_CTSDT;
         b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 7 */
         SCSPTR2 = tmp;
@@ -259,7 +263,6 @@ void scif_spi_read_data(uint8 *buffer, size_t len) {
         SCSPTR2 = tmp | PTR2_CTSDT;
         b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
         SCSPTR2 = tmp;
-
         data = b;
 
         SCSPTR2 = tmp | PTR2_CTSDT;
@@ -286,7 +289,6 @@ void scif_spi_read_data(uint8 *buffer, size_t len) {
         SCSPTR2 = tmp | PTR2_CTSDT;
         b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
         SCSPTR2 = tmp;
-
         data |= b << 8;
 
         SCSPTR2 = tmp | PTR2_CTSDT;
@@ -313,7 +315,6 @@ void scif_spi_read_data(uint8 *buffer, size_t len) {
         SCSPTR2 = tmp | PTR2_CTSDT;
         b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
         SCSPTR2 = tmp;
-
         data |= b << 16;
 
         SCSPTR2 = tmp | PTR2_CTSDT;
@@ -340,7 +341,6 @@ void scif_spi_read_data(uint8 *buffer, size_t len) {
         SCSPTR2 = tmp | PTR2_CTSDT;
         b = (b << 1) | (SCSPTR2 & PTR2_SPB2DT);   /* 0 */
         SCSPTR2 = tmp;
-
         data |= b << 24;
         *ptr++ = data;
     }
