@@ -6,8 +6,8 @@
 
 # Dreamcast-specific file systems
 
-OBJS  = fs_iso9660.o fs_vmu.o fs_dcload.o dcload-syscall.o vmufs.o \
+OBJS  = fs_iso9660.o fs_random.o fs_vmu.o fs_dcload.o dcload-syscall.o vmufs.o \
  fs_dclsocket.o
-SUBDIRS = 
+SUBDIRS =
 
 include $(KOS_BASE)/Makefile.prefab
