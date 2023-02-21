@@ -17,6 +17,7 @@
 #include <dc/ubc.h>
 #include <dc/pvr.h>
 #include <dc/vmufs.h>
+#include <dc/fs_random.h>
 
 #include "initall_hdrs.h"
 

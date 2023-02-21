@@ -18,126 +18,9 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#define KEYSIZE		128
-
-/* ARC4 random generation lovingly adapted from BSD */
-
-struct arc4_stream {
-	uint8_t i;
-	uint8_t j;
-	uint8_t s[256];
-} rs = {
-	.i = 0,
-	.j = 0,
-	.s = {
-		  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
-		 16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
-		 32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
-		 48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
-		 64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,
-		 80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,
-		 96,  97,  98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
-		112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
-		128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143,
-		144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
-		160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175,
-		176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191,
-		192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207,
-		208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
-		224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
-		240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255
-	}
-};
-
-static struct {
-	uint8_t	rnd[KEYSIZE];
-} rdat;
-
-static int rs_stired;
-static int arc4_count;
-static volatile int rs_data_available = 0;
-
-static mutex_t arc_mutex = MUTEX_INITIALIZER;
-
-static inline uint8_t arc4_getbyte(void) {
-	uint8_t si, sj;
-
-	rs.i = (rs.i + 1);
-	si = rs.s[rs.i];
-	rs.j = (rs.j + si);
-	sj = rs.s[rs.j];
-	rs.s[rs.i] = sj;
-	rs.s[rs.j] = si;
-
-	return (rs.s[(si + sj) & 0xff]);
-}
-
-static void arc4_fetch() {
-    /* We read backwards from the end of available memory
-    and XOR in blocks into the key array, while XORing with the current time.
-    If anyone has a better idea for generating entropy then send a patch :) */
-
-	struct timeval tv;
-    gettimeofday(&tv, NULL);
-
-    const int block_size = 128;
-
-    uint8_t* src = ((uint8_t*) _arch_mem_top);
-    uint8_t* dst = rdat.rnd;
-    for(int i = 0; i < KEYSIZE; ++i) {
-        uint8_t b = tv.tv_usec % 255;
-
-        for(int j = 0; j < block_size; ++j) {
-            b ^= *--src;
-        }
-
-        *dst = b;
-        ++dst;
-    }
-}
-
-static inline void arc4_addrandom(u_char *dat, int datlen)
-{
-	int     n;
-	uint8_t si;
-
-	rs.i--;
-	for (n = 0; n < 256; n++) {
-		rs.i = (rs.i + 1);
-		si = rs.s[rs.i];
-		rs.j = (rs.j + si + dat[n % datlen]);
-		rs.s[rs.i] = rs.s[rs.j];
-		rs.s[rs.j] = si;
-	}
-	rs.j = rs.i;
-}
-
-static void arc4_stir() {
-	int n;
-
-	if (!rs_data_available) {
-		arc4_fetch();
-	}
-	rs_data_available = 0;
-	__sync_synchronize();
-
-	arc4_addrandom((u_char *)&rdat, KEYSIZE);
-
-    /* Throw away the first 1024 bytes to improve randomness */
-	for (n = 0; n < 1024; n++)
-		(void) arc4_getbyte();
-
-	arc4_count = 1600000;
-	rs_stired = 1;
-}
-
-static inline int arc4_check_stir(void) {
-	if (!rs_stired || arc4_count <= 0) {
-		arc4_stir();
-		return 1;
-	}
-	return 0;
-}
+/* This function is declared in <stdlib.h> but behind an if __BSD_VISIBLE
+   Declaring as extern here to avoid implicit declaration */
+void    arc4random_buf (void *, size_t);
 
 /* File handles */
 typedef struct random_fh_str {
@@ -249,27 +132,7 @@ static ssize_t random_read(void * hnd, void *buffer, size_t cnt) {
     if((fh->mode & O_MODE_MASK) != O_RDONLY && (fh->mode & O_MODE_MASK) != O_RDWR)
         return 0;
 
-
-    int did_stir = 0;
-    int n = cnt;
-
-    mutex_lock(&arc_mutex);
-
-    while(n--) {
-        if(arc4_check_stir())
-            did_stir = 1;
-
-        buf[n] = arc4_getbyte();
-        arc4_count--;
-    }
-
-    mutex_unlock(&arc_mutex);
-
-    if(did_stir) {
-		arc4_fetch();
-		rs_data_available = 1;
-		__sync_synchronize();
-    }
+    arc4random_buf(buf, cnt);
 
     return cnt;
 }
