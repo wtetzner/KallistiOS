@@ -35,6 +35,7 @@ __BEGIN_DECLS
 #include <kos/fs.h>
 #include <kos/fs_romdisk.h>
 #include <kos/fs_ramdisk.h>
+#include <kos/fs_random.h>
 #include <kos/fs_pty.h>
 #include <kos/limits.h>
 #include <kos/thread.h>
@@ -80,7 +81,6 @@ __BEGIN_DECLS
 #   include <dc/fs_dcload.h>
 #   include <dc/fs_dclsocket.h>
 #   include <dc/fs_iso9660.h>
-#   include <dc/fs_random.h>
 #   include <dc/fs_vmu.h>
 #   include <dc/g1ata.h>
 #   include <dc/g2bus.h>

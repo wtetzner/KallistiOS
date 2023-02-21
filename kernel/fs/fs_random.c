@@ -13,7 +13,7 @@
 #include <time.h>
 #include <arch/types.h>
 #include <kos/mutex.h>
-#include <dc/fs_random.h>
+#include <kos/fs_random.h>
 #include <sys/queue.h>
 #include <errno.h>
 #include <sys/time.h>
