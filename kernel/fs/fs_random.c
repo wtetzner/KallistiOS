@@ -360,5 +360,6 @@ int fs_random_shutdown() {
 
     mutex_destroy(&fh_mutex);
 
-    return nmmgr_handler_remove(&vh.nmmgr);
+    nmmgr_handler_remove(&vh.nmmgr);
+    return nmmgr_handler_remove(&vh2.nmmgr);
 }
