@@ -55,10 +55,10 @@ arm_gcc_tarball_type=xz
 # only if the 'use_custom_dependencies' flag is set to '1'.
 
 # GCC dependencies for SH
-sh_gmp_ver=6.1.0
-sh_mpfr_ver=3.1.4
-sh_mpc_ver=1.0.3
-sh_isl_ver=0.18
+sh_gmp_ver=6.2.1
+sh_mpfr_ver=4.1.0
+sh_mpc_ver=1.2.1
+sh_isl_ver=0.24
 
 # Tarball extensions to download for GCC dependencies for SH
 sh_gmp_tarball_type=bz2
