@@ -2,7 +2,7 @@
 
    kos/cdefs.h
    Copyright (C) 2002, 2004 Dan Potter
-   Copyright (C) 2020 Lawrence Sebald
+   Copyright (C) 2020, 2023 Lawrence Sebald
 
    Based loosely around some stuff in BSD's sys/cdefs.h
 */
@@ -105,6 +105,11 @@
 #define __fallthrough __attribute__((__fallthrough__))
 #else
 #define __fallthrough /* Fall through */
+#endif
+
+#ifndef __always_inline
+/** \brief  Ask the compiler to always inline a given function. */
+#define __always_inline inline __attribute__((__always_inline__))
 #endif
 
 /* GCC macros for special cases */

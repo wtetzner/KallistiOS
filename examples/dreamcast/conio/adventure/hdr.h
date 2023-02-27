@@ -85,9 +85,9 @@ typedef unsigned long u_long;
 #include "porthelper.h"
 #endif
 
-int datfd;                              /* message file descriptor      */
+extern int datfd;                              /* message file descriptor      */
 /* volatile sig_atomic_t delhit; */
-int yea;
+extern int yea;
 extern char data_file[];                /* Virtual data file            */
 
 #define TAB     '\t'
@@ -96,11 +96,11 @@ extern char data_file[];                /* Virtual data file            */
 #define FLUSHLF   while (next()!=LF)
 
 
-int loc, newloc, oldloc, oldlc2, wzdark, gaveup, kq, k, k2;
-char *wd1, *wd2;                        /* the complete words           */
-int verb, obj, spk;
+extern int loc, newloc, oldloc, oldlc2, wzdark, gaveup, kq, k, k2;
+extern char *wd1, *wd2;                        /* the complete words           */
+extern int verb, obj, spk;
 extern int blklin;
-int saved, savet, mxscor, latncy;
+extern int saved, savet, mxscor, latncy;
 
 #define SHORT 50                        /* How short is a demo game?    */
 
@@ -110,68 +110,65 @@ int saved, savet, mxscor, latncy;
 struct hashtab {                        /* hash table for vocabulary    */
     int val;                        /* word type &index (ktab)      */
     char *atab;                     /* pointer to actual string     */
-} voc[HTSIZE];
+};
+extern struct hashtab voc[HTSIZE];
 
 #define SEED 1815622                    /* "Encryption" seed            */
 
 struct text
-#ifdef OLDSTUFF
 {
-    int seekadr;                    /* DATFILE must be < 2**16      */
-#endif /* !OLDSTUFF */
-    {
-        char *seekadr;                  /* Msg start in virtual disk    */
-        int txtlen;                     /* length of msg starting here  */
-    };
+    char *seekadr;                  /* Msg start in virtual disk    */
+    int txtlen;                     /* length of msg starting here  */
+};
 
 #define RTXSIZ  205
-    struct text rtext[RTXSIZ];              /* random text messages         */
+extern struct text rtext[RTXSIZ];              /* random text messages         */
 
 #define MAGSIZ  35
-    struct text mtext[MAGSIZ];              /* magic messages               */
+extern struct text mtext[MAGSIZ];              /* magic messages               */
 
-    int clsses;
+extern int clsses;
 #define CLSMAX  12
-    struct text ctext[CLSMAX];              /* classes of adventurer        */
-    int cval[CLSMAX];
+extern struct text ctext[CLSMAX];              /* classes of adventurer        */
+extern int cval[CLSMAX];
 
-    struct text ptext[101];                 /* object descriptions          */
+extern struct text ptext[101];                 /* object descriptions          */
 
 #define LOCSIZ  141                     /* number of locations          */
-    struct text ltext[LOCSIZ];              /* long loc description         */
-    struct text stext[LOCSIZ];              /* short loc descriptions       */
+extern struct text ltext[LOCSIZ];              /* long loc description         */
+extern struct text stext[LOCSIZ];              /* short loc descriptions       */
 
-    struct travlist {                       /* direcs & conditions of travel*/
-        struct travlist *next;          /* ptr to next list entry       */
-        int conditions;                 /* m in writeup (newloc / 1000) */
-        int tloc;                       /* n in writeup (newloc % 1000) */
-        int tverb;                      /* the verb that takes you there*/
-    } *travel[LOCSIZ], *tkk;                /* travel is closer to keys(...)*/
+extern struct travlist {            /* direcs & conditions of travel*/
+    struct travlist *next;          /* ptr to next list entry       */
+    int conditions;                 /* m in writeup (newloc / 1000) */
+    int tloc;                       /* n in writeup (newloc % 1000) */
+    int tverb;                      /* the verb that takes you there*/
+} *travel[LOCSIZ], *tkk;            /* travel is closer to keys(...)*/
 
-    int atloc[LOCSIZ];
+extern int atloc[LOCSIZ];
 
-    int  plac[101];                         /* initial object placement     */
-    int  fixd[101], fixed[101];             /* location fixed?              */
+extern int  plac[101];                         /* initial object placement     */
+extern int  fixd[101], fixed[101];             /* location fixed?              */
 
-    int actspk[35];                         /* rtext msg for verb <n>       */
+extern int actspk[35];                         /* rtext msg for verb <n>       */
 
-    int cond[LOCSIZ];                       /* various condition bits       */
+extern int cond[LOCSIZ];                       /* various condition bits       */
 
-    extern int setbit[16];                  /* bit defn masks 1,2,4,...     */
+extern int setbit[16];                  /* bit defn masks 1,2,4,...     */
 
-    int hntmax;
-    int hints[20][5];                       /* info on hints                */
-    int hinted[20], hintlc[20];
+extern int hntmax;
+extern int hints[20][5];                       /* info on hints                */
+extern int hinted[20], hintlc[20];
 
-    int place[101], prop[101], linkx[201];
-    int abb[LOCSIZ];
+extern int place[101], prop[101], linkx[201];
+extern int abb[LOCSIZ];
 
-    int maxtrs, tally, tally2;              /* treasure values              */
+extern int maxtrs, tally, tally2;              /* treasure values              */
 
 #define FALSE   0
 #define TRUE    1
 
-    int keys, lamp, grate, cage, rod, rod2, steps, /* mnemonics                    */
+extern int keys, lamp, grate, cage, rod, rod2, steps, /* mnemonics                    */
         bird, door, pillow, snake, fissur, tablet, clam, oyster, magzin,
         dwarf, knife, food, bottle, water, oil, plant, plant2, axe, mirror, dragon,
         chasm, troll, troll2, bear, messag, vend, batter,
@@ -181,69 +178,69 @@ struct text
         enter, stream, pour,
         say, lock, throw, find, invent;
 
-    int chloc, chloc2, dseen[7], dloc[7],   /* dwarf stuff                  */
+extern int chloc, chloc2, dseen[7], dloc[7],   /* dwarf stuff                  */
         odloc[7], dflag, daltlc;
 
-    int tk[21], stick, dtotal, attack;
-    int turns, lmwarn, iwest, knfloc, detail, /* various flags & counters     */
+extern int tk[21], stick, dtotal, attack;
+extern int turns, lmwarn, iwest, knfloc, detail, /* various flags & counters     */
         abbnum, maxdie, numdie, holdng, dkill, foobar, bonus, clock1, clock2,
         closng, apanic, closed, scorng;
 
-    int demo, limit;
+extern int demo, limit;
 
-    int at(int objj);
-    int bug(int n);
-    void carry(int, int);
-    void caveclose(void);
-    void checkhints(void);
-    void ciao(void);
-    void closing(void);
-    u_long crc(const char *ptr, int nr);
-    void crc_start(void);
-    int dark(void);
-    void datime(int *d, int *t);
-    char *decr(int, int, int, int, int);
-    void die(int entry);
-    void done(int entry);
-    void drop(int object, int where);
-    void dstroy(int);
-    int fdwarf(void);
-    int forced(int locc);
-    void getin(char **wrd1, char **wrd2);
-    int here(int objj);
-    void my_init(void);
-    void juggle(int);
-    int liq(void);
-    int liqloc(int locc);
-    int march(void);
-    void move(int, int);
-    void mspeak(int);
-    int pct(int n);
-    void poof(void);
-    void pspeak(int m, int skip);
-    int put(int, int, int);
-    int ran(int range);
-    void rdata(void);
-    int restore(const char *infile);
-    void rspeak(int);
-    int save(const char *);
-    int score(void);
-    void speak(const struct text *);
-    int Start(void);
-    void startup(void);
-    int toting(int objj);
-    void trapdel(int sig);
-    int trdrop(void);
-    int trfeed(void);
-    int trfill(void);
-    int trkill(void);
-    int tropen(void);
-    int trsay(void);
-    int trtake(void);
-    int trtoss(void);
-    int vocab(const char *, int, int);
-    int yes(int x, int y, int z);
-    int yesm(int x, int y, int z);
+int at(int objj);
+int bug(int n);
+void carry(int, int);
+void caveclose(void);
+void checkhints(void);
+void ciao(void);
+void closing(void);
+u_long crc(const char *ptr, int nr);
+void crc_start(void);
+int dark(void);
+void datime(int *d, int *t);
+char *decr(int, int, int, int, int);
+void die(int entry);
+void done(int entry);
+void drop(int object, int where);
+void dstroy(int);
+int fdwarf(void);
+int forced(int locc);
+void getin(char **wrd1, char **wrd2);
+int here(int objj);
+void my_init(void);
+void juggle(int);
+int liq(void);
+int liqloc(int locc);
+int march(void);
+void move(int, int);
+void mspeak(int);
+int pct(int n);
+void poof(void);
+void pspeak(int m, int skip);
+int put(int, int, int);
+int ran(int range);
+void rdata(void);
+int restore(const char *infile);
+void rspeak(int);
+int save(const char *);
+int score(void);
+void speak(const struct text *);
+int Start(void);
+void startup(void);
+int toting(int objj);
+void trapdel(int sig);
+int trdrop(void);
+int trfeed(void);
+int trfill(void);
+int trkill(void);
+int tropen(void);
+int trsay(void);
+int trtake(void);
+int trtoss(void);
+int vocab(const char *, int, int);
+int yes(int x, int y, int z);
+int yesm(int x, int y, int z);
 
     /* We need to get a little tricky to avoid strings */
     /* #define DECR(a,b,c,d,e) decr('a'+'+','b'+'-','c'+'#','d'+'&','e'+'%') */

@@ -2,6 +2,15 @@ TARGET = stackprotector.elf
 OBJS = stackprotector.o
 KOS_CFLAGS += -fstack-protector-all
 
+GCC_MAJOR = $(basename $(basename $(KOS_GCCVER)))
+
+ifeq ($(GCC_MAJOR), 4) 
+
+all dist:
+	$(warning GCC4 missing stackprotector patch, skip building example)
+
+else
+
 all: rm-elf $(TARGET)
 
 include $(KOS_BASE)/Makefile.rules
@@ -24,3 +33,5 @@ dist: $(TARGET)
 
 
 .PHONY: run dist clean rm-elf
+
+endif

@@ -17,6 +17,7 @@
 #include <arch/types.h>
 #include <arch/arch.h>
 #include <arch/irq.h>
+#include <errno.h>
 #include <stdio.h>
 
 /* The end of the program is always marked by the '_end' symbol. So we'll
@@ -46,10 +47,13 @@ void* mm_sbrk(unsigned long increment) {
 
     sbrk_base = (void *)(increment + (unsigned long)sbrk_base);
 
-    if(((uint32)sbrk_base) >= (0x8d000000 - 65536)) {
-        dbglog(DBG_DEAD, "Requested sbrk_base %p, was %p, diff %lu\n",
+    if(((uint32)sbrk_base) >= (_arch_mem_top - 65536)) {
+        dbglog(DBG_CRITICAL, "Out of memory. Requested sbrk_base %p, was %p, diff %lu\n",
                sbrk_base, base, increment);
-        arch_panic("out of memory; about to run over kernel stack");
+        sbrk_base = base;  /* Restore old value and mark failed */
+        errno = ENOMEM;
+        irq_restore(old);
+        return (void*) -1;
     }
 
     irq_restore(old);

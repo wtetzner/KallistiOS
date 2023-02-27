@@ -42,6 +42,16 @@ scif_flush
 scif_write_buffer
 scif_read_buffer
 
+# Soft SPI
+scif_spi_init
+scif_spi_shutdown
+scif_spi_set_cs
+scif_spi_rw_byte
+scif_spi_slow_rw_byte
+scif_spi_write_byte
+scif_spi_read_byte
+scif_spi_read_data
+
 # Timers
 timer_prime
 timer_start

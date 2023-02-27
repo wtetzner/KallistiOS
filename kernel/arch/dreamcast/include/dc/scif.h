@@ -3,6 +3,7 @@
    dc/scif.h
    Copyright (C) 2000,2001,2004 Dan Potter
    Copyright (C) 2012 Lawrence Sebald
+   Copyright (C) 2023 Ruslan Rostovtsev
 
 */
 
@@ -13,6 +14,7 @@
 
     \author Dan Potter
     \author Lawrence Sebald
+    \author Ruslan Rostovtsev
 */
 
 #ifndef __DC_SCIF_H
@@ -179,14 +181,23 @@ void scif_spi_write_byte(uint8 b);
 
 /** \brief  Read a byte from the SPI device.
 
-    This function reads a byte from the SPI device, one bit at a time. The
-    timing follows that of the scif_spi_rw_byte() function.
+    This function reads a byte from the SPI device, one bit at a time. Timing
+    is similar to (but slightly faster than) the scif_spi_rw_byte() function.
 
-    \return                 The byte returned from the card.
+    \return                 The byte returned from the device.
 */
 uint8 scif_spi_read_byte(void);
+
+/** \brief  Read a data from the SPI device.
+
+    This function reads data from the SPI device. If the buffer is aligned and
+    len is divisible by 4, optimizations are applied.
+
+    \param  buffer          Buffer to store read data into.
+    \param  len             Number of bytes to read from the device.
+*/
+void scif_spi_read_data(uint8 *buffer, size_t len);
 
 __END_DECLS
 
 #endif  /* __DC_SCIF_H */
-
