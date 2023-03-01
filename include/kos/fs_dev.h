@@ -1,11 +1,11 @@
 /* KallistiOS ##version##
 
-   dc/fs_random.h
+   dc/fs_dev.h
    (c)2023 - Luke Benstead
 
 */
 
-/** \file   dc/fs_random.h
+/** \file   dc/fs_dev.h
     \brief  Driver for /dev/random and /dev/urandom.
 
     This filesystem driver provides implementations of /dev/random
@@ -21,8 +21,8 @@
     \author Luke Benstead
 */
 
-#ifndef __DC_FS_RANDOM_H
-#define __DC_FS_RANDOM_H
+#ifndef __DC_FS_DEV_H
+#define __DC_FS_DEV_H
 
 #include <sys/cdefs.h>
 __BEGIN_DECLS
@@ -31,11 +31,11 @@ __BEGIN_DECLS
 
 /* \cond */
 /* Initialization */
-int fs_random_init();
-int fs_random_shutdown();
+int fs_dev_init();
+int fs_dev_shutdown();
 /* \endcond */
 
 __END_DECLS
 
-#endif  /* __DC_FS_RANDOM_H */
+#endif  /* __DC_FS_DEV_H */
 

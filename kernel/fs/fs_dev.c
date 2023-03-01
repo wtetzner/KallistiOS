@@ -1,6 +1,6 @@
 /* KallistiOS ##version##
 
-   fs_random.c
+   fs_dev.c
    Copyright (C) 2023 Luke Benstead
 */
 
@@ -13,7 +13,7 @@
 #include <time.h>
 #include <arch/types.h>
 #include <kos/mutex.h>
-#include <kos/fs_random.h>
+#include <kos/fs_dev.h>
 #include <sys/queue.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -23,29 +23,32 @@
 void    arc4random_buf (void *, size_t);
 
 /* File handles */
-typedef struct random_fh_str {
+typedef struct dev_fh_str {
     int mode;                           /* mode the file was opened with */
 
-    TAILQ_ENTRY(random_fh_str) listent;    /* list entry */
-} random_fh_t;
+    TAILQ_ENTRY(dev_fh_str) listent;    /* list entry */
+} dev_fh_t;
 
 /* Linked list of open files (controlled by "mutex") */
-TAILQ_HEAD(random_fh_list, random_fh_str) random_fh;
+TAILQ_HEAD(dev_fh_list, dev_fh_str) dev_fh;
 
-/* Thread mutex for random_fh access */
+/* Thread mutex for dev_fh access */
 static mutex_t fh_mutex;
 
 
 /* openfile function */
-static random_fh_t *random_open_file(vfs_handler_t * vfs, const char *fn, int mode) {
+static dev_fh_t *dev_open_file(vfs_handler_t * vfs, const char *fn, int mode) {
     (void) vfs;
-    (void) fn;
 
-    random_fh_t    * fd;       /* file descriptor */
+    if(strcmp(fn, "/urandom") != 0 && strcmp(fn, "/random") != 0) {
+        return NULL;
+    }
+
+    dev_fh_t    * fd;       /* file descriptor */
     int     realmode;
 
     /* Malloc a new fh struct */
-    fd = malloc(sizeof(random_fh_t));
+    fd = malloc(sizeof(dev_fh_t));
 
     /* Fill in the filehandle struct */
     fd->mode = mode;
@@ -62,26 +65,29 @@ static random_fh_t *random_open_file(vfs_handler_t * vfs, const char *fn, int mo
 }
 
 /* open function */
-static void * random_open(vfs_handler_t * vfs, const char *path, int mode) {
-    random_fh_t *fh = random_open_file(vfs, path, mode);
+static void * dev_open(vfs_handler_t * vfs, const char *path, int mode) {
+    dev_fh_t *fh = dev_open_file(vfs, path, mode);
+    if(!fh) {
+        return NULL;
+    }
 
     /* link the fh onto the top of the list */
     mutex_lock(&fh_mutex);
-    TAILQ_INSERT_TAIL(&random_fh, fh, listent);
+    TAILQ_INSERT_TAIL(&dev_fh, fh, listent);
     mutex_unlock(&fh_mutex);
 
     return (void *)fh;
 }
 
 /* Verify that a given hnd is actually in the list */
-static int random_verify_hnd(void * hnd) {
-    random_fh_t    *cur;
+static int dev_verify_hnd(void * hnd) {
+    dev_fh_t    *cur;
     int     rv;
 
     rv = 0;
 
     mutex_lock(&fh_mutex);
-    TAILQ_FOREACH(cur, &random_fh, listent) {
+    TAILQ_FOREACH(cur, &dev_fh, listent) {
         if((void *)cur == hnd) {
             rv = 1;
             break;
@@ -96,21 +102,21 @@ static int random_verify_hnd(void * hnd) {
 }
 
 /* close a file */
-static int random_close(void * hnd) {
-    random_fh_t *fh;
+static int dev_close(void * hnd) {
+    dev_fh_t *fh;
     int retval = 0;
 
     /* Check the handle */
-    if(!random_verify_hnd(hnd)) {
+    if(!dev_verify_hnd(hnd)) {
         errno = EBADF;
         return -1;
     }
 
-    fh = (random_fh_t *)hnd;
+    fh = (dev_fh_t *)hnd;
 
     /* Look for the one to get rid of */
     mutex_lock(&fh_mutex);
-    TAILQ_REMOVE(&random_fh, fh, listent);
+    TAILQ_REMOVE(&dev_fh, fh, listent);
     mutex_unlock(&fh_mutex);
 
     free(fh);
@@ -118,15 +124,15 @@ static int random_close(void * hnd) {
 }
 
 /* read function */
-static ssize_t random_read(void * hnd, void *buffer, size_t cnt) {
-    random_fh_t *fh;
+static ssize_t dev_read(void * hnd, void *buffer, size_t cnt) {
+    dev_fh_t *fh;
     uint8_t* buf = buffer;
 
     /* Check the handle */
-    if(!random_verify_hnd(hnd))
+    if(!dev_verify_hnd(hnd))
         return -1;
 
-    fh = (random_fh_t *)hnd;
+    fh = (dev_fh_t *)hnd;
 
     /* make sure we're opened for reading */
     if((fh->mode & O_MODE_MASK) != O_RDONLY && (fh->mode & O_MODE_MASK) != O_RDWR)
@@ -138,17 +144,17 @@ static ssize_t random_read(void * hnd, void *buffer, size_t cnt) {
 }
 
 /* write function */
-static ssize_t random_write(void * hnd, const void *buffer, size_t cnt) {
+static ssize_t dev_write(void * hnd, const void *buffer, size_t cnt) {
     (void) buffer;
     (void) cnt;
 
-    random_fh_t    *fh;
+    dev_fh_t    *fh;
 
     /* Check the handle we were given */
-    if(!random_verify_hnd(hnd))
+    if(!dev_verify_hnd(hnd))
         return -1;
 
-    fh = (random_fh_t *)hnd;
+    fh = (dev_fh_t *)hnd;
 
     /* Make sure we're opened for writing */
     if((fh->mode & O_MODE_MASK) != O_WRONLY && (fh->mode & O_MODE_MASK) != O_RDWR)
@@ -160,30 +166,30 @@ static ssize_t random_write(void * hnd, const void *buffer, size_t cnt) {
 
 
 /* Seek elsewhere in a file */
-static off_t random_seek(void * hnd, off_t offset, int whence) {
+static off_t dev_seek(void * hnd, off_t offset, int whence) {
     (void) offset;
     (void) whence;
 
     /* Check the handle */
-    if(!random_verify_hnd(hnd))
+    if(!dev_verify_hnd(hnd))
         return -1;
 
     return 0;
 }
 
 /* tell the current position in the file */
-static off_t random_tell(void * hnd) {
+static off_t dev_tell(void * hnd) {
     /* Check the handle */
-    if(!random_verify_hnd(hnd))
+    if(!dev_verify_hnd(hnd))
         return -1;
 
     return 0;
 }
 
 /* return the filesize */
-static size_t random_total(void * fd) {
+static size_t dev_total(void * fd) {
     /* Check the handle */
-    if(!random_verify_hnd(fd))
+    if(!dev_verify_hnd(fd))
         return -1;
 
     /* The size of /dev/urandom always returns 0 */
@@ -192,7 +198,7 @@ static size_t random_total(void * fd) {
 
 
 /* Delete a file */
-static int random_unlink(vfs_handler_t * vfs, const char *path) {
+static int dev_unlink(vfs_handler_t * vfs, const char *path) {
     (void) vfs;
     (void) path;
 
@@ -200,7 +206,7 @@ static int random_unlink(vfs_handler_t * vfs, const char *path) {
     return -1;
 }
 
-static int random_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
+static int dev_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
                     int flag) {
     (void)vfs;
     (void)fn;
@@ -213,13 +219,13 @@ static int random_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
     return 0;
 }
 
-static int random_fcntl(void *fd, int cmd, va_list ap) {
+static int dev_fcntl(void *fd, int cmd, va_list ap) {
     int rv = -1;
 
     (void)ap;
 
     /* Check the handle */
-    if(!random_verify_hnd(fd)) {
+    if(!dev_verify_hnd(fd)) {
         errno = EBADF;
         return -1;
     }
@@ -242,10 +248,10 @@ static int random_fcntl(void *fd, int cmd, va_list ap) {
     return rv;
 }
 
-static int random_fstat(void *fd, struct stat *st) {
+static int dev_fstat(void *fd, struct stat *st) {
 
     /* Check the handle */
-    if(!random_verify_hnd(fd)) {
+    if(!dev_verify_hnd(fd)) {
         errno = EBADF;
         return -1;
     }
@@ -261,7 +267,7 @@ static int random_fstat(void *fd, struct stat *st) {
 static vfs_handler_t vh = {
     /* Name handler */
     {
-        "/dev/urandom", /* name */
+        "/dev", /* name */
         0,              /* tbfi */
         0x00010000,     /* Version 1.0 */
         0,              /* flags */
@@ -270,23 +276,23 @@ static vfs_handler_t vh = {
     },
     0, NULL,            /* In-kernel, privdata */
 
-    random_open,
-    random_close,
-    random_read,
-    random_write,
-    random_seek,
-    random_tell,
-    random_total,
+    dev_open,
+    dev_close,
+    dev_read,
+    dev_write,
+    dev_seek,
+    dev_tell,
+    dev_total,
     NULL,
     NULL,               /* ioctl */
     NULL,               /* rename/move */
-    random_unlink,
+    dev_unlink,
     NULL,
     NULL,               /* complete */
-    random_stat,           /* stat */
+    dev_stat,           /* stat */
     NULL,               /* mkdir */
     NULL,               /* rmdir */
-    random_fcntl,
+    dev_fcntl,
     NULL,               /* poll */
     NULL,               /* link */
     NULL,               /* symlink */
@@ -295,62 +301,19 @@ static vfs_handler_t vh = {
     NULL,               /* total64 */
     NULL,               /* readlink */
     NULL,
-    random_fstat
+    dev_fstat
 };
 
-/* Exactly the same, but aliased under /dev/random */
-static vfs_handler_t vh2 = {
-    /* Name handler */
-    {
-        "/dev/random", /* name */
-        0,              /* tbfi */
-        0x00010000,     /* Version 1.0 */
-        0,              /* flags */
-        NMMGR_TYPE_VFS, /* VFS handler */
-        NMMGR_LIST_INIT
-    },
-    0, NULL,            /* In-kernel, privdata */
-
-    random_open,
-    random_close,
-    random_read,
-    random_write,
-    random_seek,
-    random_tell,
-    random_total,
-    NULL,
-    NULL,               /* ioctl */
-    NULL,               /* rename/move */
-    random_unlink,
-    NULL,
-    NULL,               /* complete */
-    random_stat,           /* stat */
-    NULL,               /* mkdir */
-    NULL,               /* rmdir */
-    random_fcntl,
-    NULL,               /* poll */
-    NULL,               /* link */
-    NULL,               /* symlink */
-    NULL,               /* seek64 */
-    NULL,               /* tell64 */
-    NULL,               /* total64 */
-    NULL,               /* readlink */
-    NULL,
-    random_fstat
-};
-
-int fs_random_init() {
-    TAILQ_INIT(&random_fh);
+int fs_dev_init() {
+    TAILQ_INIT(&dev_fh);
     mutex_init(&fh_mutex, MUTEX_TYPE_NORMAL);
-    nmmgr_handler_add(&vh.nmmgr);
-    nmmgr_handler_add(&vh2.nmmgr);
-    return 0;
+    return nmmgr_handler_add(&vh.nmmgr);
 }
 
-int fs_random_shutdown() {
-    random_fh_t * c, * n;
+int fs_dev_shutdown() {
+    dev_fh_t * c, * n;
 
-    c = TAILQ_FIRST(&random_fh);
+    c = TAILQ_FIRST(&dev_fh);
 
     while(c) {
         n = TAILQ_NEXT(c, listent);
@@ -360,6 +323,5 @@ int fs_random_shutdown() {
 
     mutex_destroy(&fh_mutex);
 
-    nmmgr_handler_remove(&vh.nmmgr);
-    return nmmgr_handler_remove(&vh2.nmmgr);
+    return nmmgr_handler_remove(&vh.nmmgr);
 }
