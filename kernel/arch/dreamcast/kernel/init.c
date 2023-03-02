@@ -215,7 +215,7 @@ void  __attribute__((weak)) arch_auto_shutdown() {
 }
 
 /* This is the entry point inside the C program */
-int arch_main() {
+__noreturn int arch_main() {
     uint8 *bss_start = (uint8 *)(&_bss_start);
     uint8 *bss_end = (uint8 *)(&end);
     int rv;
@@ -237,16 +237,18 @@ int arch_main() {
     /* Do auto-init stuff */
     arch_auto_init();
 
-    /* Run ctors */
     __verify_newlib_patch();
+
+    /* Run ctors */
     _init();
 
     /* Call the user's main function */
     rv = main(0, NULL);
 
     /* Call kernel exit */
-    arch_exit();
+    exit(rv);
 
+    /* should never actually return here */
     return rv;
 }
 
@@ -258,9 +260,8 @@ void arch_set_exit_path(int path) {
 }
 
 /* Does the actual shutdown stuff for a proper shutdown */
-void arch_shutdown() {
+void arch_shutdown() {    
     /* Run dtors */
-    _atexit_call_all();
     _fini();
 
     dbglog(DBG_CRITICAL, "arch: shutting down kernel\n");
@@ -292,7 +293,17 @@ void arch_shutdown() {
 }
 
 /* Generic kernel exit point (configurable) */
-void arch_exit() {
+__noreturn void arch_exit() {
+    exit(0);
+}
+
+/* Return point from newlib's _exit() */
+__noreturn void post_newlib_exit(int ret_code) {
+    dbglog(DBG_INFO, "arch: exit value %d\n", ret_code);
+
+    /* Shut down */
+    arch_shutdown();
+
     switch(arch_exit_path) {
         default:
             dbglog(DBG_CRITICAL, "arch: arch_exit_path has invalid value!\n");
@@ -304,28 +315,21 @@ void arch_exit() {
             arch_menu();
             break;
         case ARCH_EXIT_REBOOT:
-            arch_shutdown();
             arch_reboot();
             break;
     }
 }
 
 /* Called to shut down the system and return to the debug handler (if any) */
-void arch_return() {
-    /* Shut down */
-    arch_shutdown();
-
+__noreturn void arch_return() {
     /* Jump back to the boot loader */
     arch_real_exit();
 }
 
 /* Called to jump back to the BIOS menu; assumes a normal shutdown is possible */
-void arch_menu() {
+__noreturn void arch_menu() {
     typedef void (*menufunc)(int) __noreturn;
     menufunc menu;
-
-    /* Shut down */
-    arch_shutdown();
 
     /* Jump to the menus */
     dbglog(DBG_CRITICAL, "arch: exiting the system to the BIOS menu\n");
