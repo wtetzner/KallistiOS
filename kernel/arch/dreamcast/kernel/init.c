@@ -22,17 +22,15 @@
 
 extern int _bss_start, end;
 
-void _atexit_call_all();
-
 /* ctor/dtor stuff from libgcc. */
 #if __GNUC__ == 4
 #define _init init
 #define _fini fini
 #endif
 
-void _init(void);
-void _fini(void);
-void __verify_newlib_patch();
+extern void _init(void);
+extern void _fini(void);
+extern void __verify_newlib_patch();
 
 int main(int argc, char **argv);
 uint32 _fs_dclsocket_get_ip(void);
@@ -215,7 +213,7 @@ void  __attribute__((weak)) arch_auto_shutdown() {
 }
 
 /* This is the entry point inside the C program */
-__noreturn int arch_main() {
+void arch_main(void) {
     uint8 *bss_start = (uint8 *)(&_bss_start);
     uint8 *bss_end = (uint8 *)(&end);
     int rv;
@@ -260,7 +258,7 @@ void arch_set_exit_path(int path) {
 }
 
 /* Does the actual shutdown stuff for a proper shutdown */
-void arch_shutdown() {    
+void arch_shutdown(void) {    
     /* Run dtors */
     _fini();
 
@@ -292,14 +290,17 @@ void arch_shutdown() {
     irq_shutdown();
 }
 
-/* Generic kernel exit point (configurable) */
-__noreturn void arch_exit() {
+/* Generic kernel exit point */
+void arch_exit(void) {
+    /* arch_exit always returns 0 
+       if return codes are desired then a call to
+       newlib's exit() should be used in its place */
     exit(0);
 }
 
-/* Return point from newlib's _exit() */
-__noreturn void post_newlib_exit(int ret_code) {
-    dbglog(DBG_INFO, "arch: exit value %d\n", ret_code);
+/* Return point from newlib's _exit() (configurable) */
+void arch_newlib_exit(int ret_code) {
+    dbglog(DBG_INFO, "arch: exit return code %d\n", ret_code);
 
     /* Shut down */
     arch_shutdown();
@@ -321,13 +322,13 @@ __noreturn void post_newlib_exit(int ret_code) {
 }
 
 /* Called to shut down the system and return to the debug handler (if any) */
-__noreturn void arch_return() {
+void arch_return() {
     /* Jump back to the boot loader */
     arch_real_exit();
 }
 
 /* Called to jump back to the BIOS menu; assumes a normal shutdown is possible */
-__noreturn void arch_menu() {
+void arch_menu(void) {
     typedef void (*menufunc)(int) __noreturn;
     menufunc menu;
 
@@ -339,7 +340,7 @@ __noreturn void arch_menu() {
 
 /* Called to shut down non-gracefully; assume the system is in peril
    and don't try to call the dtors */
-void arch_abort() {
+void arch_abort(void) {
     /* Turn off UBC breakpoints, if any */
     ubc_disable_all();
 
@@ -363,7 +364,7 @@ void arch_abort() {
 
 /* Called to reboot the system; assume the system is in peril and don't
    try to call the dtors */
-void arch_reboot() {
+void arch_reboot(void) {
     typedef void (*reboot_func)() __noreturn;
     reboot_func rb;
 

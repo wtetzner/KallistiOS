@@ -7,8 +7,8 @@
 
 #include <arch/arch.h>
 
-extern void post_newlib_exit(int ret_code) __noreturn;
+extern void arch_newlib_exit(int ret_code) __noreturn;
 
 void _exit(int code) {
-    post_newlib_exit(code);
+    arch_newlib_exit(code);
 }
