@@ -42,7 +42,7 @@ define patch_apply
 	if ! test -f "$${stamp_file}"; then \
 		if ! test -z "$${patches}"; then \
 			echo "+++ Patching $(patch_target_name)..."; \
-			patch -N -d $(src_dir) -p1 < $${patches}; \
+			echo "$${patches}" | xargs -n 1 patch -N -d $(src_dir) -p1 -i; \
 		fi; \
 		touch "$${stamp_file}"; \
 	fi;

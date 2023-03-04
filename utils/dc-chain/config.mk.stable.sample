@@ -145,3 +145,13 @@ install_mode=install-strip
 # also disable the 'kos' thread model. Don't mess with that flag unless you know
 # exactly what you are doing.
 #auto_fixup_sh4_newlib=0
+
+# Force installation of BFD for SH (1|0)
+# Uncomment this if you want to force the installation of 'libbfd' for the SH
+# toolchain. This is required for MinGW/MSYS and can't be disabled in this
+# scenario. This option is here mainly if you want to force the installation of
+# 'libbfd' under other environments; but this won't be necessary in most cases,
+# as 'libelf' is used almost everywhere. Please note, 'libbfd' couldn't be
+# portable if you built it on another environment. Don't mess with that flag
+# unless you know exactly what you are doing.
+#sh_force_libbfd_installation=1
