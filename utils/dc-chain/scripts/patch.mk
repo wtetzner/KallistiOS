@@ -65,7 +65,7 @@ $(patch_gcc): diff_patches := $(wildcard $(patches)/$(src_dir)*.diff)
 $(patch_gcc): diff_patches += $(wildcard $(patches)/$(host_triplet)/$(src_dir)*.diff)
 ifeq ($(uname_s), Darwin)
 ifeq ($(uname_p), arm)
-$(patch_gcc): diff_patches := $(wildcard $(patches)/$(uname_p)-$(uname_s)/$(src_dir)*.diff)
+$(patch_gcc): diff_patches += $(wildcard $(patches)/$(uname_p)-$(uname_s)/$(src_dir)*.diff)
 endif
 endif
 $(patch_gcc):
