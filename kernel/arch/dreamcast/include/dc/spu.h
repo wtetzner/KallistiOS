@@ -167,6 +167,9 @@ int spu_dma_init();
 /** \brief  Shutdown SPU DMA support. */
 void spu_dma_shutdown();
 
+/** \brief  Reset SPU channels. */
+void spu_reset_chans();
+
 __END_DECLS
 
 #endif  /* __DC_SPU_H */
