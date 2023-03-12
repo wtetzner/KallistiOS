@@ -335,6 +335,9 @@ int mmu_init();
 */
 void mmu_shutdown();
 
+/** \brief  Reset ITLB. */
+void mmu_reset_itlb();
+
 __END_DECLS
 
 #endif  /* __ARCH_MMU_H */
