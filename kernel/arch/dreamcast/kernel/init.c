@@ -245,9 +245,6 @@ void arch_main(void) {
 
     /* Call kernel exit */
     exit(rv);
-
-    /* should never actually return here */
-    return rv;
 }
 
 /* Set the exit path (default is RETURN) */
@@ -258,7 +255,7 @@ void arch_set_exit_path(int path) {
 }
 
 /* Does the actual shutdown stuff for a proper shutdown */
-void arch_shutdown(void) {    
+void arch_shutdown(void) {
     /* Run dtors */
     _fini();
 
