@@ -35,6 +35,7 @@ __BEGIN_DECLS
 #include <kos/fs.h>
 #include <kos/fs_romdisk.h>
 #include <kos/fs_ramdisk.h>
+#include <kos/fs_dev.h>
 #include <kos/fs_pty.h>
 #include <kos/limits.h>
 #include <kos/thread.h>

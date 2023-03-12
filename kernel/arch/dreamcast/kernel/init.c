@@ -116,6 +116,7 @@ int  __attribute__((weak)) arch_auto_init() {
     fs_pty_init();          /* Pty */
     fs_ramdisk_init();      /* Ramdisk */
     fs_romdisk_init();      /* Romdisk */
+    fs_dev_init();          /* /dev/urandom etc. */
 
     hardware_periph_init();     /* DC peripheral init */
 
