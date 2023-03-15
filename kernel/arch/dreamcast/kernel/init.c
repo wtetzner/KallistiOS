@@ -122,7 +122,7 @@ int  __attribute__((weak)) arch_auto_init() {
 #if defined(__NEWLIB__) && !(__NEWLIB__ < 2 && __NEWLIB_MINOR__ < 4)
     fs_dev_init();          /* /dev/urandom etc. */
 #else
-#warning "/dev/ filesystem is not supported on Legacy (GCC4) toolchain"
+#warning "/dev filesystem is not supported with Newlib < 2.4.0"
 #endif
 
     hardware_periph_init();     /* DC peripheral init */
