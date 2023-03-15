@@ -110,9 +110,9 @@ INCLUDE_DIRECTORIES(
 set(CMAKE_SYSTEM_LIBRARY_PATH "${CMAKE_SYSTEM_LIBRARY_PATH} ${KOS_BASE}/addons/lib/dreamcast ${KOS_PORTS}/lib")
 
 if(${KOS_SUBARCH} MATCHES naomi)
-  add_link_options(-Wl,-Ttext=0x8c020000 -T${KOS_BASE}/utils/ldscripts/shlelf-naomi.xc)
+    add_link_options(-Wl,-Ttext=0x8c020000 -T${KOS_BASE}/utils/ldscripts/shlelf-naomi.xc)
 else()
-  add_link_options(-Wl,-Ttext=0x8c010000 -T${KOS_BASE}/utils/ldscripts/shlelf.xc)
+    add_link_options(-Wl,-Ttext=0x8c010000 -T${KOS_BASE}/utils/ldscripts/shlelf.xc)
 endif()
 
 add_link_options(-ml -m4-single-only -Wl,--gc-sections -nodefaultlibs)
