@@ -202,6 +202,9 @@ void  __attribute__((weak)) arch_auto_shutdown() {
 #ifndef _arch_sub_naomi
     fs_iso9660_shutdown();
 #endif
+#if defined(__NEWLIB__) && !(__NEWLIB__ < 2 && __NEWLIB_MINOR__ < 4)
+    fs_dev_shutdown();
+#endif
     fs_ramdisk_shutdown();
     fs_romdisk_shutdown();
     fs_pty_shutdown();
