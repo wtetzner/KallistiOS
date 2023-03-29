@@ -15,6 +15,8 @@ int timespec_get(struct timespec *ts, int base) {
         timer_ms_gettime(&s, &ms);
         ts->tv_sec = rtc_boot_time() + s;
         ts->tv_nsec = ms * 1000 * 1000;
+
+        return base;
     }
 
     return 0;
