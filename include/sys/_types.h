@@ -203,11 +203,6 @@ typedef _CLOCK_T_   __clock_t;
 /* Include stuff to make pthreads work as well. */
 #include <sys/_pthread.h>
 
-/* Grab our C11 time stuff if we got here from <time.h>. */
-#ifdef _TIME_H_
-#include <kos/time.h>
-#endif
-
 #ifndef __RESTRICT
 #if (__STDC_VERSION__ >= 199901L)
 #define __RESTRICT restrict
@@ -227,3 +222,8 @@ typedef char *          __va_list;
 __END_DECLS
 
 #endif  /* _SYS__TYPES_H */
+
+/* Grab our C11 time stuff if we got here from <time.h>. */
+#ifdef _TIME_H_
+#include <kos/time.h>
+#endif
