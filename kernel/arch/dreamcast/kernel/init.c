@@ -101,6 +101,7 @@ int  __attribute__((weak)) arch_auto_init() {
     hardware_sys_init();        /* DC low-level hardware init */
 
     /* Initialize our timer */
+    timer_ns_enable();
     timer_ms_enable();
     rtc_init();
 
