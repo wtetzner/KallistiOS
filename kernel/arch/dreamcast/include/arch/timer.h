@@ -225,35 +225,46 @@ int timer_init();
 void timer_shutdown();
 /* \endcond */
 
+/** \defgroup   perf_counters Performance Counters
+    The performance counter API exposes the SH4's hardware profiling registers, 
+    which consist of two different sets of independently operable 64-bit 
+    counters.  
+*/
+
 /** \brief  SH4 Performance Counter.
+    \ingroup perf_counters
 
     This counter is used by the ns_gettime function in this header.
 */
 #define PRFC0   0
 
 /** \brief  SH4 Performance Counter.
+    \ingroup perf_counters
 
     A counter that is not used by KOS.
 */
 #define PRFC1   1
 
-/** \brief  CPU Cycles Count Type
+/** \brief  CPU Cycles Count Type.
+    \ingroup perf_counters
 
     Count cycles. At 5 ns increments, a 48-bit cycle counter can 
     run continuously for 16.33 days.
 */
 #define PMCR_COUNT_CPU_CYCLES 0
 
-/** \brief  Ratio Cycles Count Type
+/** \brief  Ratio Cycles Count Type.
+    \ingroup perf_counters
 
     CPU/bus ratio mode where cycles (where T = C x B / 24 and T is time, 
     C is count, and B is time of one bus cycle).
 */
 #define PMCR_COUNT_RATIO_CYCLES 1
 
-/** \defgroup   perf_counters Performance Counters
+/** \defgroup   perf_counters_modes Performance Counter Modes
     This is the list of modes that are allowed to be passed into the perf_cntr_start()
     function, representing different things you want to count.
+    \ingroup perf_counters
     @{
 */
 /*                MODE DEFINITION                  VALUE   MEASURMENT TYPE & NOTES */
