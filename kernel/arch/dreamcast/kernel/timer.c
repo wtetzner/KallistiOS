@@ -315,9 +315,9 @@ void timer_shutdown() {
 }
 
 /* Quick access macros */
-#define PMCR_CTRL(o)  ( *((volatile uint16*)(0xff000084) + (2*o)) )
-#define PMCTR_HIGH(o) ( *((volatile uint32*)(0xff100004) + (2*o)) )
-#define PMCTR_LOW(o)  ( *((volatile uint32*)(0xff100008) + (2*o)) )
+#define PMCR_CTRL(o)  ( *((volatile uint16*)(0xff000084) + (o << 1)) )
+#define PMCTR_HIGH(o) ( *((volatile uint32*)(0xff100004) + (o << 1)) )
+#define PMCTR_LOW(o)  ( *((volatile uint32*)(0xff100008) + (o << 1)) )
 
 #define PMCR_CLR        0x2000
 #define PMCR_PMST       0x4000
@@ -386,8 +386,8 @@ inline uint64 timer_ns_gettime64() {
         return cycles * NS_PER_CYCLE;
     }
     else {
-        dbglog(DBG_KDEBUG, "timer_ns_gettime64: timer is not running.\n");
-        return 0;
+        uint64 micro_secs = timer_us_gettime64();
+        return micro_secs * 1000;
     }
 }
 
