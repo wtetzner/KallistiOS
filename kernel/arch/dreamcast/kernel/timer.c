@@ -359,7 +359,7 @@ int perf_cntr_clear(int which) {
 }
 
 /* Returns the count value of a counter */
-uint64 perf_cntr_count(int which) {
+inline uint64 perf_cntr_count(int which) {
     return (uint64)(PMCTR_HIGH(which) & 0xffff) << 32 | PMCTR_LOW(which);
 }
 
@@ -377,7 +377,7 @@ void timer_ns_disable() {
     }
 }
 
-uint64 timer_ns_gettime64() {
+inline uint64 timer_ns_gettime64() {
     uint16 config = PMCR_CTRL(PRFC0);
 
     /* If timer is running */
