@@ -14,7 +14,7 @@
 #ifndef __KOS_TIME_H
 #define __KOS_TIME_H
 
-#if !defined(__STRICT_ANSI__) || (__STDC_VERSION__ >= 201112L)
+#if !defined(__STRICT_ANSI__) || (__STDC_VERSION__ >= 201112L) || (__cplusplus >= 201703L)
 
 #include <kos/cdefs.h>
 
