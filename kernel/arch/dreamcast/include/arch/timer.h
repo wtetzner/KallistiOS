@@ -312,8 +312,8 @@ int perf_cntr_start(int which, int mode, int count_type);
 
 /** \brief  Stop a performance counter.
 
-    This function stops a performance counter that was started with prfc_start().
-    Stopping a counter retains its count. To clear the count use prfc_clear().
+    This function stops a performance counter that was started with perf_cntr_start().
+    Stopping a counter retains its count. To clear the count use perf_cntr_clear().
 
     \param  which           The counter to stop (i.e, \ref PRFC0 or PRFC1).
     \retval 0               On success.
