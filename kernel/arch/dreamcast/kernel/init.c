@@ -117,7 +117,14 @@ int  __attribute__((weak)) arch_auto_init() {
     fs_pty_init();          /* Pty */
     fs_ramdisk_init();      /* Ramdisk */
     fs_romdisk_init();      /* Romdisk */
+
+/* The arc4random_buf() function used for random & urandom is only
+   available in newlib starting with version 2.4.0 */
+#if defined(__NEWLIB__) && !(__NEWLIB__ < 2 && __NEWLIB_MINOR__ < 4)
     fs_dev_init();          /* /dev/urandom etc. */
+#else
+#warning "/dev filesystem is not supported with Newlib < 2.4.0"
+#endif
 
     hardware_periph_init();     /* DC peripheral init */
 
@@ -195,6 +202,9 @@ void  __attribute__((weak)) arch_auto_shutdown() {
     vmufs_shutdown();
 #ifndef _arch_sub_naomi
     fs_iso9660_shutdown();
+#endif
+#if defined(__NEWLIB__) && !(__NEWLIB__ < 2 && __NEWLIB_MINOR__ < 4)
+    fs_dev_shutdown();
 #endif
     fs_ramdisk_shutdown();
     fs_romdisk_shutdown();
