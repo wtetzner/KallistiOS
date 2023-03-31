@@ -322,7 +322,7 @@ void timer_shutdown() {
 #define PMCR_CLR        0x2000
 #define PMCR_PMST       0x4000
 #define PMCR_PMENABLE   0x8000
-#define PMCR_RUN        0xC000
+#define PMCR_RUN        0xc000
 #define PMCR_PMM_MASK   0x003f
 
 #define PMCR_CLOCK_TYPE_SHIFT 8

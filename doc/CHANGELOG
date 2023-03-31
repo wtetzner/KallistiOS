@@ -5,6 +5,7 @@ versions (where they are missing from early versions, assume that they
 should be attributed to Dan Potter).
 
 KallistiOS version 2.1.0 -----------------------------------------------
+- DC  Added timer_ns_gettime64() and performance counters [AB]
 - *** Cleaned up generated stubs files on a make clean [Lawrence Sebald == LS]
 - DC  Added a function to detect if the program is being run on a retail
       Dreamcast or a Set5.xx device [LS]
