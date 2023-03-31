@@ -322,9 +322,9 @@ int perf_cntr_stop(int which);
 
 /** \brief  Clear a performance counter
 
-    This function clears a performance counter. It resets its value to zero.
-    You cannot clear a running counter. This function stops the counter before
-    clearing it because you cant clear a running counter.
+    This function clears a performance counter. It resets its count to zero.
+    This function stops the counter before clearing it because you cant clear 
+    a running counter.
 
     \param  which           The counter to clear (i.e, \ref PRFC0 or PRFC1).
     \retval 0               On success.
