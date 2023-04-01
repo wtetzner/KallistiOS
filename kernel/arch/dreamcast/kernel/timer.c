@@ -337,7 +337,6 @@ uint16 perf_cntr_get_config(int which) {
 
 /* Start a performance counter */
 int perf_cntr_start(int which, int mode, int count_type) {
-    perf_cntr_stop(which);
     perf_cntr_clear(which);
     PMCR_CTRL(which) = PMCR_RUN | mode | (count_type << PMCR_CLOCK_TYPE_SHIFT);
     
@@ -351,8 +350,9 @@ int perf_cntr_stop(int which) {
     return 0;
 }
 
-/* Clears a performance counter */
+/* Clears a performance counter.  Has to stop it first. */
 int perf_cntr_clear(int which) {
+    perf_cntr_stop(which);
     PMCR_CTRL(which) |= PMCR_CLR;
 
     return 0;
@@ -372,7 +372,6 @@ void timer_ns_disable() {
 
     /* If timer is running, disable it */
     if((config & PMCR_ELAPSED_TIME_MODE)) {
-        perf_cntr_stop(PRFC0);
         perf_cntr_clear(PRFC0);
     }
 }
