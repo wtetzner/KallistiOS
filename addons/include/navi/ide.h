@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    navi/ide.h
-   Copyright (C) 2002 Dan Potter
+   Copyright (C) 2002 Megan Potter
 
 */
 
@@ -13,7 +13,7 @@
     been posted in various places around the Internet. This driver refers to the
     device built by Dan as a part of the Navi project.
 
-    \author Dan Potter
+    \author Megan Potter
 */
 
 #ifndef __NAVI_IDE_H

@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    arch/dreamcast/include/timer.h
-   (c)2000-2001 Dan Potter
+   (c)2000-2001 Megan Potter
 
 */
 
@@ -14,7 +14,7 @@
     functionality that you might use in practice in here in normal programs is
     the gettime functions.
 
-    \author Dan Potter
+    \author Megan Potter
 */
 
 #ifndef __ARCH_TIMER_H

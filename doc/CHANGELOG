@@ -2,7 +2,7 @@ Platform independent changes are marked with '***', otherwise the
 applicable platform is listed. The name/initials of the person who
 is responsible for the change are listed in [square brackets] for most
 versions (where they are missing from early versions, assume that they
-should be attributed to Dan Potter).
+should be attributed to Megan Potter).
 
 KallistiOS version 2.1.0 -----------------------------------------------
 - *** Cleaned up generated stubs files on a make clean [Lawrence Sebald == LS]
@@ -161,14 +161,14 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Added check to allow strict C++17+ to use timespec_get [FG]
 
 KallistiOS version 2.0.0 -----------------------------------------------
-- DC  Broadband Adapter driver fixes [Dan Potter == DP]
+- DC  Broadband Adapter driver fixes [Megan Potter == DP]
 - *** Imported a new version of lwIP, with proper sockets lib [DP]
 - DC  Added new httpd example for lwIP [DP]
 - x86 Added incomplete ia32 port [DP]
 - DC  Added new DC examples for Parallax (raster_melt, sinus, delay_cube,
       rotocube) [DP]
 - *** Added svnpush.py script for pushing repositories on the web [DP]
-- DC  Added genmenu module and example in Tsunami [Dan Potter == DP]
+- DC  Added genmenu module and example in Tsunami [Megan Potter == DP]
 - DC  Added hello-mp3 example [DP]
 - DC  320x240 PAL mode [mekanaizer == MK]
 - *** Fixed vqenc and kmgenc headers to be ANSI compliant [DP]
@@ -399,7 +399,7 @@ KallistiOS version 1.2.0 -----------------------------------------------
 - DC  Fix for typo in vmu_pkg_crc() (submitted by anonymous)
 - DC  Fix for incorrect source address in maple packets [Jim Ursetto == JU]
 - *** Fix fputs() to not put an extra "\n" [Walter van Niftrik == WvN]
-- DC  Fix Makefile for vqenc to work in more cases [Dan Potter == DP]
+- DC  Fix Makefile for vqenc to work in more cases [Megan Potter == DP]
 - DC  Integrated irq_disable() and irq_enable_exc() so that exceptions are
       always enabled. [DP]
 - DC  Added pvr_mem_stats() (like malloc_stats but for PVR) [DP]
@@ -469,7 +469,7 @@ KallistiOS version 1.2.0 -----------------------------------------------
 - *** Added pure virtual function support in libk++ [DP]
 
 KallistiOS version 1.1.9 ------------------------------------------------
-- *** Added private data field, async and stat to VFS [Dan Potter == DP]
+- *** Added private data field, async and stat to VFS [Megan Potter == DP]
 - DC  Fix for opening VMU files as dirs [Christian Groessler == CG]
 - *** Added fs_mkdir and fs_rmdir [DP]
 - *** Added fs_ramdisk (on /ram) [DP]
@@ -544,7 +544,7 @@ KallistiOS version 1.1.9 ------------------------------------------------
 - DC  Added SDL port from Bero and Lawrence Sebald [Lawrence Sebald == LS]
 
 KallistiOS version 1.1.8 ------------------------------------------------
-- DC  Fixed two more memory free problems in OggVorbis [Dan Potter == DP]
+- DC  Fixed two more memory free problems in OggVorbis [Megan Potter == DP]
 - DC  Fixed GL_POINTS [Paul Boese == PB]
 - DC  Fixed problem with setting gl_cur_texture to gl_null_texture in
       glmisc.c [PB]
@@ -629,7 +629,7 @@ KallistiOS version 1.1.7 ------------------------------------------------
 - DC  Fix for 320x240 on NTSC TVs [Jim Ursetto == JU]
 - DC  Fix for readdir in fs_dcload [Bero]
 - DC  Fix for libjpeg's jpeg_to_texture [Bero]
-- *** Added assert(), assert_msg(), and assert.h [Dan Potter == DP]
+- *** Added assert(), assert_msg(), and assert.h [Megan Potter == DP]
 - *** Fix for feof()/ferror() in stdio.c [Brian Peek == BP]
 - DC  Added gluLookAt() [James Susinno == JS]
 - DC  New PVR API added to replace old "ta" API [DP]
@@ -744,7 +744,7 @@ KallistiOS version 1.1.7 ------------------------------------------------
 
 KallistiOS version 1.1.6 ------------------------------------------------
 - DC  Fix for using resolutions other than 640x480 with TA [David Kuder == DCG]
-- *** New version of dlmalloc with better thread safety [Dan Potter == DP]
+- *** New version of dlmalloc with better thread safety [Megan Potter == DP]
 - *** Misc fixes for the build process [Benoit Miller == BM]
 - *** C++ compilation rules for cpp->o [BM]
 - *** Beginnings of BSD-style C++ header support [DP]
@@ -785,7 +785,7 @@ KallistiOS version 1.1.5 ------------------------------------------------
       some PAL modes and 256x256! 800x608 is apparently still
       a bit broken in this one, so if anyone is actually using it you
       might have to tweak just a bit. [Scav]
-- DC  Fixed a potential race condition in kernel/main.c [Dan Potter == DP]
+- DC  Fixed a potential race condition in kernel/main.c [Megan Potter == DP]
 - *** Added some new libc stuff from BSD (abs, labs, strdup, qsort, and some
       misc is/to upper/lower funcs)
 - DC  Added an early implementation of alpha-blended polys to KGL [DP]
@@ -820,7 +820,7 @@ KallistiOS version 1.1.4 ------------------------------------------------
 - DC  New spinlock code works a lot better [ADK]
 - DC  Fixed a bug where thd_enabled wasn't being set to 1 [ADK]
 - DC  Render done seems to work again, so it's now re-enabled [ADK]
-- DC  Added 'menu' command in KOSH to exit to the DC menus [Dan Potter == DP]
+- DC  Added 'menu' command in KOSH to exit to the DC menus [Megan Potter == DP]
 - DC  Added rtc_unix_secs() support for reading the current date/time [DP]
 - DC  Fixed some problems in VMU writing related to timing and a mystery
       command (thanks to an oooold message from Nagra) and also did some

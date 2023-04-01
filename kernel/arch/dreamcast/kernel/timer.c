@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    timer.c
-   Copyright (c)2000, 2001, 2002 Dan Potter
+   Copyright (c)2000, 2001, 2002 Megan Potter
 */
 
 #include <assert.h>

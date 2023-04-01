@@ -3,7 +3,7 @@
    video.c
 
    (c)2001 Anders Clerwall (scav)
-   Parts (c)2000-2001 Dan Potter
+   Parts (c)2000-2001 Megan Potter
  */
 
 #include <dc/video.h>

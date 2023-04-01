@@ -6,7 +6,7 @@
 
    Originally:
    lwip/dns.c
-   Copyright (C) 2004 Dan Potter
+   Copyright (C) 2004 Megan Potter
 */
 
 /* The actual code for querying the DNS was taken from the old kos-ports lwIP
