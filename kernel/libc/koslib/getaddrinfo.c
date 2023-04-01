@@ -10,7 +10,7 @@
 */
 
 /* The actual code for querying the DNS was taken from the old kos-ports lwIP
-   port, and was originally written by Dan. This has been modified/extended a
+   port, and was originally written by Megan. This has been modified/extended a
    bit. The old lwip_gethostbyname() function was reworked a lot to create the
    new getaddrinfo_dns() function. In addition, the dns_parse_response()
    function got a bit of a makeover too.

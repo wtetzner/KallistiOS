@@ -424,7 +424,7 @@ uint32      *vram_l;
    This is a direct port of Marcus' assembly function of the
    same name.
 
-   [This is the old KOS function by Dan.]
+   [This is the old KOS function by Megan.]
 */
 int vid_check_cable() {
 #ifndef _arch_sub_naomi
@@ -689,7 +689,7 @@ uint32 vid_border_color(int r, int g, int b) {
 /*-----------------------------------------------------------------------------*/
 /* Clears the screen with a given color
 
-    [This is the old KOS function by Dan.]
+    [This is the old KOS function by Megan.]
 */
 void vid_clear(int r, int g, int b) {
     uint16 pixel16;
@@ -718,7 +718,7 @@ void vid_clear(int r, int g, int b) {
 /*-----------------------------------------------------------------------------*/
 /* Clears all of video memory as quickly as possible
 
-    [This is the old KOS function by Dan.]
+    [This is the old KOS function by Megan.]
 */
 void vid_empty() {
     /* We'll use the actual base address here since the vram_* pointers
@@ -733,7 +733,7 @@ void vid_empty() {
 
    Thanks to HeroZero for this info.
 
-   [This is the old KOS function by Dan.]
+   [This is the old KOS function by Megan.]
 */
 void vid_waitvbl() {
     vuint32 *vbl = regs + 0x010c / 4;
