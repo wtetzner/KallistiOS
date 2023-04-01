@@ -377,7 +377,7 @@ dirent_t *fs_readdir(file_t hnd);
     are not documented here. Each filesystem may define any commands that are
     specific to it with its implementation of this function.
 
-    \param  fd              The file descriptor to use.
+    \param  hnd             The file descriptor to use.
     \param  cmd             The command to run.
     \param  ...             Arguments for the command specified.
     \return                 -1 on error.

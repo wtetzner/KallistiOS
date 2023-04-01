@@ -48,7 +48,7 @@ __BEGIN_DECLS
 #define CONT_DPAD2_DOWN     (1<<13)
 #define CONT_DPAD2_LEFT     (1<<14)
 #define CONT_DPAD2_RIGHT    (1<<15)
-/* @} */
+/** @} */
 
 /* Raw controller condition structure */
 typedef struct {

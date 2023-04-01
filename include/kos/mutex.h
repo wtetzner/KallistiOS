@@ -241,6 +241,7 @@ int mutex_unlock(mutex_t *m);
     will generally not be of much use outside of the kernel itself.
 
     \param  m               The mutex to unlock
+    \param  thd             The thread owning the mutex
     \retval 0               On success
     \retval -1              On error, errno will be set as appropriate.
 
