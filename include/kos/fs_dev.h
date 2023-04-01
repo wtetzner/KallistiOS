@@ -1,11 +1,11 @@
 /* KallistiOS ##version##
 
-   dc/fs_dev.h
+   kos/fs_dev.h
    (c)2023 - Luke Benstead
 
 */
 
-/** \file   dc/fs_dev.h
+/** \file   kos/fs_dev.h
     \brief  Driver for /dev/random and /dev/urandom.
 
     This filesystem driver provides implementations of /dev/random
