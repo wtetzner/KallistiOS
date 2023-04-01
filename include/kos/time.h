@@ -14,7 +14,7 @@
 #ifndef __KOS_TIME_H
 #define __KOS_TIME_H
 
-#if !defined(__STRICT_ANSI__) || (__STDC_VERSION__ >= 201112L)
+#if !defined(__STRICT_ANSI__) || (__STDC_VERSION__ >= 201112L) || (__cplusplus >= 201703L)
 
 #include <kos/cdefs.h>
 
@@ -29,5 +29,5 @@ extern int timespec_get(struct timespec *ts, int base);
 
 __END_DECLS
 
-#endif /* !defined(__STRICT_ANSI__) || (__STDC_VERSION__ >= 201112L) */
-#endif /* !__KOS_C11TIME_H */
+#endif /* !defined(__STRICT_ANSI__) || (__STDC_VERSION__ >= 201112L) || (__cplusplus >= 201703L) */
+#endif /* !__KOS_TIME_H */

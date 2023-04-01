@@ -158,6 +158,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Removed (completely unsupported) support for GCC 3.x and older [LS]
 - *** Add timespec_get C11 function to koslib's libc [LS]
 - DC  Added timer_ns_gettime64() and performance counters [AB]
+- *** Added check to allow strict C++17+ to use timespec_get [FG]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Dan Potter == DP]
