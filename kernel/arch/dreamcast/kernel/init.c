@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    init.c
-   Copyright (C) 2003 Dan Potter
+   Copyright (C) 2003 Megan Potter
    Copyright (C) 2015 Lawrence Sebald
 */
 
