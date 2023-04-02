@@ -74,6 +74,8 @@ export KOS_AFLAGS=""
 # GCC seems to have made -fomit-frame-pointer the default on many targets, so
 # hence you may need -fno-omit-frame-pointer to actually have GCC spit out frame
 # pointers. It won't hurt to have it in there either way.
+# Link-time optimizations can be enabled by adding -flto. It however requires a
+# recent toolchain (GCC 10+), and has not been thoroughly tested.
 export KOS_CFLAGS="-O2 -fomit-frame-pointer"
 # export KOS_CFLAGS="-O2 -DFRAME_POINTERS -fno-omit-frame-pointer"
 

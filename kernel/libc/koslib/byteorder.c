@@ -21,7 +21,7 @@ uint32_t ntohl(uint32_t value) {
 }
 
 /* Host to Network short */
-uint32_t htons(uint32_t value) {
+uint16_t htons(uint16_t value) {
     return arch_htons(value);
 }
 
