@@ -61,7 +61,7 @@ $(stamp_gdb_build):
 	@echo "+++ Building GDB..."
 	rm -f $@
 	> $(log)
-	rm -rf build-$(gdb_name)
+	-rm -rf build-$(gdb_name)
 	mkdir build-$(gdb_name)
 	cd build-$(gdb_name); \
         ../$(gdb_name)/configure \
