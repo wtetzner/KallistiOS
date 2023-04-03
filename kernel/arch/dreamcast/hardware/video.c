@@ -633,12 +633,11 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 /*-----------------------------------------------------------------------------*/
 void vid_set_start(uint32 base) {
     /* Set vram base of current framebuffer */
-    base &= 0x007FFFFF;
-    PVR_SET(PVR_FB_ADDR, base);
+    PVR_SET(PVR_FB_ADDR, base & 0x007FFFFF);
 
     /* These are nice to have. */
-    vram_s = (uint16*)(0xA5000000 | base);
-    vram_l = (uint32*)(0xA5000000 | base);
+    vram_s = (uint16*)(PVR_RAM_BASE | base);
+    vram_l = (uint32*)(PVR_RAM_BASE | base);
 
     /* Set odd-field if interlaced. */
     if(vid_mode->flags & VID_INTERLACE) {
@@ -670,8 +669,8 @@ void vid_flip(int fb) {
 
     /* Set the vram_* pointers as expected */
     base = vid_mode->fb_base[(vid_mode->fb_curr + 1) & (vid_mode->fb_count - 1)];
-    vram_s = (uint16*)(0xA5000000 | base);
-    vram_l = (uint32*)(0xA5000000 | base);
+    vram_s = (uint16*)(PVR_RAM_BASE | base);
+    vram_l = (uint32*)(PVR_RAM_BASE | base);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -720,7 +719,7 @@ void vid_clear(int r, int g, int b) {
 void vid_empty() {
     /* We'll use the actual base address here since the vram_* pointers
        can now move around */
-    sq_clr((uint32 *)0xa5000000, 8 * 1024 * 1024);
+    sq_clr((uint32 *)PVR_RAM_BASE, 8 * 1024 * 1024);
 }
 
 /*-----------------------------------------------------------------------------*/
