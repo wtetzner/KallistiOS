@@ -7,6 +7,7 @@
  */
 
 #include <dc/video.h>
+#include <dc/pvr.h>
 #include <dc/sq.h>
 #include <string.h>
 #include <stdio.h>
@@ -407,7 +408,6 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
 };
 
 /*-----------------------------------------------------------------------------*/
-static vuint32 *regs = (uint32*)0xA05F8000;
 static vid_mode_t  currmode = { 0 };
 vid_mode_t  *vid_mode = 0;
 uint16      *vram_s;
@@ -517,8 +517,8 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     }
 
     /* Blank screen and reset display enable (looks nicer) */
-    regs[0x3A] |= 8;    /* Blank */
-    regs[0x11] &= ~1;   /* Display disable */
+    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 8);    /* Blank */
+    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);   /* Display disable */
 
     /* Clear interlace flag if VGA (this maybe should be in here?) */
     if(ct == CT_VGA) {
@@ -545,10 +545,10 @@ void vid_set_mode_ex(vid_mode_t *mode) {
             data |= 2;
     }
 
-    regs[0x11] = data;
+    PVR_SET(PVR_FB_CFG_1, data);
 
     /* Linestride */
-    regs[0x13] = (mode->width * vid_pmode_bpp[mode->pm]) / 8;
+    PVR_SET(PVR_RENDER_MODULO, (mode->width * vid_pmode_bpp[mode->pm]) / 8);
 
     /* Display size */
     data = ((mode->width * vid_pmode_bpp[mode->pm]) / 4) - 1;
@@ -561,14 +561,14 @@ void vid_set_mode_ex(vid_mode_t *mode) {
                 | (((mode->height / 2) - 1) << 10);
     }
 
-    regs[0x17] = data;
+    PVR_SET(PVR_FB_SIZE, data);
 
     /* vblank irq */
     if(ct == CT_VGA) {
-        regs[0x33] = (mode->scanint1 << 16) | (mode->scanint2 << 1);
+        PVR_SET(PVR_VPOS_IRQ, (mode->scanint1 << 16) | (mode->scanint2 << 1));
     }
     else {
-        regs[0x33] = (mode->scanint1 << 16) | mode->scanint2;
+        PVR_SET(PVR_VPOS_IRQ, (mode->scanint1 << 16) | mode->scanint2);
     }
 
     /* Interlace stuff */
@@ -585,25 +585,25 @@ void vid_set_mode_ex(vid_mode_t *mode) {
         }
     }
 
-    regs[0x34] = data;
+    PVR_SET(PVR_IL_CFG, data);
 
     /* Border window */
-    regs[0x35] = (mode->borderx1 << 16) | mode->borderx2;
-    regs[0x37] = (mode->bordery1 << 16) | mode->bordery2;
+    PVR_SET(PVR_BORDER_X, (mode->borderx1 << 16) | mode->borderx2);
+    PVR_SET(PVR_BORDER_Y, (mode->bordery1 << 16) | mode->bordery2);
 
     /* Scanlines and clocks. */
-    regs[0x36] = (mode->scanlines << 16) | mode->clocks;
+    PVR_SET(PVR_SCAN_CLK, (mode->scanlines << 16) | mode->clocks);
 
     /* Horizontal pixel doubling */
     if(mode->flags & VID_PIXELDOUBLE) {
-        regs[0x3A] |= 0x100;
+        PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 0x100);
     }
     else {
-        regs[0x3A] &= ~0x100;
+        PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) & ~0x100);
     }
 
     /* Bitmap window */
-    regs[0x3B] = mode->bitmapx;
+    PVR_SET(PVR_BITMAP_X, mode->bitmapx);
     data = mode->bitmapy;
 
     if(mode->flags & VID_PAL) {
@@ -611,7 +611,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     }
 
     data = (data << 16) | mode->bitmapy;
-    regs[0x3C] = data;
+    PVR_SET(PVR_BITMAP_X, data);
 
     /* Everything is ok */
     memcpy(&currmode, mode, sizeof(vid_mode_t));
@@ -626,15 +626,15 @@ void vid_set_mode_ex(vid_mode_t *mode) {
         ((ct & 3) << 8);
 
     /* Re-enable the display */
-    regs[0x3A] &= ~8;
-    regs[0x11] |= 1;
+    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) & ~8);
+    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) | 1);
 }
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_start(uint32 base) {
     /* Set vram base of current framebuffer */
     base &= 0x007FFFFF;
-    regs[0x14] = base;
+    PVR_SET(PVR_FB_ADDR, base);
 
     /* These are nice to have. */
     vram_s = (uint16*)(0xA5000000 | base);
@@ -642,7 +642,7 @@ void vid_set_start(uint32 base) {
 
     /* Set odd-field if interlaced. */
     if(vid_mode->flags & VID_INTERLACE) {
-        regs[0x15] = base + (vid_mode->width * vid_pmode_bpp[vid_mode->pm]);
+        PVR_SET(PVR_FB_IL_ADDR, base + (vid_mode->width * vid_pmode_bpp[vid_mode->pm]));
     }
 }
 
@@ -676,10 +676,10 @@ void vid_flip(int fb) {
 
 /*-----------------------------------------------------------------------------*/
 uint32 vid_border_color(int r, int g, int b) {
-    uint32 obc = regs[0x0040 / 4];
-    regs[0x0040 / 4] = ((r & 0xFF) << 16) |
+    uint32 obc = PVR_GET(PVR_BORDER_COLOR);
+    PVR_SET(PVR_BORDER_COLOR, ((r & 0xFF) << 16) |
                        ((g & 0xFF) << 8) |
-                       (b & 0xFF);
+                       (b & 0xFF));
     return obc;
 }
 
@@ -733,12 +733,10 @@ void vid_empty() {
    [This is the old KOS function by Megan.]
 */
 void vid_waitvbl() {
-    vuint32 *vbl = regs + 0x010c / 4;
-
-    while(!(*vbl & 0x01ff))
+    while(!(PVR_GET(PVR_SYNC_STATUS) & 0x01ff))
         ;
 
-    while(*vbl & 0x01ff)
+    while(PVR_GET(PVR_SYNC_STATUS) & 0x01ff)
         ;
 }
 

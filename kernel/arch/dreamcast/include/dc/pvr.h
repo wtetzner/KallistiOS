@@ -992,9 +992,13 @@ Striplength set to 2 */
 #define PVR_ISP_VERTBUF_ADDR    0x0020  /**< \brief Vertex buffer address for scene rendering */
 #define PVR_ISP_TILEMAT_ADDR    0x002c  /**< \brief Tile matrix address for scene rendering */
 #define PVR_SPANSORT_CFG        0x0030  /**< \brief ?? -- write 0x101 for now */
+#define PVR_BORDER_COLOR        0x0040  /**< \brief Border Color in RGB888 */
 #define PVR_FB_CFG_1            0x0044  /**< \brief Framebuffer config 1 */
 #define PVR_FB_CFG_2            0x0048  /**< \brief Framebuffer config 2 */
 #define PVR_RENDER_MODULO       0x004c  /**< \brief Render modulo */
+#define PVR_FB_ADDR             0x0050  /**< \brief Framebuffer start address */
+#define PVR_FB_IL_ADDR          0x0054  /**< \brief Framebuffer odd-field start address for interlace */
+#define PVR_FB_SIZE             0x005c  /**< \brief Framebuffer display size */
 #define PVR_RENDER_ADDR         0x0060  /**< \brief Render output address */
 #define PVR_RENDER_ADDR_2       0x0064  /**< \brief Output for strip-buffering */
 #define PVR_PCLIP_X             0x0068  /**< \brief Horizontal clipping area */
@@ -1017,8 +1021,14 @@ Striplength set to 2 */
 #define PVR_GUN_POS             0x00c4  /**< \brief Light gun position */
 #define PVR_UNK_00C8            0x00c8  /**< \brief ?? -- write same as border H in 00d4 << 16 */
 #define PVR_VPOS_IRQ            0x00cc  /**< \brief Vertical position IRQ */
+#define PVR_IL_CFG              0x00d0  /**< \brief Interlacing config */
+#define PVR_BORDER_X            0x00d4  /**< \brief Window border X position */
+#define PVR_SCAN_CLK            0x00d8  /**< \brief Clock and scanline values */
+#define PVR_BORDER_Y            0x00dc  /**< \brief Window border Y position */
 #define PVR_TEXTURE_MODULO      0x00e4  /**< \brief Output texture width modulo */
 #define PVR_VIDEO_CFG           0x00e8  /**< \brief Misc video config */
+#define PVR_BITMAP_X            0x00ec  /**< \brief Bitmap window X position */
+#define PVR_BITMAP_Y            0x00f0  /**< \brief Bitmap window Y position */
 #define PVR_SCALER_CFG          0x00f4  /**< \brief Smoothing scaler */
 #define PVR_PALETTE_CFG         0x0108  /**< \brief Palette format */
 #define PVR_SYNC_STATUS         0x010c  /**< \brief V/H blank status */
