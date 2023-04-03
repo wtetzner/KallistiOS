@@ -697,17 +697,17 @@ void vid_clear(int r, int g, int b) {
             pixel16 = ((r >> 3) << 10)
                       | ((g >> 3) << 5)
                       | ((b >> 3) << 0);
-            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp);
+            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB555]);
             break;
         case PM_RGB565:
             pixel16 = ((r >> 3) << 11)
                       | ((g >> 2) << 5)
                       | ((b >> 3) << 0);
-            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp);
+            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB565]);
             break;
         case PM_RGB888:
             pixel32 = (r << 16) | (g << 8) | (b << 0);
-            sq_set32(vram_l, pixel32, (vid_mode->width * vid_mode->height) * vid_pmode_bpp);
+            sq_set32(vram_l, pixel32, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB888]);
             break;
     }
 }
