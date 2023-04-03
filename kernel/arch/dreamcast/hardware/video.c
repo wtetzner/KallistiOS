@@ -632,9 +632,8 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_start(uint32 base) {
-	
     /* Set vram base of current framebuffer */
-	base &= 0x007FFFFF
+    base &= 0x007FFFFF;
     PVR_SET(PVR_FB_ADDR, base);
 
     /* These are nice to have. */
