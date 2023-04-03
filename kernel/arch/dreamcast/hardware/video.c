@@ -705,9 +705,17 @@ void vid_clear(int r, int g, int b) {
                       | ((b >> 3) << 0);
             sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB565]);
             break;
-        case PM_RGB888:
+        case PM_RGB888P:
+            /* Need to come up with some way to fill this quickly. */
+            dbglog(DBG_WARNING, "vid_clear: PM_RGB888P not supported, clearing with 0\n");
+            sq_set32(vram_l, 0, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB888P]);
+            break;
+        case PM_RGB0888:
             pixel32 = (r << 16) | (g << 8) | (b << 0);
-            sq_set32(vram_l, pixel32, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB888]);
+            sq_set32(vram_l, pixel32, (vid_mode->width * vid_mode->height) * vid_pmode_bpp[PM_RGB0888]);
+            break;
+        default:
+            dbglog(DBG_ERROR, "vid_clear: Invalid Pixel Mode: %i\n", vid_mode->pm);
             break;
     }
 }

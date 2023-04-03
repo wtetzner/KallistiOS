@@ -47,12 +47,13 @@ __BEGIN_DECLS
 */
 #define PM_RGB555   0       /**< \brief RGB555 pixel mode (15-bit) */
 #define PM_RGB565   1       /**< \brief RGB565 pixel mode (16-bit) */
-#define PM_UNK      2       /**< \brief Unknown pixel mode (?-bit) */
-#define PM_RGB888   3       /**< \brief RGB888 pixel mode (24-bit) */
+#define PM_RGB888P  2       /**< \brief RBG888 packed pixel mode (24-bit) */
+#define PM_RGB0888  3       /**< \brief RGB0888 pixel mode (32-bit) */
+#define PM_RGB888   PM_RGB0888 /**< \brief Backwards compatibility support */
 /** @} */
 
 /** \brief vid_pmode_bpp Video pixel mode depths */
-const uint8 vid_pmode_bpp[4] = {2, 2, 0, 4};
+const uint8 vid_pmode_bpp[4] = {2, 2, 3, 4};
 
 /** \brief  Generic display modes */
 enum {
