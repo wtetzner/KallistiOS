@@ -499,7 +499,6 @@ void vid_set_mode(int dm, int pm) {
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_mode_ex(vid_mode_t *mode) {
-    static uint8 bpp[4] = { 2, 2, 0, 4 };
     uint16 ct;
     uint32 data;
 
@@ -549,16 +548,16 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     regs[0x11] = data;
 
     /* Linestride */
-    regs[0x13] = (mode->width * bpp[mode->pm]) / 8;
+    regs[0x13] = (mode->width * vid_pmode_bpp[mode->pm]) / 8;
 
     /* Display size */
-    data = ((mode->width * bpp[mode->pm]) / 4) - 1;
+    data = ((mode->width * vid_pmode_bpp[mode->pm]) / 4) - 1;
 
     if(ct == CT_VGA || (!(mode->flags & VID_INTERLACE))) {
         data |= (1 << 20) | ((mode->height - 1) << 10);
     }
     else {
-        data |= (((mode->width * bpp[mode->pm] >> 2) + 1) << 20)
+        data |= (((mode->width * vid_pmode_bpp[mode->pm] >> 2) + 1) << 20)
                 | (((mode->height / 2) - 1) << 10);
     }
 
@@ -633,8 +632,6 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_start(uint32 base) {
-    static uint8 bpp[4] = { 2, 2, 0, 4 };
-
     /* Set vram base of current framebuffer */
     base &= 0x007FFFFF;
     regs[0x14] = base;
@@ -645,7 +642,7 @@ void vid_set_start(uint32 base) {
 
     /* Set odd-field if interlaced. */
     if(vid_mode->flags & VID_INTERLACE) {
-        regs[0x15] = base + (currmode.width * bpp[currmode.pm]);
+        regs[0x15] = base + (vid_mode->width * vid_pmode_bpp[vid_mode->pm]);
     }
 }
 
@@ -700,17 +697,17 @@ void vid_clear(int r, int g, int b) {
             pixel16 = ((r >> 3) << 10)
                       | ((g >> 3) << 5)
                       | ((b >> 3) << 0);
-            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * 2);
+            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp);
             break;
         case PM_RGB565:
             pixel16 = ((r >> 3) << 11)
                       | ((g >> 2) << 5)
                       | ((b >> 3) << 0);
-            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * 2);
+            sq_set16(vram_s, pixel16, (vid_mode->width * vid_mode->height) * vid_pmode_bpp);
             break;
         case PM_RGB888:
             pixel32 = (r << 16) | (g << 8) | (b << 0);
-            sq_set32(vram_l, pixel32, (vid_mode->width * vid_mode->height) * 4);
+            sq_set32(vram_l, pixel32, (vid_mode->width * vid_mode->height) * vid_pmode_bpp);
             break;
     }
 }

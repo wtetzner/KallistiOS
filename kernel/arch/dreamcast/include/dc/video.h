@@ -47,8 +47,12 @@ __BEGIN_DECLS
 */
 #define PM_RGB555   0       /**< \brief RGB555 pixel mode (15-bit) */
 #define PM_RGB565   1       /**< \brief RGB565 pixel mode (16-bit) */
+#define PM_UNK      2       /**< \brief Unknown pixel mode (?-bit) */
 #define PM_RGB888   3       /**< \brief RGB888 pixel mode (24-bit) */
 /** @} */
+
+/** \brief vid_pmode_bpp Video pixel mode depths */
+const uint8 vid_pmode_bpp[4] = {2, 2, 0, 4};
 
 /** \brief  Generic display modes */
 enum {
@@ -197,7 +201,8 @@ void vid_set_start(uint32 base);
 
     This function sets the displayed framebuffer to the specified buffer and
     sets the vram_s and vram_l pointers to point at the next framebuffer, to
-    allow for tearing-free framebuffer-direct drawing.
+    allow for tearing-free framebuffer-direct drawing. The specified buffer 
+	is masked against (vid_mode->fb_count - 1) in order to loop around.
 
     \param  fb              The framebuffer to display (or -1 for the next one).
 */

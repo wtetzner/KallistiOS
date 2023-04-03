@@ -35,16 +35,11 @@ static int fb_detected() {
 }
 
 static int fb_init() {
-    /* Assume we're using 640x480x16bpp */
-    fb = NULL;
-    fb_w = 640;
-    fb_h = 480;
-    min_x = 32;
-    min_y = 32;
-    max_x = 608;
-    max_y = 448;
-    cur_x = 32;
-    cur_y = 32;
+    /* Init based on current video mode, defaulting to 640x480x16bpp. */
+    if (vid_mode == 0)
+        dbgio_fb_set_target(NULL, 640, 480, 32, 32);
+    else
+        dbgio_fb_set_target(NULL, vid_mode->width, vid_mode->height, 32, 32);
 
     return 0;
 }
