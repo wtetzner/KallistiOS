@@ -10,7 +10,7 @@
 
      Modifications for the SH by Ben Lee and Steve Chamberlain
 
-     Modifications for KOS by Dan Potter (earlier) and Richard Moats (more
+     Modifications for KOS by Megan Potter (earlier) and Richard Moats (more
      recently).
 */
 
@@ -400,7 +400,7 @@ getpacket(void) {
         count = 0;
 
         /* now, read until a # or end of buffer is found */
-        while(count < BUFMAX) {
+        while(count < (BUFMAX-1)) {
             ch = getDebugChar();
 
             if(ch == '$')

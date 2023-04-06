@@ -27,6 +27,7 @@ endif
 # Retrieve the system
 uname_s := $(shell uname -s)
 uname_r := $(shell uname -r)
+uname_m := $(shell uname -m)
 
 # Determine if we are running macOS
 ifeq ($(uname_s),Darwin)

@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    include/kos/mutex.h
-   Copyright (C) 2001, 2003 Dan Potter
+   Copyright (C) 2001, 2003 Megan Potter
    Copyright (C) 2012, 2015 Lawrence Sebald
 
 */
@@ -241,6 +241,7 @@ int mutex_unlock(mutex_t *m);
     will generally not be of much use outside of the kernel itself.
 
     \param  m               The mutex to unlock
+    \param  thd             The thread owning the mutex
     \retval 0               On success
     \retval -1              On error, errno will be set as appropriate.
 

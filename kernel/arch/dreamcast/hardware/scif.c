@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    hardware/scif.c
-   Copyright (C)2000,2001,2004 Dan Potter
+   Copyright (C)2000,2001,2004 Megan Potter
 */
 
 #include <stdio.h>
@@ -197,8 +197,8 @@ int scif_init_fake() {
 /* recv trigger to 1 byte */
 int scif_init() {
     int i;
-    unsigned char scbrr2;
-    unsigned short scsmr2;
+    unsigned char scbrr2 = 0;
+    unsigned short scsmr2 = 0;
 
     /*  If dcload-serial is active, then do nothing here, or we'll
         screw that up. */

@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    dc/maple/keyboard.h
-   Copyright (C) 2000-2002 Jordan DeLong and Dan Potter
+   Copyright (C) 2000-2002 Jordan DeLong and Megan Potter
    Copyright (C) 2012 Lawrence Sebald
 
 */
@@ -14,7 +14,7 @@
     code.
 
     \author Jordan DeLong
-    \author Dan Potter
+    \author Megan Potter
     \author Lawrence Sebald
 */
 
@@ -181,23 +181,22 @@ __BEGIN_DECLS
 #define KBD_REGION_ES       7           /**< \brief Spanish keyboard */
 /** @} */
 
-/** \defgroup   key_states States each key can be in.
+/** \defgroup   key_states  States each key can be in.
 
-	These are the different 'states' each key can be in. They are stored in 
-	kbd_state_t->matrix, and manipulated/checked by kbd_check_poll.
-	
-	none-> pressed or none
-	was pressed-> pressed or none 
-	pressed-> was_pressed
-	@{
+    These are the different 'states' each key can be in. They are stored in
+    kbd_state_t->matrix, and manipulated/checked by kbd_check_poll.
+
+    none-> pressed or none
+    was pressed-> pressed or none
+    pressed-> was_pressed
+    @{
 */
-
 #define KEY_STATE_NONE        0
-#define KEY_STATE_WAS_PRESSED 1 
-#define KEY_STATE_PRESSED     2	
-
+#define KEY_STATE_WAS_PRESSED 1
+#define KEY_STATE_PRESSED     2
 /** @} */
-/** \brief Maximum number of keys the DC can read simultaneously. 
+
+/** \brief Maximum number of keys the DC can read simultaneously.
     This is a hardware constant. The define prevents the magic number '6' from appearing.
 **/
 #define MAX_PRESSED_KEYS 6

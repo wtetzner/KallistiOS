@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    arch/dreamcast/kernel/mmu.c
-   (c)2001 Dan Potter
+   (c)2001 Megan Potter
 */
 
 /* SH-4 MMU related functions, ported up from KOS-MMU */
@@ -22,7 +22,7 @@
 
 static volatile uint32 * const pteh = (uint32 *)(0xff000000);
 static volatile uint32 * const ptel = (uint32 *)(0xff000004);
-static volatile uint32 * const ptea = (uint32 *)(0xff000034);
+//static volatile uint32 * const ptea = (uint32 *)(0xff000034);
 static volatile uint32 * const ttb = (uint32 *)(0xff000008);
 static volatile uint32 * const tea = (uint32 *)(0xff00000c);
 static volatile uint32 * const mmucr = (uint32 *)(0xff000010);

@@ -5,7 +5,7 @@
 
 TARGET = out_of_memory.elf
 OBJS = out_of_memory.o
-KOS_CPPFLAGS += -fexceptions
+KOS_CPPFLAGS += -fexceptions -std=c++11
 
 all: rm-elf $(TARGET)
 

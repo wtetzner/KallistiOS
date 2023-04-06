@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    dc/spu.h
-   Copyright (C) 2000-2001 Dan Potter
+   Copyright (C) 2000-2001 Megan Potter
 
 */
 
@@ -10,7 +10,7 @@
 
     This file deals with memory transfers and the like for the sound hardware.
 
-    \author Dan Potter
+    \author Megan Potter
 */
 
 #ifndef __DC_SPU_H
@@ -166,6 +166,9 @@ int spu_dma_init();
 
 /** \brief  Shutdown SPU DMA support. */
 void spu_dma_shutdown();
+
+/** \brief  Reset SPU channels. */
+void spu_reset_chans();
 
 __END_DECLS
 

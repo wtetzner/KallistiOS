@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    fs.c
-   Copyright (C) 2000, 2001, 2002, 2003 Dan Potter
+   Copyright (C) 2000, 2001, 2002, 2003 Megan Potter
    Copyright (C) 2012, 2013, 2014, 2015, 2016 Lawrence Sebald
 
 */
@@ -52,7 +52,7 @@ typedef struct fs_hnd {
 fs_hnd_t * fd_table[FD_SETSIZE] = { NULL };
 
 /* For some reason, Newlib doesn't seem to define this function in stdlib.h. */
-extern char *realpath(const char *, const char *);
+extern char *realpath(const char *, char[PATH_MAX]);
 
 
 /* Internal file commands for root dir reading */

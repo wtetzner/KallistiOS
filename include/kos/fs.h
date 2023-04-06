@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    kos/fs.h
-   Copyright (C) 2000, 2001, 2002, 2003 Dan Potter
+   Copyright (C) 2000, 2001, 2002, 2003 Megan Potter
    Copyright (C) 2012, 2013, 2014, 2016 Lawrence Sebald
 
 */
@@ -31,7 +31,7 @@ __BEGIN_DECLS
     portability reasons). However, if you want only to interact with KOS in your
     programs, feel free to use them to your heart's content!
 
-    \author Dan Potter
+    \author Megan Potter
     \author Lawrence Sebald
 */
 
@@ -377,7 +377,7 @@ dirent_t *fs_readdir(file_t hnd);
     are not documented here. Each filesystem may define any commands that are
     specific to it with its implementation of this function.
 
-    \param  fd              The file descriptor to use.
+    \param  hnd             The file descriptor to use.
     \param  cmd             The command to run.
     \param  ...             Arguments for the command specified.
     \return                 -1 on error.

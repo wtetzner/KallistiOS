@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    dc/asic.h
-   Copyright (C) 2001-2002 Dan Potter
+   Copyright (C) 2001-2002 Megan Potter
 
 */
 
@@ -15,7 +15,7 @@
     as well as the trapa instruction, and various exceptions -- those are not
     dealt with here).
 
-    \author Dan Potter
+    \author Megan Potter
 */
 
 #ifndef __DC_ASIC_H
@@ -101,8 +101,8 @@ __BEGIN_DECLS
 */
 #define ASIC_EVT_EXP_8BIT           0x0102  /**< \brief Modem / Lan Adapter */
 #define ASIC_EVT_EXP_PCI            0x0103  /**< \brief BBA IRQ */
-/** @}
-    @} */
+/** @} */
+/** @} */
 
 /** \defgroup asic_regs             ASIC registers
 
