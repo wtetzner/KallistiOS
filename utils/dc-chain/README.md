@@ -140,6 +140,13 @@ extensions you want to download too; this may be useful if a package
 changes its extension on the servers. For example, for GCC `4.7.4`, there is no
 `xz` tarball file, so you may change this to `gz`.
 
+Git repositories can also be used to obtain source files. The download method 
+is controlled by the `download_type` variable, where `tarball` (default) and 
+`git` are the currently valid options. When using the git download method,
+the reposity and branch set in the respective `git_repo` and `git_branch` 
+variables will be used to clone the repository. Using this download method will
+also requite that git be installed.
+
 **Note:** All download URL are computed in the `scripts/common.sh` file, but
 you shouldn't update/change this.
 
