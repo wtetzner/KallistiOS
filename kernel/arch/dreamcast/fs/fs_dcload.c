@@ -100,6 +100,7 @@ void *dcload_open(vfs_handler_t * vfs, const char *fn, int mode) {
     int hnd = 0;
     uint32 h;
     int dcload_mode = 0;
+    int mm = (mode & O_MODE_MASK);
 
     (void)vfs;
 
@@ -131,17 +132,15 @@ void *dcload_open(vfs_handler_t * vfs, const char *fn, int mode) {
         }
     }
     else {   /* hack */
-        if((mode & O_MODE_MASK) == O_RDONLY)
+        if(mm == O_RDONLY)
             dcload_mode = 0;
+        else if((mm & O_RDWR) == O_RDWR)
+            dcload_mode = 0x0202;
+        else if((mm & O_WRONLY) == O_WRONLY)
+            dcload_mode = 0x0201;
 
-        if((mode & O_MODE_MASK) == O_RDWR)
-            dcload_mode = 2 | 0x0200;
-
-        if((mode & O_MODE_MASK) == O_WRONLY)
-            dcload_mode = 1 | 0x0200;
-
-        if((mode & O_MODE_MASK) == O_APPEND)
-            dcload_mode =  2 | 8 | 0x0200;
+        if(mode & O_APPEND)
+            dcload_mode |= 0x0008;
 
         if(mode & O_TRUNC)
             dcload_mode |= 0x0400;
@@ -153,6 +152,7 @@ void *dcload_open(vfs_handler_t * vfs, const char *fn, int mode) {
     h = hnd;
 
     spinlock_unlock(&mutex);
+
     return (void *)h;
 }
 
