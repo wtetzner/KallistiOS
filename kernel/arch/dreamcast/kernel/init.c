@@ -296,7 +296,7 @@ void arch_exit(void) {
 }
 
 /* Return point from newlib's _exit() (configurable) */
-void arch_newlib_exit(int ret_code) {
+void arch_exit_handler(int ret_code) {
     dbglog(DBG_INFO, "arch: exit return code %d\n", ret_code);
 
     /* Shut down */
