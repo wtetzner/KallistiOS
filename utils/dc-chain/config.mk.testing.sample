@@ -35,7 +35,7 @@ insight_tarball_type=bz2
 # The ARM version of binutils/gcc is separated out as the particular CPU
 # versions we need may not be available in newer versions of GCC.
 arm_binutils_ver=2.40
-arm_gcc_ver=8.4.0
+arm_gcc_ver=8.5.0
 
 # Tarball extensions to download for ARM
 arm_binutils_tarball_type=xz
