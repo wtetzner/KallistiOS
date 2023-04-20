@@ -79,9 +79,9 @@ extern uint32 _arch_mem_top;
 void arch_panic(const char *str) __noreturn;
 
 /** \brief  Kernel C-level entry point.
-    \return                 The program's return value.
+    \note                   This function will never return!
 */
-int arch_main();
+void arch_main(void) __noreturn;
 
 /** \defgroup arch_retpaths         Potential exit paths from the kernel on
                                     arch_exit()
@@ -105,7 +105,7 @@ void arch_set_exit_path(int path);
 /** \brief  Generic kernel "exit" point.
     \note                   This function will never return!
 */
-void arch_exit() __noreturn;
+void arch_exit(void) __noreturn;
 
 /** \brief  Kernel "return" point.
     \note                   This function will never return!
@@ -115,26 +115,17 @@ void arch_return() __noreturn;
 /** \brief  Kernel "abort" point.
     \note                   This function will never return!
 */
-void arch_abort() __noreturn;
+void arch_abort(void) __noreturn;
 
 /** \brief  Kernel "reboot" call.
     \note                   This function will never return!
 */
-void arch_reboot() __noreturn;
+void arch_reboot(void) __noreturn;
 
 /** \brief Kernel "exit to menu" call.
     \note                   This function will never return!
 */
-void arch_menu() __noreturn;
-
-/** \brief  Call to run all ctors. */
-void arch_ctors();
-
-/** \brief  Call to run all dtors. */
-void arch_dtors();
-
-/** \brief  Hook to ensure linking of crtend.c. */
-void __crtend_pullin();
+void arch_menu(void) __noreturn;
 
 /** \defgroup hw_memsizes           Console memory sizes
     These are the various memory sizes, in bytes, that can be returned by the

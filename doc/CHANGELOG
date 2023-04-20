@@ -161,6 +161,8 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Added check to allow strict C++17+ to use timespec_get [FG]
 - *** Cleaned up all compiler warnings for all toolchains for KOS [FG]
 - *** Add support for compiling with LTO [Paul Cercueil == PC]
+- DC  Fixed calling newlib's exit after returning from main so functions
+      registered with atexit() are called [Colton Pawielski == CP]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Megan Potter == MP]

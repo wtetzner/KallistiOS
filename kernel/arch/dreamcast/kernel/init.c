@@ -22,17 +22,15 @@
 
 extern int _bss_start, end;
 
-void _atexit_call_all();
-
 /* ctor/dtor stuff from libgcc. */
 #if __GNUC__ == 4
 #define _init init
 #define _fini fini
 #endif
 
-void _init(void);
-void _fini(void);
-void __verify_newlib_patch();
+extern void _init(void);
+extern void _fini(void);
+extern void __verify_newlib_patch();
 
 int main(int argc, char **argv);
 uint32 _fs_dclsocket_get_ip(void);
@@ -215,7 +213,7 @@ void  __attribute__((weak)) arch_auto_shutdown() {
 }
 
 /* This is the entry point inside the C program */
-int arch_main() {
+void arch_main(void) {
     uint8 *bss_start = (uint8 *)(&_bss_start);
     uint8 *bss_end = (uint8 *)(&end);
     int rv;
@@ -237,17 +235,16 @@ int arch_main() {
     /* Do auto-init stuff */
     arch_auto_init();
 
-    /* Run ctors */
     __verify_newlib_patch();
+
+    /* Run ctors */
     _init();
 
     /* Call the user's main function */
     rv = main(0, NULL);
 
     /* Call kernel exit */
-    arch_exit();
-
-    return rv;
+    exit(rv);
 }
 
 /* Set the exit path (default is RETURN) */
@@ -258,9 +255,8 @@ void arch_set_exit_path(int path) {
 }
 
 /* Does the actual shutdown stuff for a proper shutdown */
-void arch_shutdown() {
+void arch_shutdown(void) {
     /* Run dtors */
-    _atexit_call_all();
     _fini();
 
     dbglog(DBG_CRITICAL, "arch: shutting down kernel\n");
@@ -291,8 +287,21 @@ void arch_shutdown() {
     irq_shutdown();
 }
 
-/* Generic kernel exit point (configurable) */
-void arch_exit() {
+/* Generic kernel exit point */
+void arch_exit(void) {
+    /* arch_exit always returns 0 
+       if return codes are desired then a call to
+       newlib's exit() should be used in its place */
+    exit(0);
+}
+
+/* Return point from newlib's _exit() (configurable) */
+void arch_exit_handler(int ret_code) {
+    dbglog(DBG_INFO, "arch: exit return code %d\n", ret_code);
+
+    /* Shut down */
+    arch_shutdown();
+
     switch(arch_exit_path) {
         default:
             dbglog(DBG_CRITICAL, "arch: arch_exit_path has invalid value!\n");
@@ -304,7 +313,6 @@ void arch_exit() {
             arch_menu();
             break;
         case ARCH_EXIT_REBOOT:
-            arch_shutdown();
             arch_reboot();
             break;
     }
@@ -312,20 +320,14 @@ void arch_exit() {
 
 /* Called to shut down the system and return to the debug handler (if any) */
 void arch_return() {
-    /* Shut down */
-    arch_shutdown();
-
     /* Jump back to the boot loader */
     arch_real_exit();
 }
 
 /* Called to jump back to the BIOS menu; assumes a normal shutdown is possible */
-void arch_menu() {
+void arch_menu(void) {
     typedef void (*menufunc)(int) __noreturn;
     menufunc menu;
-
-    /* Shut down */
-    arch_shutdown();
 
     /* Jump to the menus */
     dbglog(DBG_CRITICAL, "arch: exiting the system to the BIOS menu\n");
@@ -335,7 +337,7 @@ void arch_menu() {
 
 /* Called to shut down non-gracefully; assume the system is in peril
    and don't try to call the dtors */
-void arch_abort() {
+void arch_abort(void) {
     /* Turn off UBC breakpoints, if any */
     ubc_disable_all();
 
@@ -359,7 +361,7 @@ void arch_abort() {
 
 /* Called to reboot the system; assume the system is in peril and don't
    try to call the dtors */
-void arch_reboot() {
+void arch_reboot(void) {
     typedef void (*reboot_func)() __noreturn;
     reboot_func rb;
 
