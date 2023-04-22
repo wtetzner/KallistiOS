@@ -108,7 +108,7 @@ without problems.
 
 Working **GCC** and **Newlib** version combinations are:
 
-- GCC `12.2.0` with Newlib `4.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
+- GCC `12.2.0` with Newlib `4.3.0` for `sh-elf` and GCC `8.5.0` for `arm-eabi`
   (**testing**; the most modern combination);
 - GCC `9.3.0` with Newlib `3.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
   (**stable**; the most widely used, widely tested combination);
@@ -125,8 +125,8 @@ Just copy the relevant `config.mk` sample file to `config.mk` and you are good
 to go.
 
 **Note:** The GCC's maximum version number possible for the `arm-eabi` toolchain
-is `8.4.0`. Support of the **ARM7** chip is dropped after that GCC version. So
-don't try to update the version of the `arm-eabi-gcc` component.
+is `8.x`. Support of the **ARM7DI** chip is dropped after that GCC version. So
+don't try to update the version of the `arm-eabi-gcc` component beyond `8.x`.
 
 You have the possibility to **use custom dependencies for GCC** directly in the
 `config.mk` file. In that case, you have to define `use_custom_dependencies=1`.
