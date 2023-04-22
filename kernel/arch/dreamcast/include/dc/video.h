@@ -53,7 +53,7 @@ __BEGIN_DECLS
 /** @} */
 
 /** \brief vid_pmode_bpp Video pixel mode depths */
-const uint8 vid_pmode_bpp[4] = {2, 2, 3, 4};
+static const uint8 vid_pmode_bpp[4] = {2, 2, 3, 4};
 
 /** \brief  Generic display modes */
 enum {
