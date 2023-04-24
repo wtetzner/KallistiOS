@@ -762,7 +762,7 @@ diff --color -ruN --no-dereference gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-k
 +! KallistiOS ##version##
 +!
 +! startup.s
-+! (c)2000-2001 Dan Potter
++! (c)2000-2001 Megan Potter
 +!
 +! This file must appear FIRST in your linking order, or your program won't
 +! work correctly as a raw binary.
