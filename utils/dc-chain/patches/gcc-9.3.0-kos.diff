@@ -34,7 +34,7 @@ diff --color -ruN gcc-9.3.0/libgcc/config/sh/crt1.S gcc-9.3.0-kos/libgcc/config/
 +! KallistiOS ##version##
 +!
 +! startup.s
-+! (c)2000-2001 Dan Potter
++! (c)2000-2001 Megan Potter
 +!
 +! This file must appear FIRST in your linking order, or your program won't
 +! work correctly as a raw binary.
