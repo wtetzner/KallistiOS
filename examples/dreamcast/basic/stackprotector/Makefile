@@ -6,8 +6,8 @@ GCC_MAJOR = $(basename $(basename $(KOS_GCCVER)))
 
 ifeq ($(GCC_MAJOR), 4) 
 
-all dist:
-	$(warning GCC4 missing stackprotector patch, skip building example)
+all dist clean:
+	$(warning GCC4 missing stackprotector patch, skipping)
 
 else
 
