@@ -186,7 +186,7 @@ extern uint32 *vram_l;
     \retval CT_RGB          If a RGB/SCART cable is connected.
     \retval CT_COMPOSITE    If a composite cable or RF switch is connected.
 */
-int vid_check_cable();
+int vid_check_cable(void);
 
 /** \brief  Set the VRAM base of the framebuffer.
 
@@ -238,13 +238,13 @@ void vid_clear(int r, int g, int b);
     This function is essentially a memset() for the whole of VRAM that will
     clear it all to 0 bytes.
 */
-void vid_empty();
+void vid_empty(void);
 
 /** \brief  Wait for VBlank.
 
     This function busy loops until the vertical blanking period starts.
 */
-void vid_waitvbl();
+void vid_waitvbl(void);
 
 /** \brief  Set the video mode.
 
@@ -283,7 +283,7 @@ void vid_init(int disp_mode, int pixel_mode);
     This function reinitializes the video system to what dcload and friends
     expect it to be.
 */
-void vid_shutdown();
+void vid_shutdown(void);
 
 /** \brief  Take a screenshot.
 

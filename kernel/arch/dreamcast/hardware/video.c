@@ -426,7 +426,7 @@ uint32      *vram_l;
 
    [This is the old KOS function by Megan.]
 */
-int vid_check_cable() {
+int vid_check_cable(void) {
 #ifndef _arch_sub_naomi
     vuint32 * porta = (vuint32 *)0xff80002c;
 
@@ -725,7 +725,7 @@ void vid_clear(int r, int g, int b) {
 
     [This is the old KOS function by Megan.]
 */
-void vid_empty() {
+void vid_empty(void) {
     /* We'll use the actual base address here since the vram_* pointers
        can now move around */
     sq_clr((uint32 *)PVR_RAM_BASE, 8 * 1024 * 1024);
@@ -740,7 +740,7 @@ void vid_empty() {
 
    [This is the old KOS function by Megan.]
 */
-void vid_waitvbl() {
+void vid_waitvbl(void) {
     while(!(PVR_GET(PVR_SYNC_STATUS) & 0x01ff))
         ;
 
@@ -757,7 +757,7 @@ void vid_init(int disp_mode, int pixel_mode) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_shutdown() {
+void vid_shutdown(void) {
     /* Play nice with loaders, like KOS used to do. */
     vid_init(DM_640x480, PM_RGB565);
 }
