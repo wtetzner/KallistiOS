@@ -49,17 +49,17 @@ function setup_download_var()
   export $1_GIT_REPO=`get_make_var $(tolower $1)_git_repo`
   export $1_GIT_BRANCH=`get_make_var $(tolower $1)_git_branch`
 
-  # Tarball Releases
-  export $1_TARBALL_TYPE=`get_make_var $(tolower $1)_tarball_type`
-
-  # asdf
+  # Fall back to older tarball_type if download_type was not specified
   local download_type="$1_DOWNLOAD_TYPE"
   if [ -z ${!download_type} ]; then
-    export $1_DOWNLOAD_TYPE="tarball"
+    echo $(tolower $1)_download_type not specified, falling back to $(tolower $1)_tarball_type
+    export $1_DOWNLOAD_TYPE=`get_make_var $(tolower $1)_tarball_type`
   fi
 
-  if [ "${!download_type}" != "git" ] && [ "${!download_type}" != "tarball" ]; then
-    echo >&2 "${!download_type} is an invalid option for $(tolower $1)_download_type" || exit 1
+  # If Git was not specified, assume tarball
+  if [ "${!download_type}" != "git" ]; then
+    export $1_TARBALL_TYPE="${!download_type}"
+    export $1_DOWNLOAD_TYPE="tarball"
   fi
 }
 
