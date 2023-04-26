@@ -611,7 +611,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     }
 
     data = (data << 16) | mode->bitmapy;
-    PVR_SET(PVR_BITMAP_X, data);
+    PVR_SET(PVR_BITMAP_Y, data);
 
     /* Everything is ok */
     memcpy(&currmode, mode, sizeof(vid_mode_t));
