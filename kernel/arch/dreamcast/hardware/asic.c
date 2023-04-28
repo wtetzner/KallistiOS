@@ -114,7 +114,7 @@ int asic_evt_set_handler(uint32 code, asic_evt_handler hnd) {
     if(evtreg > 0x4)
         return -1;
 
-    if(evt > 0x20)
+    if(evt >= 0x20)
         return -1;
 
     asic_evt_handlers[evtreg][evt] = hnd;
