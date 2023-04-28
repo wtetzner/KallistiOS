@@ -987,18 +987,28 @@ Striplength set to 2 */
 #define PVR_ID                  0x0000  /**< \brief Chip ID */
 #define PVR_REVISION            0x0004  /**< \brief Chip revision */
 #define PVR_RESET               0x0008  /**< \brief Reset pins */
+
 #define PVR_ISP_START           0x0014  /**< \brief Start the ISP/TSP */
 #define PVR_UNK_0018            0x0018  /**< \brief ?? */
+
 #define PVR_ISP_VERTBUF_ADDR    0x0020  /**< \brief Vertex buffer address for scene rendering */
+
 #define PVR_ISP_TILEMAT_ADDR    0x002c  /**< \brief Tile matrix address for scene rendering */
 #define PVR_SPANSORT_CFG        0x0030  /**< \brief ?? -- write 0x101 for now */
+
+#define PVR_BORDER_COLOR        0x0040  /**< \brief Border Color in RGB888 */
 #define PVR_FB_CFG_1            0x0044  /**< \brief Framebuffer config 1 */
 #define PVR_FB_CFG_2            0x0048  /**< \brief Framebuffer config 2 */
 #define PVR_RENDER_MODULO       0x004c  /**< \brief Render modulo */
+#define PVR_FB_ADDR             0x0050  /**< \brief Framebuffer start address */
+#define PVR_FB_IL_ADDR          0x0054  /**< \brief Framebuffer odd-field start address for interlace */
+
+#define PVR_FB_SIZE             0x005c  /**< \brief Framebuffer display size */
 #define PVR_RENDER_ADDR         0x0060  /**< \brief Render output address */
 #define PVR_RENDER_ADDR_2       0x0064  /**< \brief Output for strip-buffering */
 #define PVR_PCLIP_X             0x0068  /**< \brief Horizontal clipping area */
 #define PVR_PCLIP_Y             0x006c  /**< \brief Vertical clipping area */
+
 #define PVR_CHEAP_SHADOW        0x0074  /**< \brief Cheap shadow control */
 #define PVR_OBJECT_CLIP         0x0078  /**< \brief Distance for polygon culling */
 #define PVR_UNK_007C            0x007c  /**< \brief ?? -- write 0x0027df77 for now */
@@ -1006,9 +1016,13 @@ Striplength set to 2 */
 #define PVR_TEXTURE_CLIP        0x0084  /**< \brief Distance for texture clipping */
 #define PVR_BGPLANE_Z           0x0088  /**< \brief Distance for background plane */
 #define PVR_BGPLANE_CFG         0x008c  /**< \brief Background plane config */
+
 #define PVR_UNK_0098            0x0098  /**< \brief ?? -- write 0x00800408 for now */
+
 #define PVR_UNK_00A0            0x00a0  /**< \brief ?? -- write 0x20 for now */
+
 #define PVR_UNK_00A8            0x00a8  /**< \brief ?? -- write 0x15d1c951 for now */
+
 #define PVR_FOG_TABLE_COLOR     0x00b0  /**< \brief Table fog color */
 #define PVR_FOG_VERTEX_COLOR    0x00b4  /**< \brief Vertex fog color */
 #define PVR_FOG_DENSITY         0x00b8  /**< \brief Fog density coefficient */
@@ -1017,14 +1031,23 @@ Striplength set to 2 */
 #define PVR_GUN_POS             0x00c4  /**< \brief Light gun position */
 #define PVR_UNK_00C8            0x00c8  /**< \brief ?? -- write same as border H in 00d4 << 16 */
 #define PVR_VPOS_IRQ            0x00cc  /**< \brief Vertical position IRQ */
+#define PVR_IL_CFG              0x00d0  /**< \brief Interlacing config */
+#define PVR_BORDER_X            0x00d4  /**< \brief Window border X position */
+#define PVR_SCAN_CLK            0x00d8  /**< \brief Clock and scanline values */
+#define PVR_BORDER_Y            0x00dc  /**< \brief Window border Y position */
+
 #define PVR_TEXTURE_MODULO      0x00e4  /**< \brief Output texture width modulo */
 #define PVR_VIDEO_CFG           0x00e8  /**< \brief Misc video config */
+#define PVR_BITMAP_X            0x00ec  /**< \brief Bitmap window X position */
+#define PVR_BITMAP_Y            0x00f0  /**< \brief Bitmap window Y position */
 #define PVR_SCALER_CFG          0x00f4  /**< \brief Smoothing scaler */
+
 #define PVR_PALETTE_CFG         0x0108  /**< \brief Palette format */
 #define PVR_SYNC_STATUS         0x010c  /**< \brief V/H blank status */
 #define PVR_UNK_0110            0x0110  /**< \brief ?? -- write 0x93f39 for now */
 #define PVR_UNK_0114            0x0114  /**< \brief ?? -- write 0x200000 for now */
 #define PVR_UNK_0118            0x0118  /**< \brief ?? -- write 0x8040 for now */
+
 #define PVR_TA_OPB_START        0x0124  /**< \brief Object Pointer Buffer start for TA usage */
 #define PVR_TA_VERTBUF_START    0x0128  /**< \brief Vertex buffer start for TA usage */
 #define PVR_TA_OPB_END          0x012c  /**< \brief OPB end for TA usage */
@@ -1036,9 +1059,12 @@ Striplength set to 2 */
 #define PVR_TA_INIT             0x0144  /**< \brief Initialize vertex reg. params */
 #define PVR_YUV_ADDR            0x0148  /**< \brief YUV conversion destination */
 #define PVR_YUV_CFG_1           0x014c  /**< \brief YUV configuration */
+
 #define PVR_UNK_0160            0x0160  /**< \brief ?? */
 #define PVR_TA_OPB_INIT         0x0164  /**< \brief Object pointer buffer position init */
+
 #define PVR_FOG_TABLE_BASE      0x0200  /**< \brief Base of the fog table */
+
 #define PVR_PALETTE_TABLE_BASE  0x1000  /**< \brief Base of the palette table */
 /** @} */
 

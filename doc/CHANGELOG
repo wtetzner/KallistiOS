@@ -164,6 +164,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - DC  Fixed calling newlib's exit after returning from main so functions
       registered with atexit() are called [Colton Pawielski == CP]
 - *** Cleaned up + documented RTC driver, added support for setting time [FG]
+- DC  Cleaned up the register access in video to match pvr [DH]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Megan Potter == MP]
