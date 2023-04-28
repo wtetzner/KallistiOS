@@ -84,7 +84,7 @@ static libid_t libid_highest;
 
 /* Return the next available library id (assumes wraparound will not run
    into old libraries). */
-static libid_t library_next_free() {
+static libid_t library_next_free(void) {
     int id;
     id = libid_highest++;
     return id;
@@ -310,7 +310,7 @@ int library_close(klibrary_t * lib) {
 /* Init/shutdown */
 
 /* Init */
-int library_init() {
+int library_init(void) {
     /* Initialize handle counters */
     libid_highest = 1;
 
@@ -321,7 +321,7 @@ int library_init() {
 }
 
 /* Shutdown */
-void library_shutdown() {
+void library_shutdown(void) {
     klibrary_t *n1, *n2;
 
     /* Kill remaining libraries */

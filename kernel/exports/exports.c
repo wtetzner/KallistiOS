@@ -43,7 +43,7 @@ static symtab_handler_t st_arch = {
     arch_symtab
 };
 
-int export_init() {
+int export_init(void) {
     /* Add our two export tables */
     if(nmmgr_handler_add(&st_kern.nmmgr) < 0)
         return -1;

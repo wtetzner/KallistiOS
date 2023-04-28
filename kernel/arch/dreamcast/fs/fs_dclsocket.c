@@ -864,7 +864,7 @@ int fs_dclsocket_shutdown(void) {
     mutex_destroy(&mutex);
     initted = 0;
 
-    irq_enable(old);
+    irq_restore(old);
 
     /* Finally, clean up the socket */
     close(dcls_socket);

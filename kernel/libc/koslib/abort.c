@@ -9,7 +9,7 @@
 #include <arch/arch.h>
 
 /* This is probably the closest mapping we've got for abort() */
-void abort() {
+void abort(void) {
     arch_exit();
 }
 

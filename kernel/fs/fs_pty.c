@@ -186,7 +186,7 @@ int fs_pty_create(char * buffer, int maxbuflen, file_t * master_out, file_t * sl
 
 /* Autoclean totally unreferenced PTYs (zero refcnt). */
 /* XXX This is a kinda nasty piece of code... two goto's!! */
-static void pty_destroy_unused() {
+static void pty_destroy_unused(void) {
     ptyhalf_t * c, * n;
     int old;
 
@@ -763,7 +763,7 @@ static vfs_handler_t vh = {
 static int initted = 0;
 
 /* Initialize the file system */
-int fs_pty_init() {
+int fs_pty_init(void) {
     int cm, cs;
     int tm, ts;
 
@@ -794,7 +794,7 @@ int fs_pty_init() {
 }
 
 /* De-init the file system */
-int fs_pty_shutdown() {
+int fs_pty_shutdown(void) {
     ptyhalf_t *n, *c;
 
     if(!initted)

@@ -36,7 +36,7 @@ LIST_HEAD(kthread_tls_dest_list, kthread_tls_dest);
 static struct kthread_tls_dest_list dest_list;
 
 /* What is the next key that will be given out? */
-kthread_key_t kthread_key_next() {
+kthread_key_t kthread_key_next(void) {
     return next_key;
 }
 
@@ -164,14 +164,14 @@ int kthread_setspecific(kthread_key_t key, const void *value) {
     return 0;
 }
 
-int kthread_tls_init() {
+int kthread_tls_init(void) {
     /* Initialize the destructor list. */
     LIST_INIT(&dest_list);
 
     return 0;
 }
 
-void kthread_tls_shutdown() {
+void kthread_tls_shutdown(void) {
     kthread_tls_dest_t *n1, *n2;
 
     /* Tear down the destructor list. */

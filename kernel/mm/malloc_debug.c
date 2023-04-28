@@ -221,7 +221,7 @@ void free(void *block) {
     spinlock_unlock(&mutex);
 }
 
-void malloc_stats() {
+void malloc_stats(void) {
     memctl_t *ctl;
     int dmgcnt, leaked, leakedcnt;
 

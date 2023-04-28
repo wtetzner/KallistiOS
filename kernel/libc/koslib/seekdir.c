@@ -6,8 +6,8 @@
 */
 
 #include <kos/dbglog.h>
+#include <sys/dirent.h>
 
-// This isn't properly prototyped... sosume :)
-void seekdir() {
+void seekdir(DIR *dir, off_t offset) {
     dbglog(DBG_WARNING, "seekdir: call ignored\n");
 }

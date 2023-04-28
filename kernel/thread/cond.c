@@ -23,7 +23,7 @@
 /**************************************/
 
 /* Allocate a new condvar */
-condvar_t *cond_create() {
+condvar_t *cond_create(void) {
     condvar_t *cv;
 
     dbglog(DBG_WARNING, "Creating condvar with deprecated cond_create(). "
