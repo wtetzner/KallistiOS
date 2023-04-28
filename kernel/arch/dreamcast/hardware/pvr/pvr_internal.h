@@ -270,13 +270,13 @@ void pvr_init_tile_matrices(int presort);
 void pvr_sync_stats(int event);
 
 /* Synchronize the viewed page with what's in pvr_state */
-void pvr_sync_view();
+void pvr_sync_view(void);
 
 /* Synchronize the registration buffer with what's in pvr_state */
-void pvr_sync_reg_buffer();
+void pvr_sync_reg_buffer(void);
 
 /* Begin a render operation that has been queued completely */
-void pvr_begin_queued_render();
+void pvr_begin_queued_render(void);
 
 /* Generate synthetic polygon headers for the given list type (to submit
    blank lists that the user forgot) */
