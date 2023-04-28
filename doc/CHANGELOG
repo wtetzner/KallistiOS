@@ -159,6 +159,11 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Add timespec_get C11 function to koslib's libc [LS]
 - DC  Added timer_ns_gettime64() and performance counters [AB]
 - *** Added check to allow strict C++17+ to use timespec_get [FG]
+- *** Cleaned up all compiler warnings for all toolchains for KOS [FG]
+- *** Add support for compiling with LTO [Paul Cercueil == PC]
+- DC  Fixed calling newlib's exit after returning from main so functions
+      registered with atexit() are called [Colton Pawielski == CP]
+- *** Cleaned up + documented RTC driver, added support for setting time [FG]
 - DC  Cleaned up the register access in video to match pvr [DH]
 
 KallistiOS version 2.0.0 -----------------------------------------------

@@ -208,6 +208,7 @@ static void dcls_recv_loop() {
 static void *dcls_open(struct vfs_handler *vfs, const char *fn, int mode) {
     int hnd, locked;
     int dcload_mode = 0;
+    int mm = (mode & O_MODE_MASK);
     command_t *cmd = (command_t *)pktbuf;
 
     (void)vfs;
@@ -256,14 +257,15 @@ static void *dcls_open(struct vfs_handler *vfs, const char *fn, int mode) {
         }
     }
     else {
-        if((mode & O_MODE_MASK) == O_RDONLY)
+        if(mm == O_RDONLY)
             dcload_mode = 0;
-        else if((mode & O_MODE_MASK) == O_RDWR)
+        else if((mm & O_RDWR) == O_RDWR)
             dcload_mode = 0x0202;
-        else if((mode & O_MODE_MASK) == O_WRONLY)
+        else if((mm & O_WRONLY) == O_WRONLY)
             dcload_mode = 0x0201;
-        else if((mode & O_MODE_MASK) == O_APPEND)
-            dcload_mode = 0x020A;
+
+        if(mode & O_APPEND)
+            dcload_mode |= 0x0008;
 
         if(mode & O_TRUNC)
             dcload_mode |= 0x0400;

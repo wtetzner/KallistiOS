@@ -1,6 +1,6 @@
-diff --color -ruN gcc-12.2.0/gcc/config/sh/sh-c.cc gcc-12.2.0-kos/gcc/config/sh/sh-c.cc
---- gcc-12.2.0/gcc/config/sh/sh-c.cc	2023-02-01 22:27:13.433712723 -0600
-+++ gcc-12.2.0-kos/gcc/config/sh/sh-c.cc	2023-02-01 22:27:35.012760470 -0600
+diff --color -ruN gcc-13.1.0/gcc/config/sh/sh-c.cc gcc-13.1.0-kos/gcc/config/sh/sh-c.cc
+--- gcc-13.1.0/gcc/config/sh/sh-c.cc	2023-04-06 09:48:44.072087370 -0500
++++ gcc-13.1.0-kos/gcc/config/sh/sh-c.cc	2023-04-06 09:47:57.478945692 -0500
 @@ -141,4 +141,11 @@
  
    cpp_define_formatted (pfile, "__SH_ATOMIC_MODEL_%s__",
@@ -13,50 +13,28 @@ diff --color -ruN gcc-12.2.0/gcc/config/sh/sh-c.cc gcc-12.2.0-kos/gcc/config/sh/
 +  /* Toolchain supports setting up stack for 32MB */
 +  builtin_define ("__KOS_GCC_32MB__");
  }
-diff --color -ruN gcc-12.2.0/gcc/config/sh/sh_treg_combine.cc gcc-12.2.0-kos/gcc/config/sh/sh_treg_combine.cc
---- gcc-12.2.0/gcc/config/sh/sh_treg_combine.cc	2023-02-01 22:27:13.432712721 -0600
-+++ gcc-12.2.0-kos/gcc/config/sh/sh_treg_combine.cc	2023-02-01 22:27:35.012760470 -0600
-@@ -37,6 +37,7 @@
- #include "cfgrtl.h"
- #include "tree-pass.h"
- #include "expr.h"
-+#include "tm-preds.h"
- 
- /*
- This pass tries to optimize for example this:
-@@ -426,10 +427,6 @@
-   return GET_CODE (p) == SET && GET_CODE (XEXP (p, 1)) == IF_THEN_ELSE;
- }
- 
--// FIXME: Remove dependency on SH predicate function somehow.
--extern int t_reg_operand (rtx, machine_mode);
--extern int negt_reg_operand (rtx, machine_mode);
--
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- // RTL pass class
- 
-diff --color -ruN gcc-12.2.0/gcc/configure gcc-12.2.0-kos/gcc/configure
---- gcc-12.2.0/gcc/configure	2023-02-01 22:27:21.148729794 -0600
-+++ gcc-12.2.0-kos/gcc/configure	2023-02-01 22:27:35.014760474 -0600
-@@ -12885,7 +12885,7 @@
+diff --color -ruN gcc-13.1.0/gcc/configure gcc-13.1.0-kos/gcc/configure
+--- gcc-13.1.0/gcc/configure	2023-04-06 09:48:35.600061609 -0500
++++ gcc-13.1.0-kos/gcc/configure	2023-04-06 09:47:57.480945699 -0500
+@@ -13012,7 +13012,7 @@
      target_thread_file='single'
      ;;
    aix | dce | lynx | mipssde | posix | rtems | \
--  single | tpf | vxworks | win32)
-+  single | tpf | vxworks | win32 | kos)
+-  single | tpf | vxworks | win32 | mcf)
++  single | tpf | vxworks | win32 | kos | mcf)
      target_thread_file=${enable_threads}
      ;;
    *)
-diff --color -ruN gcc-12.2.0/libgcc/config/sh/crt1.S gcc-12.2.0-kos/libgcc/config/sh/crt1.S
---- gcc-12.2.0/libgcc/config/sh/crt1.S	2023-02-01 22:27:22.510732808 -0600
-+++ gcc-12.2.0-kos/libgcc/config/sh/crt1.S	2023-02-01 22:27:35.014760474 -0600
+diff --color -ruN gcc-13.1.0/libgcc/config/sh/crt1.S gcc-13.1.0-kos/libgcc/config/sh/crt1.S
+--- gcc-13.1.0/libgcc/config/sh/crt1.S	2023-04-06 09:48:33.091053980 -0500
++++ gcc-13.1.0-kos/libgcc/config/sh/crt1.S	2023-04-06 09:47:57.481945701 -0500
 @@ -1,724 +1,225 @@
--/* Copyright (C) 2000-2022 Free Software Foundation, Inc.
+-/* Copyright (C) 2000-2023 Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
 +! KallistiOS ##version##
 +!
 +! startup.s
-+! (c)2000-2001 Dan Potter
++! (c)2000-2001 Megan Potter
 +!
 +! This file must appear FIRST in your linking order, or your program won't
 +! work correctly as a raw binary.
@@ -983,9 +961,9 @@ diff --color -ruN gcc-12.2.0/libgcc/config/sh/crt1.S gcc-12.2.0-kos/libgcc/confi
 +	.word	0x090d
 +ccr_data_ocram:
 +	.word	0x092d
-diff --color -ruN gcc-12.2.0/libgcc/config/sh/fake-kos.S gcc-12.2.0-kos/libgcc/config/sh/fake-kos.S
---- gcc-12.2.0/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-12.2.0-kos/libgcc/config/sh/fake-kos.S	2023-02-01 22:27:35.014760474 -0600
+diff --color -ruN gcc-13.1.0/libgcc/config/sh/fake-kos.S gcc-13.1.0-kos/libgcc/config/sh/fake-kos.S
+--- gcc-13.1.0/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-13.1.0-kos/libgcc/config/sh/fake-kos.S	2023-04-06 09:47:57.481945701 -0500
 @@ -0,0 +1,78 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1065,9 +1043,9 @@ diff --color -ruN gcc-12.2.0/libgcc/config/sh/fake-kos.S gcc-12.2.0-kos/libgcc/c
 +_cond_signal:
 +    rts
 +    mov     #-1, r0
-diff --color -ruN gcc-12.2.0/libgcc/config/sh/gthr-kos.h gcc-12.2.0-kos/libgcc/config/sh/gthr-kos.h
---- gcc-12.2.0/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-12.2.0-kos/libgcc/config/sh/gthr-kos.h	2023-02-01 22:27:35.015760477 -0600
+diff --color -ruN gcc-13.1.0/libgcc/config/sh/gthr-kos.h gcc-13.1.0-kos/libgcc/config/sh/gthr-kos.h
+--- gcc-13.1.0/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
++++ gcc-13.1.0-kos/libgcc/config/sh/gthr-kos.h	2023-04-06 09:47:57.481945701 -0500
 @@ -0,0 +1,401 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012, 2020 Lawrence Sebald */
 +
@@ -1470,9 +1448,9 @@ diff --color -ruN gcc-12.2.0/libgcc/config/sh/gthr-kos.h gcc-12.2.0-kos/libgcc/c
 +
 +
 +#endif /* ! GCC_GTHR_KOS_H */
-diff --color -ruN gcc-12.2.0/libgcc/config/sh/t-sh gcc-12.2.0-kos/libgcc/config/sh/t-sh
---- gcc-12.2.0/libgcc/config/sh/t-sh	2023-02-01 22:27:22.509732805 -0600
-+++ gcc-12.2.0-kos/libgcc/config/sh/t-sh	2023-02-01 22:27:35.015760477 -0600
+diff --color -ruN gcc-13.1.0/libgcc/config/sh/t-sh gcc-13.1.0-kos/libgcc/config/sh/t-sh
+--- gcc-13.1.0/libgcc/config/sh/t-sh	2023-04-06 09:48:33.092053982 -0500
++++ gcc-13.1.0-kos/libgcc/config/sh/t-sh	2023-04-06 09:47:57.481945701 -0500
 @@ -23,6 +23,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -1482,21 +1460,21 @@ diff --color -ruN gcc-12.2.0/libgcc/config/sh/t-sh gcc-12.2.0-kos/libgcc/config/
  crt1.o: $(srcdir)/config/sh/crt1.S
  	$(gcc_compile) -c $<
  
-diff --color -ruN gcc-12.2.0/libgcc/configure gcc-12.2.0-kos/libgcc/configure
---- gcc-12.2.0/libgcc/configure	2023-02-01 22:27:22.535732863 -0600
-+++ gcc-12.2.0-kos/libgcc/configure	2023-02-01 22:27:35.015760477 -0600
-@@ -5698,6 +5698,7 @@
+diff --color -ruN gcc-13.1.0/libgcc/configure gcc-13.1.0-kos/libgcc/configure
+--- gcc-13.1.0/libgcc/configure	2023-04-06 09:48:33.102054013 -0500
++++ gcc-13.1.0-kos/libgcc/configure	2023-04-06 09:47:57.482945704 -0500
+@@ -5699,6 +5699,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
      win32)	thread_header=config/i386/gthr-win32.h ;;
-+    kos)    thread_header=config/sh/gthr-kos.h ;;
++    kos)	thread_header=config/sh/gthr-kos.h ;;
+     mcf)	thread_header=config/i386/gthr-mcf.h ;;
  esac
  
- 
-diff --color -ruN gcc-12.2.0/libobjc/configure gcc-12.2.0-kos/libobjc/configure
---- gcc-12.2.0/libobjc/configure	2023-02-01 22:27:12.570710814 -0600
-+++ gcc-12.2.0-kos/libobjc/configure	2023-02-01 22:27:59.410814455 -0600
-@@ -2917,11 +2917,9 @@
+diff --color -ruN gcc-13.1.0/libobjc/configure gcc-13.1.0-kos/libobjc/configure
+--- gcc-13.1.0/libobjc/configure	2023-04-06 09:48:33.989056710 -0500
++++ gcc-13.1.0-kos/libobjc/configure	2023-04-06 09:47:57.483945708 -0500
+@@ -2918,11 +2918,9 @@
  
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
@@ -1508,9 +1486,9 @@ diff --color -ruN gcc-12.2.0/libobjc/configure gcc-12.2.0-kos/libobjc/configure
    ;
    return 0;
  }
-diff --color -ruN gcc-12.2.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-12.2.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-12.2.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-02-01 22:27:22.798733445 -0600
-+++ gcc-12.2.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-02-01 22:27:35.015760477 -0600
+diff --color -ruN gcc-13.1.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-13.1.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h
+--- gcc-13.1.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-06 09:48:34.226057431 -0500
++++ gcc-13.1.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-06 09:47:57.483945708 -0500
 @@ -22,14 +22,40 @@
  // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  // <http://www.gnu.org/licenses/>.
@@ -1561,14 +1539,14 @@ diff --color -ruN gcc-12.2.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-12.2.0-k
 +
 +_GLIBCXX_END_NAMESPACE_VERSION
 +} // namespace
-diff --color -ruN gcc-12.2.0/libstdc++-v3/configure gcc-12.2.0-kos/libstdc++-v3/configure
---- gcc-12.2.0/libstdc++-v3/configure	2023-02-01 22:27:24.420737034 -0600
-+++ gcc-12.2.0-kos/libstdc++-v3/configure	2023-02-01 22:27:35.019760486 -0600
-@@ -15774,6 +15774,7 @@
+diff --color -ruN gcc-13.1.0/libstdc++-v3/configure gcc-13.1.0-kos/libstdc++-v3/configure
+--- gcc-13.1.0/libstdc++-v3/configure	2023-04-06 09:48:34.243057483 -0500
++++ gcc-13.1.0-kos/libstdc++-v3/configure	2023-04-06 09:47:57.487945720 -0500
+@@ -15809,6 +15809,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
      win32)	thread_header=config/i386/gthr-win32.h ;;
-+    kos)    thread_header=config/sh/gthr-kos.h ;;
++    kos)	thread_header=config/sh/gthr-kos.h ;;
+     mcf)	thread_header=config/i386/gthr-mcf.h ;;
  esac
- 
  

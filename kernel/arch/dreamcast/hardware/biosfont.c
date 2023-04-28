@@ -75,6 +75,7 @@ int bfont_set_32bit_mode(int on) {
 extern uint8* get_font_address();
 __asm__("	.text\n"
         "	.align 2\n"
+	".globl _get_font_address\n"
         "_get_font_address:\n"
         "	mov.l	syscall_b4,r0\n"
         "	mov.l	@r0,r0\n"
