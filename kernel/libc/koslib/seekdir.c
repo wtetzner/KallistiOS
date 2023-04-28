@@ -8,6 +8,6 @@
 #include <kos/dbglog.h>
 #include <sys/dirent.h>
 
-void seekdir(DIR *dir, off_t offset) {
+void seekdir(DIR *dir __attribute__((unused)), off_t offset __attribute__((unused))) {
     dbglog(DBG_WARNING, "seekdir: call ignored\n");
 }

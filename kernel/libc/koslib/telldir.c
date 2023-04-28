@@ -9,7 +9,7 @@
 #include <sys/dirent.h>
 #include <errno.h>
 
-off_t telldir(DIR *dir) {
+off_t telldir(DIR *dir __attribute__((unused))) {
     dbglog(DBG_WARNING, "telldir: call ignored\n");
     errno = ENOSYS;
     return -1;
