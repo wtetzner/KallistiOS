@@ -220,7 +220,7 @@ int flashrom_get_syscfg(flashrom_syscfg_t * out);
     \see    fr_region
     \see    fr_errs
 */
-int flashrom_get_region();
+int flashrom_get_region(void);
 
 /** \defgroup fr_method Connection method types
 

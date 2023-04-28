@@ -72,7 +72,7 @@ int bfont_set_32bit_mode(int on) {
 }
 
 /* A little assembly that grabs the font address */
-extern uint8* get_font_address();
+extern uint8* get_font_address(void);
 __asm__("	.text\n"
         "	.align 2\n"
 	".globl _get_font_address\n"

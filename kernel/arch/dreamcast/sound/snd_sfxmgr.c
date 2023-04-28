@@ -44,7 +44,7 @@ static int sfx_nextchan = 0;
 static uint64 sfx_inuse = 0;
 
 /* Unload all loaded samples and free their SPU RAM */
-void snd_sfx_unload_all() {
+void snd_sfx_unload_all(void) {
     snd_effect_t * t, * n;
 
     t = LIST_FIRST(&snd_effects);
@@ -338,7 +338,7 @@ void snd_sfx_stop(int chn) {
     snd_sh4_to_aica(tmp, cmd->size);
 }
 
-void snd_sfx_stop_all() {
+void snd_sfx_stop_all(void) {
     int i;
 
     for(i = 0; i < 64; i++) {
@@ -349,7 +349,7 @@ void snd_sfx_stop_all() {
     }
 }
 
-int snd_sfx_chn_alloc() {
+int snd_sfx_chn_alloc(void) {
     int old, chn;
 
     old = irq_disable();

@@ -288,7 +288,7 @@ int vmufs_dir_free(vmu_root_t * root, vmu_dir_t * dir);
 
     \retval 0               On success (no error conditions defined).
 */
-int vmufs_mutex_lock();
+int vmufs_mutex_lock(void);
 
 /** \brief  Unlock the vmufs mutex.
 
@@ -296,7 +296,7 @@ int vmufs_mutex_lock();
 
     \retval 0               On success (no error conditions defined).
 */
-int vmufs_mutex_unlock();
+int vmufs_mutex_unlock(void);
 
 
 /* ****************** Higher level functions ******************** */
@@ -388,13 +388,13 @@ int vmufs_free_blocks(maple_device_t * dev);
 
     \retval 0               On success (no error conditions defined).
 */
-int vmufs_init();
+int vmufs_init(void);
 
 /** \brief  Shutdown vmufs.
 
     Must be called after everything is finished.
 */
-int vmufs_shutdown();
+int vmufs_shutdown(void);
 
 __END_DECLS
 

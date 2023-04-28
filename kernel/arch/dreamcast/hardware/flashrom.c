@@ -230,7 +230,7 @@ int flashrom_get_syscfg(flashrom_syscfg_t * out) {
     return FLASHROM_ERR_NONE;
 }
 
-int flashrom_get_region() {
+int flashrom_get_region(void) {
     int start, size;
     char region[6] = { 0 };
 

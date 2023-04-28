@@ -191,10 +191,10 @@ int bba_tx(const uint8 *pkt, int len, int wait);
 
 /* \cond */
 /* Initialize */
-int bba_init();
+int bba_init(void);
 
 /* Shutdown */
-int bba_shutdown();
+int bba_shutdown(void);
 /* \endcond */
 
 __END_DECLS
