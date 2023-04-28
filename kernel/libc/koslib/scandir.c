@@ -6,6 +6,7 @@
 */
 
 #include <kos/dbglog.h>
+#include <sys/dirent.h>
 #include <errno.h>
 
 int scandir(const char *dir             __attribute__((unused)), 
