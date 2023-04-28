@@ -135,10 +135,18 @@ Doing so will use your custom versions of **GMP**, **MPC**, **MPFR** and
 if you have trouble using the `contrib/download_prerequisites` script provided
 with GCC.
 
-Please note that you have the possibility to specify the `tarball_type`
-extensions you want to download too; this may be useful if a package
-changes its extension on the servers. For example, for GCC `4.7.4`, there is no
-`xz` tarball file, so you may change this to `gz`.
+Please note that you have the possibility to specify the tarball extensions
+you want to download using `download_type`; this may be useful if a
+package changes its extension on the servers. For example, for GCC `4.7.4`, 
+there is no `xz` tarball file, so you may change this to `gz`. In the case that
+`download_type` is not specified, `tarball_type` will be checked as a fallback to
+support legacy `config.mk` files.
+
+Git repositories can also be used to obtain source files. The git download method 
+can be selected by specifying `git` as the `download_type`. This enables
+the use of `git_repo` and `git_branch` variables to specify the repository
+and branch respectively. If `git_branch` is omitted, the default for the
+repository will be used.
 
 **Note:** All download URL are computed in the `scripts/common.sh` file, but
 you shouldn't update/change this.

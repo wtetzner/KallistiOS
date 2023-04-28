@@ -25,9 +25,9 @@ gdb_ver=9.2
 insight_ver=6.8-1
 
 # Tarball extensions to download for SH
-sh_binutils_tarball_type=xz
-sh_gcc_tarball_type=bz2
-newlib_tarball_type=gz
+sh_binutils_download_type=xz
+sh_gcc_download_type=bz2
+newlib_download_type=gz
 gdb_tarball_type=xz
 insight_tarball_type=bz2
 
@@ -38,8 +38,8 @@ arm_binutils_ver=2.34
 arm_gcc_ver=4.7.4
 
 # Tarball extensions to download for ARM
-arm_binutils_tarball_type=xz
-arm_gcc_tarball_type=bz2
+arm_binutils_download_type=xz
+arm_gcc_download_type=bz2
 
 # GCC custom dependencies
 # Specify here if you want to use custom GMP, MPFR and MPC libraries as they are
@@ -61,10 +61,10 @@ sh_mpc_ver=0.8.1
 #sh_isl_ver=0.18
 
 # Tarball extensions to download for GCC dependencies for SH
-sh_gmp_tarball_type=bz2
-sh_mpfr_tarball_type=bz2
-sh_mpc_tarball_type=gz
-sh_isl_tarball_type=bz2
+sh_gmp_download_type=bz2
+sh_mpfr_download_type=bz2
+sh_mpc_download_type=gz
+sh_isl_download_type=bz2
 
 # GCC dependencies for ARM
 arm_gmp_ver=4.3.2
@@ -73,10 +73,10 @@ arm_mpc_ver=0.8.1
 #arm_isl_ver=0.18
 
 # Tarball extensions to download for GCC dependencies for ARM
-arm_gmp_tarball_type=bz2
-arm_mpfr_tarball_type=bz2
-arm_mpc_tarball_type=gz
-arm_isl_tarball_type=bz2
+arm_gmp_download_type=bz2
+arm_mpfr_download_type=bz2
+arm_mpc_download_type=gz
+arm_isl_download_type=bz2
 
 # Toolchains base
 # Indicate the root directory where toolchains will be installed
