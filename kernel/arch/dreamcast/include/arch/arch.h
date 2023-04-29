@@ -110,7 +110,7 @@ void arch_exit(void) __noreturn;
 /** \brief  Kernel "return" point.
     \note                   This function will never return!
 */
-void arch_return() __noreturn;
+void arch_return(int ret_code) __noreturn;
 
 /** \brief  Kernel "abort" point.
     \note                   This function will never return!
@@ -211,7 +211,7 @@ extern void * __kos_romdisk;
 
     \note                   This function will never return!
 */
-void arch_real_exit() __noreturn;
+void arch_real_exit(int ret_code) __noreturn;
 
 /** \brief  Initialize bare-bones hardware systems.
 
