@@ -43,7 +43,7 @@ __BEGIN_DECLS
 /* These are inlined to avoid complications with using them */
 
 /** \brief  Pause after setting UBC parameters. */
-static inline void ubc_pause() {
+static inline void ubc_pause(void) {
     __asm__ __volatile__("nop\n"
                          "nop\n"
                          "nop\n"
@@ -58,7 +58,7 @@ static inline void ubc_pause() {
 }
 
 /** \brief Disable all UBC breakpoints. */
-static inline void ubc_disable_all() {
+static inline void ubc_disable_all(void) {
     BBRA = 0;
     BBRB = 0;
     ubc_pause();

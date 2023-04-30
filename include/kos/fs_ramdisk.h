@@ -30,8 +30,8 @@ __BEGIN_DECLS
 #include <kos/fs.h>
 
 /** \cond */
-int fs_ramdisk_init();
-int fs_ramdisk_shutdown();
+int fs_ramdisk_init(void);
+int fs_ramdisk_shutdown(void);
 /** \endcond */
 
 /** \brief  Attach a block of memory as a file in the ramdisk.

@@ -59,7 +59,7 @@ typedef struct symtab_handler {
     \retval 0               On success
     \retval -1              On error
 */
-int export_init();
+int export_init(void);
 
 /** \brief  Look up a symbol by name.
     \param  name            The symbol to look up

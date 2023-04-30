@@ -123,6 +123,9 @@ memchk_done:
 	! Program can return here (not likely) or jump here directly
 	! from anywhere in it to go straight back to the monitor
 _arch_real_exit:
+	! Save exit code parameter to r8
+	mov r4, r8
+
 	! Reset SR
 	mov.l	old_sr,r0
 	ldc	r0,sr
@@ -155,6 +158,8 @@ _arch_real_exit:
 
 	mov.l	dcload_syscall,r0
 	mov.l	@r0,r0
+	! Move saved exit code to be used as exit syscall parameter
+	mov r8, r5
 	jsr	@r0
 	mov	#15,r4
 

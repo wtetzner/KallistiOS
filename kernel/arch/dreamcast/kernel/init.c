@@ -59,7 +59,7 @@ int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
 /* Auto-init stuff: override with a non-weak symbol if you don't want all of
    this to be linked into your code (and do the same with the
    arch_auto_shutdown function too). */
-int  __attribute__((weak)) arch_auto_init() {
+int  __attribute__((weak)) arch_auto_init(void) {
 #ifndef _arch_sub_naomi
     union {
         uint32 ipl;
@@ -181,7 +181,7 @@ int  __attribute__((weak)) arch_auto_init() {
     return 0;
 }
 
-void  __attribute__((weak)) arch_auto_shutdown() {
+void  __attribute__((weak)) arch_auto_shutdown(void) {
 #ifndef _arch_sub_naomi
     fs_dclsocket_shutdown();
     net_shutdown();
@@ -289,10 +289,10 @@ void arch_shutdown(void) {
 
 /* Generic kernel exit point */
 void arch_exit(void) {
-    /* arch_exit always returns 0 
+    /* arch_exit always returns EXIT_SUCCESS (0) 
        if return codes are desired then a call to
        newlib's exit() should be used in its place */
-    exit(0);
+    exit(EXIT_SUCCESS);
 }
 
 /* Return point from newlib's _exit() (configurable) */
@@ -307,7 +307,7 @@ void arch_exit_handler(int ret_code) {
             dbglog(DBG_CRITICAL, "arch: arch_exit_path has invalid value!\n");
             __fallthrough;
         case ARCH_EXIT_RETURN:
-            arch_return();
+            arch_return(ret_code);
             break;
         case ARCH_EXIT_MENU:
             arch_menu();
@@ -319,9 +319,9 @@ void arch_exit_handler(int ret_code) {
 }
 
 /* Called to shut down the system and return to the debug handler (if any) */
-void arch_return() {
+void arch_return(int ret_code) {
     /* Jump back to the boot loader */
-    arch_real_exit();
+    arch_real_exit(ret_code);
 }
 
 /* Called to jump back to the BIOS menu; assumes a normal shutdown is possible */
@@ -356,7 +356,7 @@ void arch_abort(void) {
     /* Turn off any IRQs */
     irq_disable();
 
-    arch_real_exit();
+    arch_real_exit(EXIT_FAILURE);
 }
 
 /* Called to reboot the system; assume the system is in peril and don't

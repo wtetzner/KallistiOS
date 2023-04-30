@@ -156,7 +156,7 @@ static tid_t tid_highest;
 
 /* Return the next available thread id (assumes wraparound will not run
    into old processes). */
-static tid_t thd_next_free() {
+static tid_t thd_next_free(void) {
     int id;
     id = tid_highest++;
     return id;
@@ -619,7 +619,7 @@ void thd_schedule_next(kthread_t *thd) {
 }
 
 /* See kos/thread.h for description */
-irq_context_t * thd_choose_new() {
+irq_context_t * thd_choose_new(void) {
     uint64 now = timer_ms_gettime64();
 
     //printf("thd_choose_new() woken at %d\n", (uint32)now);
@@ -676,7 +676,7 @@ void thd_sleep(int ms) {
 }
 
 /* Manually cause a re-schedule */
-void thd_pass() {
+void thd_pass(void) {
     /* Makes no sense inside int */
     if(irq_inside_int()) return;
 
@@ -787,7 +787,7 @@ void thd_set_label(kthread_t *thd, const char *label) {
 }
 
 /* Find the current thread */
-kthread_t *thd_get_current() {
+kthread_t *thd_get_current(void) {
     return thd_current;
 }
 
@@ -950,7 +950,7 @@ int thd_init(int mode) {
 }
 
 /* Shutdown */
-void thd_shutdown() {
+void thd_shutdown(void) {
     kthread_t *n1, *n2;
 
     /* Disable pre-emption, if neccessary */

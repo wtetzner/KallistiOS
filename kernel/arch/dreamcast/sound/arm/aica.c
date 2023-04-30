@@ -11,7 +11,7 @@
 
 extern volatile aica_channel_t *chans;
 
-void aica_init() {
+void aica_init(void) {
     int i, j;
 
     /* Initialize AICA channels */

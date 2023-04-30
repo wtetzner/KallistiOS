@@ -486,11 +486,11 @@ int vmufs_dir_free(vmu_root_t * root, vmu_dir_t * dir) {
     return freeblocks;
 }
 
-int vmufs_mutex_lock() {
+int vmufs_mutex_lock(void) {
     return mutex_lock(&mutex);
 }
 
-int vmufs_mutex_unlock() {
+int vmufs_mutex_unlock(void) {
     return mutex_unlock(&mutex);
 }
 
@@ -838,12 +838,12 @@ int vmufs_free_blocks(maple_device_t * dev) {
 
 
 
-int vmufs_init() {
+int vmufs_init(void) {
     mutex_init(&mutex, MUTEX_TYPE_NORMAL);
     return 0;
 }
 
-int vmufs_shutdown() {
+int vmufs_shutdown(void) {
     mutex_destroy(&mutex);
     return 0;
 }

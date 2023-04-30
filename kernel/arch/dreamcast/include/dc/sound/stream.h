@@ -166,14 +166,14 @@ void snd_stream_prefill(snd_stream_hnd_t hnd);
     \retval -1              On failure.
     \retval 0               On success.
 */
-int snd_stream_init();
+int snd_stream_init(void);
 
 /** \brief  Shut down the stream system.
 
     This function shuts down the stream system and frees the memory associated
     with it. This does not call snd_shutdown().
 */
-void snd_stream_shutdown();
+void snd_stream_shutdown(void);
 
 /** \brief  Allocate a stream.
 

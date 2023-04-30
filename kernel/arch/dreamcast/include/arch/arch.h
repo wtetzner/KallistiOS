@@ -110,7 +110,7 @@ void arch_exit(void) __noreturn;
 /** \brief  Kernel "return" point.
     \note                   This function will never return!
 */
-void arch_return() __noreturn;
+void arch_return(int ret_code) __noreturn;
 
 /** \brief  Kernel "abort" point.
     \note                   This function will never return!
@@ -150,7 +150,7 @@ void arch_menu(void) __noreturn;
 /** \brief  Initialize the memory management system.
     \retval 0               On success (no error conditions defined).
 */
-int mm_init();
+int mm_init(void);
 
 /** \brief  Request more core memory from the system.
     \param  increment       The number of bytes requested.
@@ -211,7 +211,7 @@ extern void * __kos_romdisk;
 
     \note                   This function will never return!
 */
-void arch_real_exit() __noreturn;
+void arch_real_exit(int ret_code) __noreturn;
 
 /** \brief  Initialize bare-bones hardware systems.
 
@@ -220,7 +220,7 @@ void arch_real_exit() __noreturn;
 
     \retval 0               On success (no error conditions defined).
 */
-int hardware_sys_init();
+int hardware_sys_init(void);
 
 /** \brief  Initialize some peripheral systems.
 
@@ -229,7 +229,7 @@ int hardware_sys_init();
 
     \retval 0               On success (no error conditions defined).
 */
-int hardware_periph_init();
+int hardware_periph_init(void);
 
 /** \brief  Shut down hardware that was initted.
 
@@ -237,7 +237,7 @@ int hardware_periph_init();
     hardware_periph_init(). This will be done for you automatically by the
     various exit points, so you shouldn't have to do this yourself.
 */
-void hardware_shutdown();
+void hardware_shutdown(void);
 
 /** \defgroup hw_consoles           Console types
 

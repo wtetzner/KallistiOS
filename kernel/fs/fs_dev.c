@@ -314,13 +314,13 @@ static vfs_handler_t vh = {
     dev_fstat
 };
 
-int fs_dev_init() {
+int fs_dev_init(void) {
     TAILQ_INIT(&dev_fh);
     mutex_init(&fh_mutex, MUTEX_TYPE_NORMAL);
     return nmmgr_handler_add(&vh.nmmgr);
 }
 
-int fs_dev_shutdown() {
+int fs_dev_shutdown(void) {
     dev_fh_t * c, * n;
 
     c = TAILQ_FIRST(&dev_fh);

@@ -35,8 +35,8 @@ __BEGIN_DECLS
 
 /* \cond */
 /* Initialization */
-int fs_vmu_init();
-int fs_vmu_shutdown();
+int fs_vmu_init(void);
+int fs_vmu_shutdown(void);
 /* \endcond */
 
 __END_DECLS

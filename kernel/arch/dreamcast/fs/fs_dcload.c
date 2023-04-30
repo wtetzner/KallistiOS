@@ -75,7 +75,7 @@ int dcload_write_buffer(const uint8 *data, int len, int xlat) {
     return len;
 }
 
-int dcload_read_cons() {
+int dcload_read_cons(void) {
     return -1;
 }
 
@@ -467,9 +467,10 @@ static vfs_handler_t vh = {
 
 // We have to provide a minimal interface in case dcload usage is
 // disabled through init flags.
-static int never_detected() {
+static int never_detected(void) {
     return 0;
 }
+
 dbgio_handler_t dbgio_dcload = {
     "fs_dcload_uninit",
     never_detected,
@@ -483,7 +484,7 @@ dbgio_handler_t dbgio_dcload = {
     NULL
 };
 
-int fs_dcload_detected() {
+int fs_dcload_detected(void) {
     /* Check for dcload */
     if(*DCLOADMAGICADDR == DCLOADMAGICVALUE)
         return 1;
@@ -496,7 +497,7 @@ int dcload_type = DCLOAD_TYPE_NONE;
 
 /* Call this before arch_init_all (or any call to dbgio_*) to use dcload's
    console output functions. */
-void fs_dcload_init_console() {
+void fs_dcload_init_console(void) {
     /* Setup our dbgio handler */
     memcpy(&dbgio_dcload, &dbgio_null, sizeof(dbgio_dcload));
     dbgio_dcload.detected = fs_dcload_detected;
@@ -524,7 +525,7 @@ void fs_dcload_init_console() {
 }
 
 /* Call fs_dcload_init_console() before calling fs_dcload_init() */
-int fs_dcload_init() {
+int fs_dcload_init(void) {
     // This was already done in init_console.
     if(dcload_type == DCLOAD_TYPE_NONE)
         return -1;
@@ -544,7 +545,7 @@ int fs_dcload_init() {
     return nmmgr_handler_add(&vh.nmmgr);
 }
 
-int fs_dcload_shutdown() {
+int fs_dcload_shutdown(void) {
     /* Check for dcload */
     if(*DCLOADMAGICADDR != DCLOADMAGICVALUE)
         return -1;

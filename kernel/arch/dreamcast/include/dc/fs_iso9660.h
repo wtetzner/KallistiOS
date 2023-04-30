@@ -40,11 +40,11 @@ __BEGIN_DECLS
 
     \retval 0               On success.
 */
-int iso_reset();
+int iso_reset(void);
 
 /* \cond */
-int fs_iso9660_init();
-int fs_iso9660_shutdown();
+int fs_iso9660_init(void);
+int fs_iso9660_shutdown(void);
 /* \endcond */
 
 __END_DECLS

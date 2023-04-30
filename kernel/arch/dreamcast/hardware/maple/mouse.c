@@ -79,12 +79,12 @@ static maple_driver_t mouse_drv = {
 };
 
 /* Add the mouse to the driver chain */
-int mouse_init() {
+int mouse_init(void) {
     if(!mouse_drv.drv_list.le_prev)
         return maple_driver_reg(&mouse_drv);
     return -1;
 }
 
-void mouse_shutdown() {
+void mouse_shutdown(void) {
     maple_driver_unreg(&mouse_drv);
 }

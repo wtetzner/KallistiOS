@@ -33,10 +33,10 @@ __BEGIN_DECLS
 
 /** \cond */
 /* Initialize the file system */
-int fs_romdisk_init();
+int fs_romdisk_init(void);
 
 /* De-init the file system; also unmounts any mounted images. */
-int fs_romdisk_shutdown();
+int fs_romdisk_shutdown(void);
 /** \endcond */
 
 /* NOTE: the mount/unmount are _not_ thread safe as regards doing multiple

@@ -240,7 +240,7 @@ void snd_stream_prefill(snd_stream_hnd_t hnd) {
 }
 
 /* Initialize stream system */
-int snd_stream_init() {
+int snd_stream_init(void) {
     /* Create stereo seperation buffers */
     if(!sep_buffer[0]) {
         sep_buffer[0] = memalign(32, (SND_STREAM_BUFFER_MAX / 2));
@@ -342,7 +342,7 @@ void snd_stream_destroy(snd_stream_hnd_t hnd) {
 }
 
 /* Shut everything down and free mem */
-void snd_stream_shutdown() {
+void snd_stream_shutdown(void) {
     /* Stop and destroy all active stream */
     int i;
 

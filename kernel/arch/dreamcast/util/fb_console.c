@@ -26,11 +26,11 @@ static int min_x, min_y, max_x, max_y;
 #define FONT_CHAR_WIDTH 12
 #define FONT_CHAR_HEIGHT 24
 
-static int fb_detected() {
+static int fb_detected(void) {
     return 1;
 }
 
-static int fb_init() {
+static int fb_init(void) {
     bfont_set_encoding(BFONT_CODE_ISO8859_1);
 
     /* Init based on current video mode, defaulting to 640x480x16bpp. */
@@ -42,7 +42,7 @@ static int fb_init() {
     return 0;
 }
 
-static int fb_shutdown() {
+static int fb_shutdown(void) {
     return 0;
 }
 
@@ -51,7 +51,7 @@ static int fb_set_irq_usage(int mode) {
     return 0;
 }
 
-static int fb_read() {
+static int fb_read(void) {
     errno = EAGAIN;
     return -1;
 }
@@ -86,7 +86,7 @@ static int fb_write(int c) {
     return 1;
 }
 
-static int fb_flush() {
+static int fb_flush(void) {
     return 0;
 }
 

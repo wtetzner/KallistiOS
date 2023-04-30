@@ -282,7 +282,7 @@ size_t public_pvr_mUSABLe(Void_t* m) {
     return result;
 }
 
-void public_pvr_mSTATs() {
+void public_pvr_mSTATs(void) {
     if(MALLOC_PREACTION != 0) {
         return;
     }
@@ -293,7 +293,7 @@ void public_pvr_mSTATs() {
     }
 }
 
-struct mallinfo public_pvr_mALLINFo() {
+struct mallinfo public_pvr_mALLINFo(void) {
     struct mallinfo m;
 
     if(MALLOC_PREACTION != 0) {
@@ -1300,7 +1300,7 @@ INTERNAL_SIZE_T s;
   display chunk addresses, sizes, bins, and other instrumentation.
 */
 
-static void do_check_malloc_state() {
+static void do_check_malloc_state(void) {
     mstate av = get_malloc_state();
     int i;
     mchunkptr p;
@@ -3222,7 +3222,7 @@ size_t mUSABLe(mem) Void_t* mem;
   ------------------------------ mallinfo ------------------------------
 */
 
-struct mallinfo mALLINFo() {
+struct mallinfo mALLINFo(void) {
     mstate av = get_malloc_state();
     struct mallinfo mi;
     unsigned int i;
@@ -3282,7 +3282,7 @@ struct mallinfo mALLINFo() {
   ------------------------------ malloc_stats ------------------------------
 */
 
-void mSTATs() {
+void mSTATs(void) {
     struct mallinfo mi = mALLINFo();
 
     fprintf(stderr, "max system bytes = %10lu\n",
@@ -3347,7 +3347,7 @@ int value;
 }
 
 /* Reset function */
-void pvr_int_mem_reset() {
+void pvr_int_mem_reset(void) {
     /* This _should_ do it */
     memset(&av_, 0, sizeof(av_));
 }

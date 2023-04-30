@@ -66,7 +66,7 @@ void snd_sfx_unload(sfxhnd_t idx);
     This function unloads all previously loaded sound effect, and frees the
     memory associated with them.
 */
-void snd_sfx_unload_all();
+void snd_sfx_unload_all(void);
 
 /** \brief  Play a sound effect.
 
@@ -121,7 +121,7 @@ void snd_sfx_stop(int chn);
     playing. It does not affect channels allocated for use by something other
     than sound effects..
 */
-void snd_sfx_stop_all();
+void snd_sfx_stop_all(void);
 
 /** \brief  Allocate a sound channel for use outside the sound effect system.
 
@@ -130,7 +130,7 @@ void snd_sfx_stop_all();
 
     \returns                The allocated channel on success, -1 on failure.
 */
-int snd_sfx_chn_alloc();
+int snd_sfx_chn_alloc(void);
 
 /** \brief  Free a previously allocated channel.
 

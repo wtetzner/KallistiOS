@@ -52,7 +52,7 @@ hiccups (by severely reducing the number of gd commands being sent).
     rs syscall((p1), (p2), 0, (idx));
 
 /* Reset system functions */
-static void gdc_init_system() {
+static void gdc_init_system(void) {
     MAKE_SYSCALL(/**/, 0, 0, 3);
 }
 
@@ -67,7 +67,7 @@ static int gdc_get_cmd_stat(int f, void *status) {
 }
 
 /* Execute submitted commands */
-static void gdc_exec_server() {
+static void gdc_exec_server(void) {
     MAKE_SYSCALL(/**/, 0, 0, 2);
 }
 
@@ -83,8 +83,8 @@ static int gdc_change_data_type(void *param) {
 
 /* Reset the GD-ROM */
 /* Stop gcc from complaining that we don't use it */
-static void gdc_reset() __attribute__((unused));
-static void gdc_reset() {
+static void gdc_reset(void) __attribute__((unused));
+static void gdc_reset(void) {
     MAKE_SYSCALL(/**/, 0, 0, 9);
 }
 
@@ -231,7 +231,7 @@ int cdrom_change_datatype(int sector_part, int cdxa, int sector_size) {
 }
 
 /* Re-init the drive, e.g., after a disc change, etc */
-int cdrom_reinit() {
+int cdrom_reinit(void) {
     /* By setting -1 to each parameter, they fall to the old defaults */
     return cdrom_reinit_ex(-1, -1, -1);
 }
@@ -413,7 +413,7 @@ int cdrom_cdda_play(uint32 start, uint32 end, uint32 repeat, int mode) {
 }
 
 /* Pause CDDA audio playback */
-int cdrom_cdda_pause() {
+int cdrom_cdda_pause(void) {
     int rv;
 
     mutex_lock(&_g1_ata_mutex);
@@ -424,7 +424,7 @@ int cdrom_cdda_pause() {
 }
 
 /* Resume CDDA audio playback */
-int cdrom_cdda_resume() {
+int cdrom_cdda_resume(void) {
     int rv;
 
     mutex_lock(&_g1_ata_mutex);
@@ -435,7 +435,7 @@ int cdrom_cdda_resume() {
 }
 
 /* Spin down the CD */
-int cdrom_spin_down() {
+int cdrom_spin_down(void) {
     int rv;
 
     mutex_lock(&_g1_ata_mutex);
@@ -446,7 +446,7 @@ int cdrom_spin_down() {
 }
 
 /* Initialize: assume no threading issues */
-int cdrom_init() {
+int cdrom_init(void) {
     uint32 p;
     volatile uint32 *react = (uint32 *)0xa05f74e4,
                      *bios = (uint32 *)0xa0000000;
@@ -483,7 +483,7 @@ int cdrom_init() {
     return 0;
 }
 
-void cdrom_shutdown() {
+void cdrom_shutdown(void) {
 
     /* What would you want done here? */
 }
