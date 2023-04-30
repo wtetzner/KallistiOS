@@ -27,6 +27,7 @@
 #include <arch/rtc.h>
 #include <arch/timer.h>
 #include <dc/g2bus.h>
+#include <stdint.h>
 
 #define RTC_UNIX_EPOCH_DELTA    631152000   /* Twenty years in seconds */
 #define RTC_RETRY_COUNT         3           /* # of times to repeat on bad access */
