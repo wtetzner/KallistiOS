@@ -27,7 +27,7 @@ extern unsigned long end;
 static void *sbrk_base;
 
 /* MM-wide initialization */
-int mm_init() {
+int mm_init(void) {
     int base = (int)(&end);
     base = (base / 4) * 4 + 4;  /* longword align */
     sbrk_base = (void*)base;

@@ -164,7 +164,7 @@ static void dcls_handle_vers(command_t *cmd) {
     send(dcls_socket, pktbuf, size, 0);
 }
 
-static void dcls_recv_loop() {
+static void dcls_recv_loop(void) {
     uint8 pkt[1514];
     command_t *cmd = (command_t *)pkt;
 
@@ -622,15 +622,15 @@ static int dcls_stat(vfs_handler_t *vfs, const char *fn, struct stat *rv,
 }
 
 /* dbgio interface */
-static int dcls_detected() {
+static int dcls_detected(void) {
     return initted > 0;
 }
 
-static int dcls_fake_init() {
+static int dcls_fake_init(void) {
     return 0;
 }
 
-static int dcls_fake_shutdown() {
+static int dcls_fake_shutdown(void) {
     return 0;
 }
 
@@ -749,7 +749,7 @@ dbgio_handler_t dbgio_dcls = {
 };
 
 /* This function must be called prior to calling fs_dclsocket_init() */
-void fs_dclsocket_init_console() {
+void fs_dclsocket_init_console(void) {
     /* Make sure networking is up first of all */
     if(!net_default_dev) {
         return;
@@ -770,7 +770,7 @@ uint32 _fs_dclsocket_get_ip(void) {
     return dcloadsyscall(DCLOAD_GETHOSTINFO, &ip, &port);
 }
 
-int fs_dclsocket_init() {
+int fs_dclsocket_init(void) {
     struct sockaddr_in addr;
     int err;
     uint8 ipaddr[4], mac[6];
@@ -837,7 +837,7 @@ error:
     return -1;
 }
 
-int fs_dclsocket_shutdown() {
+int fs_dclsocket_shutdown(void) {
     int old;
     command_t cmd;
 
@@ -864,7 +864,7 @@ int fs_dclsocket_shutdown() {
     mutex_destroy(&mutex);
     initted = 0;
 
-    irq_enable(old);
+    irq_restore(old);
 
     /* Finally, clean up the socket */
     close(dcls_socket);

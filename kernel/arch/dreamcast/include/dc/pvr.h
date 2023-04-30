@@ -1183,7 +1183,7 @@ int pvr_init(pvr_init_params_t *params);
     \retval -1              If the PVR has already been initialized or the video
                             mode active is not suitable for 3D
 */
-int pvr_init_defaults();
+int pvr_init_defaults(void);
 
 /** \brief  Shut down the PVR chip from ready status.
 
@@ -1193,7 +1193,7 @@ int pvr_init_defaults();
     \retval 0               On success
     \retval -1              If the PVR has not been initialized
 */
-int pvr_shutdown();
+int pvr_shutdown(void);
 
 
 /* Misc parameters ***************************************************/
@@ -1246,7 +1246,7 @@ void pvr_set_zclip(float zc);
 
     \return                 The number of VBlanks since init
 */
-int pvr_get_vbl_count();
+int pvr_get_vbl_count(void);
 
 /* Statistics structure */
 /** \brief  PVR statistics structure.
@@ -1441,27 +1441,27 @@ void pvr_mem_free(pvr_ptr_t chunk);
 /** \brief  Return the number of bytes available still in the PVR RAM pool.
     \return                 The number of bytes available
 */
-uint32 pvr_mem_available();
+uint32 pvr_mem_available(void);
 
 /** \brief  Reset the PVR RAM pool.
 
     This will essentially free any blocks allocated within the pool. There's
     generally not many good reasons for doing this.
 */
-void pvr_mem_reset();
+void pvr_mem_reset(void);
 
 /** \brief  Print the list of allocated blocks in the PVR RAM pool.
 
     This function only works if you've enabled KM_DBG in pvr_mem.c.
 */
-void pvr_mem_print_list();
+void pvr_mem_print_list(void);
 
 /** \brief  Print statistics about the PVR RAM pool.
 
     This prints out statistics like what malloc_stats() provides. Also, if
     KM_DBG is enabled in pvr_mem.c, it prints the list of allocated blocks.
 */
-void pvr_mem_stats();
+void pvr_mem_stats(void);
 
 /* Scene rendering ***************************************************/
 
@@ -1506,7 +1506,7 @@ void pvr_mem_stats();
 /** \brief  Is vertex DMA enabled?
     \return                 Non-zero if vertex DMA was enabled at init time
 */
-int pvr_vertex_dma_enabled();
+int pvr_vertex_dma_enabled(void);
 
 /** \brief  Setup a vertex buffer for one of the list types.
 
@@ -1572,7 +1572,7 @@ void pvr_set_presort_mode(int presort);
     You must call this function (or pvr_scene_begin_txr()) for ever frame of
     output.
 */
-void pvr_scene_begin();
+void pvr_scene_begin(void);
 
 /** \brief  Begin collecting data for a frame of 3D output to the specified
             texture.
@@ -1619,7 +1619,7 @@ int pvr_list_begin(pvr_list_t list);
     \retval 0               On success.
     \retval -1              On error.
 */
-int pvr_list_finish();
+int pvr_list_finish(void);
 
 /** \brief  Submit a primitive of the current list type.
 
@@ -2084,13 +2084,13 @@ int pvr_dma_load_ta(void * src, uint32 count, int block,
     \return                 Non-zero if there is no PVR DMA active, thus a DMA
                             can begin or 0 if there is an active DMA.
 */
-int pvr_dma_ready();
+int pvr_dma_ready(void);
 
 /** \brief  Initialize PVR DMA. */
-void pvr_dma_init();
+void pvr_dma_init(void);
 
 /** \brief  Shut down PVR DMA. */
-void pvr_dma_shutdown();
+void pvr_dma_shutdown(void);
 
 /*********************************************************************/
 

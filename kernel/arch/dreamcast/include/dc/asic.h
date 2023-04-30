@@ -164,7 +164,7 @@ int asic_evt_set_handler(uint32 code, asic_evt_handler handler);
     order to reinstate them, you must individually re-enable them. Not a very
     good idea to be doing this normally.
 */
-void asic_evt_disable_all();
+void asic_evt_disable_all(void);
 
 /** \brief  Disable one ASIC event.
 
@@ -194,10 +194,10 @@ void asic_evt_disable(uint32 code, int irqlevel);
 void asic_evt_enable(uint32 code, int irqlevel);
 
 /** \brief  Init ASIC events. */
-void asic_init();
+void asic_init(void);
 
 /** \brief  Shutdown ASIC events, disabling all hooks. */
-void asic_shutdown();
+void asic_shutdown(void);
 
 __END_DECLS
 

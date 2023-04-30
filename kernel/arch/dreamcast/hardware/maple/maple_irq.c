@@ -157,7 +157,7 @@ static void vbl_autodet_callback(maple_frame_t * frm) {
 }
 
 /* Move on to the next device for next time */
-static void vbl_ad_advance() {
+static void vbl_ad_advance(void) {
     maple_state.detect_port_next++;
 
     if(maple_state.detect_port_next >= MAPLE_PORT_COUNT) {
@@ -166,7 +166,7 @@ static void vbl_ad_advance() {
     }
 }
 
-static void vbl_autodetect() {
+static void vbl_autodetect(void) {
     int p, u;
 
     /* Queue a detection on the next device */

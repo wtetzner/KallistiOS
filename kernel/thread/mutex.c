@@ -15,7 +15,7 @@
 
 #include <arch/irq.h>
 
-mutex_t *mutex_create() {
+mutex_t *mutex_create(void) {
     mutex_t *rv;
 
     dbglog(DBG_WARNING, "Creating mutex with deprecated mutex_create(). Please "

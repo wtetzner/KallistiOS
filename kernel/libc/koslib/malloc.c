@@ -49,7 +49,7 @@ static spinlock_t mALLOC_MUTEx = SPINLOCK_INITIALIZER;
 
 /* Use this from within an IRQ to determine if it's safe
    to do memory allocation stuff */
-int malloc_irq_safe() {
+int malloc_irq_safe(void) {
     return !spinlock_is_locked(&mALLOC_MUTEx);
 }
 
@@ -1862,7 +1862,7 @@ int mem_check_block(Void_t* m) {
 #endif
 }
 
-int mem_check_all() {
+int mem_check_all(void) {
 #ifdef KM_DBG
     int retv = 0, rvp;
 #ifdef KM_DBG_VERBOSE
@@ -2211,7 +2211,7 @@ size_t public_mUSABLe(Void_t* m) {
     return result;
 }
 
-void public_mSTATs() {
+void public_mSTATs(void) {
 #ifdef KM_DBG
     memctl_t *c;
     uint32 * nt, i;
@@ -2380,7 +2380,7 @@ size_t public_mUSABLe(Void_t* m) {
     return result;
 }
 
-void public_mSTATs() {
+void public_mSTATs(void) {
     if(MALLOC_PREACTION != 0) {
         return;
     }
@@ -2396,7 +2396,7 @@ void public_mSTATs() {
 /*** End Code Removed for KOS ***/
 /******************************************************************************************************/
 
-struct mallinfo public_mALLINFo() {
+struct mallinfo public_mALLINFo(void) {
     struct mallinfo m;
 
     if(MALLOC_PREACTION != 0) {
@@ -3433,7 +3433,7 @@ INTERNAL_SIZE_T s;
   display chunk addresses, sizes, bins, and other instrumentation.
 */
 
-static void do_check_malloc_state() {
+static void do_check_malloc_state(void) {
     mstate av = get_malloc_state();
     unsigned int i;
     mchunkptr p;
@@ -5203,7 +5203,7 @@ size_t mUSABLe(mem) Void_t* mem;
   ------------------------------ mallinfo ------------------------------
 */
 
-struct mallinfo mALLINFo() {
+struct mallinfo mALLINFo(void) {
     mstate av = get_malloc_state();
     struct mallinfo mi;
     unsigned int i;
@@ -5263,7 +5263,7 @@ struct mallinfo mALLINFo() {
   ------------------------------ malloc_stats ------------------------------
 */
 
-void mSTATs() {
+void mSTATs(void) {
     struct mallinfo mi = mALLINFo();
 
 #ifdef WIN32

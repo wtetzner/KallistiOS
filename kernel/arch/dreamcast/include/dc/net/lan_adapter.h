@@ -25,10 +25,10 @@ __BEGIN_DECLS
 
 /* \cond */
 /* Initialize */
-int la_init();
+int la_init(void);
 
 /* Shutdown */
-int la_shutdown();
+int la_shutdown(void);
 /* \endcond */
 
 __END_DECLS

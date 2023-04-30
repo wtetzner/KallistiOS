@@ -14,7 +14,7 @@
 #include <kos/genwait.h>
 
 /* Allocate a new reader/writer semaphore */
-rw_semaphore_t *rwsem_create() {
+rw_semaphore_t *rwsem_create(void) {
     rw_semaphore_t *s;
 
     dbglog(DBG_WARNING, "Creating reader/writer semaphore with deprecated "

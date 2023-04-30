@@ -212,7 +212,7 @@ int  mallopt(int, int);
 
 /** \brief Debug function
 */
-void malloc_stats();
+void malloc_stats(void);
 
 /** \brief  Determine if it is safe to call malloc() in an IRQ context.
 
@@ -224,7 +224,7 @@ void malloc_stats();
     \retval     1           If it is safe to call malloc() in the current IRQ.
     \retval     0           Otherwise.
 */
-int malloc_irq_safe();
+int malloc_irq_safe(void);
 
 /** \brief Only available with KM_DBG
 */
@@ -232,7 +232,7 @@ int mem_check_block(void *p);
 
 /** \brief Only available with KM_DBG
  */
-int mem_check_all();
+int mem_check_all(void);
 
 __END_DECLS
 

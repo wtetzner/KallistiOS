@@ -525,7 +525,7 @@ static vfs_handler_t vh = {
 static int initted = 0;
 
 /* Initialize the file system */
-int fs_romdisk_init() {
+int fs_romdisk_init(void) {
     if(initted)
         return 0;
 
@@ -547,7 +547,7 @@ int fs_romdisk_init() {
 }
 
 /* De-init the file system; also unmounts any mounted images. */
-int fs_romdisk_shutdown() {
+int fs_romdisk_shutdown(void) {
     rd_image_t *n, *c;
 
     if(!initted)

@@ -107,7 +107,7 @@ typedef struct kos_mutex {
                             be used in any future code, and may be removed in
                             the future. You should instead use mutex_init().
 */
-mutex_t *mutex_create() __depr("Use mutex_init or an initializer.");
+mutex_t *mutex_create(void) __depr("Use mutex_init or an initializer.");
 
 /** \brief  Initialize a new mutex.
 

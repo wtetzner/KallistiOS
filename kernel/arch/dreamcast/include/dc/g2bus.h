@@ -223,7 +223,7 @@ void g2_memset_8(uint32 address, uint8 c, int amt);
     drained. The FIFO is 32 bytes in length, and thus when accessing AICA you
     must do this at least for every 8 32-bit writes that you execute.
 */
-void g2_fifo_wait();
+void g2_fifo_wait(void);
 
 __END_DECLS
 

@@ -147,7 +147,7 @@ int timer_ints_enabled(int which);
     This function enables the timer used for the gettime functions. This is on
     by default. These functions use \ref TMU2 to do their work.
 */
-void timer_ms_enable();
+void timer_ms_enable(void);
 
 /** \brief  Disable the millisecond timer.
 
@@ -155,7 +155,7 @@ void timer_ms_enable();
     you will not want to do this, unless you have some need to use the timer
     \ref TMU2 for something else.
 */
-void timer_ms_disable();
+void timer_ms_disable(void);
 
 /** \brief  Get the current uptime of the system.
 
@@ -180,7 +180,7 @@ void timer_ms_gettime(uint32 *secs, uint32 *msecs);
 
     \return                 The number of milliseconds since KOS started.
 */
-uint64 timer_ms_gettime64();
+uint64 timer_ms_gettime64(void);
 
 /** \brief  Get the current uptime of the system (in microseconds).
 
@@ -190,7 +190,7 @@ uint64 timer_ms_gettime64();
 
     \return                 The number of microseconds since KOS started.
 */
-uint64 timer_us_gettime64();
+uint64 timer_us_gettime64(void);
 
 /** \brief  Primary timer callback type. */
 typedef void (*timer_primary_callback_t)(irq_context_t *);
@@ -219,10 +219,10 @@ void timer_primary_wakeup(uint32 millis);
 
 /* \cond */
 /* Init function */
-int timer_init();
+int timer_init(void);
 
 /* Shutdown */
-void timer_shutdown();
+void timer_shutdown(void);
 /* \endcond */
 
 /** \defgroup   perf_counters Performance Counters
@@ -369,7 +369,7 @@ uint64 perf_cntr_count(int which);
     This function enables the performance counter used for the timer_ns_gettime64() 
     function. This is on by default. The function uses \ref PRFC0 to do the work.
 */
-void timer_ns_enable();
+void timer_ns_enable(void);
 
 /** \brief  Disable the nanosecond timer.
     \ingroup perf_counters
@@ -378,7 +378,7 @@ void timer_ns_enable();
     function. Generally, you will not want to do this, unless you have some need to use 
     the counter \ref PRFC0 for something else.
 */
-void timer_ns_disable();
+void timer_ns_disable(void);
 
 /** \brief  Get the current uptime of the system (in nanoseconds).
     \ingroup perf_counters
@@ -387,7 +387,7 @@ void timer_ns_disable();
 
     \return                 The number of nanoseconds since KOS started.
 */
-uint64 timer_ns_gettime64();
+uint64 timer_ns_gettime64(void);
 
 __END_DECLS
 
