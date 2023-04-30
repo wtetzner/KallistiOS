@@ -111,8 +111,8 @@ typedef struct {
 
 /* \cond */
 /* Init / Shutdown */
-int cont_init();
-void    cont_shutdown();
+int cont_init(void);
+void    cont_shutdown(void);
 /* \endcond */
 
 /** \brief  Controller automatic callback type.

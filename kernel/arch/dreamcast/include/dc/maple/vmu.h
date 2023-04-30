@@ -151,8 +151,8 @@ void vmu_set_icon(const char *vmu_icon);
 
 /* \cond */
 /* Init / Shutdown */
-int vmu_init();
-void vmu_shutdown();
+int vmu_init(void);
+void vmu_shutdown(void);
 /* \endcond */
 
 __END_DECLS

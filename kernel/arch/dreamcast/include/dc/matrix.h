@@ -49,7 +49,7 @@ void mat_load(matrix_t *out);
 
     This function clears the internal matrix to a standard identity matrix.
 */
-void mat_identity();
+void mat_identity(void);
 
 /** \brief  Apply a matrix.
 

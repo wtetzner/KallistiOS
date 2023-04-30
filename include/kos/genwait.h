@@ -142,14 +142,14 @@ void genwait_check_timeouts(uint64 now);
     \return                 The next timeout time in milliseconds since boot, or
                             0 if there are no pending genwait_wait() calls
 */
-uint64 genwait_next_timeout();
+uint64 genwait_next_timeout(void);
 
 /** \cond */
 /* Initialize the genwait system */
-int genwait_init();
+int genwait_init(void);
 
 /* Shut down the genwait system */
-void genwait_shutdown();
+void genwait_shutdown(void);
 /** \endcond */
 
 

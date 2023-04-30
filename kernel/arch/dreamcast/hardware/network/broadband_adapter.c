@@ -90,7 +90,7 @@ This driver has basically been rewritten since KOS 1.0.x.
 /* GAPS PCI stuff probably ought to be moved to another file... */
 
 /* Detect a GAPS PCI bridge */
-static int gaps_detect() {
+static int gaps_detect(void) {
     char str[16];
 
     g2_read_block_8((uint8 *)str, 0xa1001400, 16);
@@ -103,7 +103,7 @@ static int gaps_detect() {
 
 /* Initialize GAPS PCI bridge */
 #define GAPS_BASE 0xa1000000
-static int gaps_init() {
+static int gaps_init(void) {
     int i;
 
     /* Make sure we have one */
@@ -197,7 +197,7 @@ void bba_set_rx_callback(eth_rx_callback_t cb) {
 
   Returns 0 for success or -1 for failure.
  */
-static int bba_hw_init() {
+static int bba_hw_init(void) {
     int i;
     uint32 tmp;
 
@@ -328,7 +328,7 @@ static int bba_hw_init() {
     return 0;
 }
 
-static void rx_reset() {
+static void rx_reset(void) {
     rtl.cur_rx = g2_read_16(NIC(RT_RXBUFHEAD));
     g2_write_16(NIC(RT_RXBUFTAIL), rtl.cur_rx - 16);
 
@@ -346,7 +346,7 @@ static void rx_reset() {
     g2_write_16(NIC(RT_INTRSTATUS), 0xffff);
 }
 
-static void bba_hw_shutdown() {
+static void bba_hw_shutdown(void) {
     /* Disable receiver */
     g2_write_32(NIC(RT_RXCONFIG), 0);
 
@@ -484,7 +484,7 @@ static semaphore_t bba_rx_sema;
 static int bba_rx_exit_thread;
 static semaphore_t bba_rx_sema2;
 
-static void bba_rx();
+static void bba_rx(void);
 
 #ifdef TX_SEMA
 static semaphore_t tx_sema;
@@ -722,12 +722,12 @@ int bba_tx(const uint8 * pkt, int len, int wait) {
 }
 #endif
 
-void bba_lock() {
+void bba_lock(void) {
     //sem_wait(&bba_rx_sema2);
     //asic_evt_disable(ASIC_EVT_EXP_PCI, BBA_ASIC_IRQ);
 }
 
-void bba_unlock() {
+void bba_unlock(void) {
     //asic_evt_enable(ASIC_EVT_EXP_PCI, BBA_ASIC_IRQ);
     //sem_signal(&bba_rx_sema2);
 }
@@ -766,7 +766,7 @@ static void *bba_rx_threadfunc(void *dummy) {
     return NULL;
 }
 
-static void bba_rx() {
+static void bba_rx(void) {
     uint32 rx_status;
     size_t pkt_size, ring_offset;
 
@@ -907,7 +907,7 @@ static void bba_irq_hnd(uint32 code) {
 
 netif_t bba_if;
 
-static void set_ipv6_lladdr() {
+static void set_ipv6_lladdr(void) {
     /* Set up the IPv6 link-local address. This is done in accordance with
        Section 4/5 of RFC 2464 based on the MAC Address of the adapter. */
     bba_if.ip6_lladdr.__s6_addr.__s6_addr8[0]  = 0xFE;
@@ -1115,7 +1115,7 @@ static void bba_if_netinput(uint8 *pkt, int pktsize) {
 }
 
 /* Set ISP configuration from the flashrom, as long as we're configured staticly */
-static void bba_set_ispcfg() {
+static void bba_set_ispcfg(void) {
     flashrom_ispcfg_t isp;
 
     if(flashrom_get_ispcfg(&isp) == -1)
@@ -1149,7 +1149,7 @@ static void bba_set_ispcfg() {
 }
 
 /* Initialize */
-int bba_init() {
+int bba_init(void) {
     /* Use the netcore callback */
     bba_set_rx_callback(bba_if_netinput);
 
@@ -1221,7 +1221,7 @@ int bba_init() {
 }
 
 /* Shutdown */
-int bba_shutdown() {
+int bba_shutdown(void) {
 #if 1
     /* Unregister us (if neccessary) */
     net_unreg_device(&bba_if);
@@ -1250,7 +1250,7 @@ int module_init(int argc, char **argv) {
     return 0;
 }
 
-int module_shutdown() {
+int module_shutdown(void) {
     printf("net_bba: exiting\n");
 
     if(bba_shutdown() < 0)

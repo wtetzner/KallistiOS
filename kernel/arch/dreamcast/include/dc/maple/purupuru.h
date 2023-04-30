@@ -179,8 +179,8 @@ int purupuru_rumble_raw(maple_device_t *dev, uint32 effect);
 
 /* \cond */
 /* Init / Shutdown */
-int purupuru_init();
-void purupuru_shutdown();
+int purupuru_init(void);
+void purupuru_shutdown(void);
 /* \endcond */
 
 __END_DECLS

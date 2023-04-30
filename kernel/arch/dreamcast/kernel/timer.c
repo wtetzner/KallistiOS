@@ -148,7 +148,7 @@ static void timer_ms_handler(irq_t source, irq_context_t *context) {
     timer_ms_counter++;
 }
 
-void timer_ms_enable() {
+void timer_ms_enable(void) {
     irq_set_handler(EXC_TMU2_TUNI2, timer_ms_handler);
     timer_prime(TMU2, 1, 1);
     timer_ms_countdown = timer_count(TMU2);
@@ -156,7 +156,7 @@ void timer_ms_enable() {
     timer_start(TMU2);
 }
 
-void timer_ms_disable() {
+void timer_ms_disable(void) {
     timer_stop(TMU2);
     timer_disable_ints(TMU2);
 }
@@ -177,7 +177,7 @@ void timer_ms_gettime(uint32 *secs, uint32 *msecs) {
     }
 }
 
-uint64 timer_ms_gettime64() {
+uint64 timer_ms_gettime64(void) {
     uint32 s, ms;
     uint64 msec;
 
@@ -187,7 +187,7 @@ uint64 timer_ms_gettime64() {
     return msec;
 }
 
-uint64 timer_us_gettime64() {
+uint64 timer_us_gettime64(void) {
     uint32 cnt, scnt;
     uint64 usec;
     uint64 used;
@@ -239,7 +239,7 @@ static void tp_handler(irq_t src, irq_context_t * cxt) {
 }
 
 /* Enable / Disable primary kernel timer */
-static void timer_primary_init() {
+static void timer_primary_init(void) {
     /* Clear out our vars */
     tp_callback = NULL;
 
@@ -248,7 +248,7 @@ static void timer_primary_init() {
     timer_clear(TMU0);
 }
 
-static void timer_primary_shutdown() {
+static void timer_primary_shutdown(void) {
     timer_stop(TMU0);
     timer_disable_ints(TMU0);
     irq_set_handler(EXC_TMU0_TUNI0, NULL);
@@ -289,7 +289,7 @@ void timer_primary_wakeup(uint32 millis) {
 
 
 /* Init */
-int timer_init() {
+int timer_init(void) {
     /* Disable all timers */
     TIMER8(TSTR) = 0;
 
@@ -303,7 +303,7 @@ int timer_init() {
 }
 
 /* Shutdown */
-void timer_shutdown() {
+void timer_shutdown(void) {
     /* Shutdown primary timer stuff */
     timer_primary_shutdown();
 
@@ -363,11 +363,11 @@ inline uint64 perf_cntr_count(int which) {
     return (uint64)(PMCTR_HIGH(which) & 0xffff) << 32 | PMCTR_LOW(which);
 }
 
-void timer_ns_enable() {
+void timer_ns_enable(void) {
     perf_cntr_start(PRFC0, PMCR_ELAPSED_TIME_MODE, PMCR_COUNT_CPU_CYCLES);
 }
 
-void timer_ns_disable() {
+void timer_ns_disable(void) {
     uint16 config = PMCR_CTRL(PRFC0);
 
     /* If timer is running, disable it */
@@ -376,7 +376,7 @@ void timer_ns_disable() {
     }
 }
 
-inline uint64 timer_ns_gettime64() {
+inline uint64 timer_ns_gettime64(void) {
     uint16 config = PMCR_CTRL(PRFC0);
 
     /* If timer is running */

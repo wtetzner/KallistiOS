@@ -98,7 +98,7 @@ typedef struct klibrary {
 
         \return             The library's symbolic name
     */
-    const char * (*lib_get_name)();
+    const char * (*lib_get_name)(void);
 
     /** \brief  Retrieve the library's version.
 
@@ -108,7 +108,7 @@ typedef struct klibrary {
 
         \return             The library's version number
     */
-    uint32(*lib_get_version)();
+    uint32(*lib_get_version)(void);
 
     /** \brief  Open a library.
 
@@ -263,10 +263,10 @@ uint32 library_get_version(klibrary_t * lib);
 
 /** \cond */
 /* Init */
-int library_init();
+int library_init(void);
 
 /* Shutdown */
-void library_shutdown();
+void library_shutdown(void);
 /** \endcond */
 
 __END_DECLS

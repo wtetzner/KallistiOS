@@ -101,7 +101,7 @@ static inline void mmu_ldtlb_quick(uint32 ptehv, uint32 ptelv) {
     *ptel = ptelv;
     __asm__("ldtlb");
 }
-static inline void mmu_ldtlb_wait() {
+static inline void mmu_ldtlb_wait(void) {
     __asm__("nop");
     __asm__("nop");
     __asm__("nop");
@@ -113,7 +113,7 @@ static inline void mmu_ldtlb_wait() {
 }
 
 /* Defined in mmuitlb.s */
-void mmu_reset_itlb();
+void mmu_reset_itlb(void);
 
 /* Defined below */
 static mmupage_t *map_virt(mmucontext_t *context, int virtpage);
@@ -576,7 +576,7 @@ int mmu_copyv(mmucontext_t *context1, struct iovec *iov1, int iovcnt1,
 /********************************************************************************/
 /* Exception handlers */
 
-mmu_mapfunc_t mmu_map_get_callback() {
+mmu_mapfunc_t mmu_map_get_callback(void) {
     return map_func;
 }
 
@@ -703,7 +703,7 @@ static void initial_page_write(irq_t source, irq_context_t *context) {
 
 /********************************************************************************/
 /* Init routine */
-int mmu_init() {
+int mmu_init(void) {
     /* Setup last URC counter (to make sure we don't thrash the
        TLB caches accidentally) */
     last_urc = 0;
@@ -738,7 +738,7 @@ int mmu_init() {
 }
 
 /* Shutdown */
-void mmu_shutdown() {
+void mmu_shutdown(void) {
     /* Turn off MMU */
     *mmucr = 0x00000204;
 

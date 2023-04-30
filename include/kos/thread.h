@@ -269,7 +269,7 @@ int thd_block_now(irq_context_t * mycxt);
 
     \return                 The IRQ context of the thread selected.
 */
-irq_context_t * thd_choose_new();
+irq_context_t * thd_choose_new(void);
 
 /** \brief  Given a thread ID, locates the thread structure.
     \param  tid             The thread ID to retrieve.
@@ -387,7 +387,7 @@ void thd_schedule_next(kthread_t *thd);
     This function manually yields the current thread's timeslice to the system,
     forcing a reschedule to occur.
 */
-void thd_pass();
+void thd_pass(void);
 
 /** \brief  Sleep for a given number of milliseconds.
 
@@ -417,7 +417,7 @@ int thd_set_prio(kthread_t *thd, prio_t prio);
 /** \brief  Retrieve the current thread's kthread struct.
     \return                 The current thread's structure.
 */
-kthread_t *thd_get_current();
+kthread_t *thd_get_current(void);
 
 /** \brief  Retrieve the thread's label.
     \param  thd             The thread to retrieve from.
@@ -572,7 +572,7 @@ int thd_init(int mode);
     This is done for you by the normal shutdown procedure of KOS. This will
     also shutdown all the various synchronization primitives.
 */
-void thd_shutdown();
+void thd_shutdown(void);
 
 __END_DECLS
 

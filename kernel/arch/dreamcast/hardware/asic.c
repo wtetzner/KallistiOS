@@ -151,7 +151,7 @@ static void handler_irq9(irq_t source, irq_context_t *context) {
 
 
 /* Disable all G2 events */
-void asic_evt_disable_all() {
+void asic_evt_disable_all(void) {
     vuint32 * asicen;
     int irq, sub;
 
@@ -189,7 +189,7 @@ void asic_evt_enable(uint32 code, int irqlevel) {
 }
 
 /* Initialize events */
-static void asic_evt_init() {
+static void asic_evt_init(void) {
     /* Clear any pending interrupts and disable all events */
     asic_evt_disable_all();
     ASIC_ACK_A = 0xffffffff;
@@ -206,7 +206,7 @@ static void asic_evt_init() {
 }
 
 /* Shutdown events */
-static void asic_evt_shutdown() {
+static void asic_evt_shutdown(void) {
     /* Disable all events */
     asic_evt_disable_all();
 
@@ -217,11 +217,11 @@ static void asic_evt_shutdown() {
 }
 
 /* Init routine */
-void asic_init() {
+void asic_init(void) {
     asic_evt_init();
 }
 
 
-void asic_shutdown() {
+void asic_shutdown(void) {
     asic_evt_shutdown();
 }

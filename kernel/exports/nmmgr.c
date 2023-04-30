@@ -48,7 +48,7 @@ nmmgr_handler_t * nmmgr_lookup(const char *fn) {
         return cur;
 }
 
-nmmgr_list_t * nmmgr_get_list() {
+nmmgr_list_t * nmmgr_get_list(void) {
     return &nmmgr_handlers;
 }
 
@@ -85,7 +85,7 @@ int nmmgr_handler_remove(nmmgr_handler_t *hnd) {
 }
 
 /* Initialize structures */
-int nmmgr_init() {
+int nmmgr_init(void) {
     int rv = 0;
 
     /* Start with no handlers */
@@ -97,7 +97,7 @@ int nmmgr_init() {
     return rv;
 }
 
-void nmmgr_shutdown() {
+void nmmgr_shutdown(void) {
     nmmgr_handler_t *c, *n;
 
     c = LIST_FIRST(&nmmgr_handlers);

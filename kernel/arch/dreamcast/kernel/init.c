@@ -59,7 +59,7 @@ int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
 /* Auto-init stuff: override with a non-weak symbol if you don't want all of
    this to be linked into your code (and do the same with the
    arch_auto_shutdown function too). */
-int  __attribute__((weak)) arch_auto_init() {
+int  __attribute__((weak)) arch_auto_init(void) {
 #ifndef _arch_sub_naomi
     union {
         uint32 ipl;
@@ -181,7 +181,7 @@ int  __attribute__((weak)) arch_auto_init() {
     return 0;
 }
 
-void  __attribute__((weak)) arch_auto_shutdown() {
+void  __attribute__((weak)) arch_auto_shutdown(void) {
 #ifndef _arch_sub_naomi
     fs_dclsocket_shutdown();
     net_shutdown();

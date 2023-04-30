@@ -390,7 +390,7 @@ static int kbd_enqueue(kbd_state_t *state, uint8 keycode, int mods) {
 }
 
 /* Take a key off the key queue, or return -1 if there is none waiting */
-int kbd_get_key() {
+int kbd_get_key(void) {
     int rv;
 
     /* If queueing isn't active, there won't be anything to get */
@@ -612,12 +612,12 @@ static maple_driver_t kbd_drv = {
 };
 
 /* Add the keyboard to the driver chain */
-int kbd_init() {
+int kbd_init(void) {
     if(!kbd_drv.drv_list.le_prev)
         return maple_driver_reg(&kbd_drv);
     return -1;
 }
 
-void kbd_shutdown() {
+void kbd_shutdown(void) {
     maple_driver_unreg(&kbd_drv);
 }

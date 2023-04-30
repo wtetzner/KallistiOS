@@ -48,10 +48,10 @@ int vblank_handler_remove(int handle);
 /* \cond */
 /** Initialize the vblank handler. This must be called after the asic module
     is initialized. */
-int vblank_init();
+int vblank_init(void);
 
 /** Shut down the vblank handler. */
-int vblank_shutdown();
+int vblank_shutdown(void);
 /* \endcond */
 
 __END_DECLS
