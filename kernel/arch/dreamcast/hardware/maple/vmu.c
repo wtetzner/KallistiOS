@@ -155,7 +155,7 @@ int vmu_beep_raw(maple_device_t * dev, uint32 beep) {
 
     /* Wait for the timer to accept it */
     if(genwait_wait(&dev->frame, "vmu_beep_raw", 500, NULL) < 0) {
-        if(dev->frame.state != MAPLE_FRAME_VACANT)  {
+        if(dev->frame.state != MAPLE_FRAME_VACANT) {
             /* Something went wrong.... */
             dev->frame.state = MAPLE_FRAME_VACANT;
             dbglog(DBG_ERROR, "vmu_beep_raw: timeout to unit %c%c, beep: %lu\n",

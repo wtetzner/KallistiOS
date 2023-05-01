@@ -423,9 +423,9 @@ static void g2_read_block_8(uint8 *dst, uint8 *src, int len) {
     G2_LOCK(old1, old2);
 
     /* This is in case dst is not multiple of 4, which never happens here */
-    /*     while ( (((uint32)dst)&3) ) { */
+    /*     while( (((uint32)dst)&3) ) { */
     /*       *dst++ = *src++; */
-    /*       if (!--len) */
+    /*       if(!--len) */
     /*  return; */
     /*     } */
 
@@ -637,7 +637,7 @@ static int bba_tx(const uint8 * pkt, int len, int wait)
     /*
        int i;
 
-    printf("Transmitting packet:\r\n"); for (i=0; i<len; i++) { printf("%02x ", pkt[i]); if (i
+    printf("Transmitting packet:\r\n"); for(i=0; i<len; i++) { printf("%02x ", pkt[i]); if(i
        && !(i % 16)) printf("\r\n"); } printf("\r\n");
     */
 
@@ -783,7 +783,7 @@ static void bba_rx(void) {
             break;
         }
 
-        /*     if ( ( ( g2_read_16(NIC(RT_RXBUFHEAD)) - ring_offset ) & (RX_BUFFER_LEN-1)) < */
+        /*     if( ( ( g2_read_16(NIC(RT_RXBUFHEAD)) - ring_offset ) & (RX_BUFFER_LEN-1)) < */
         /*   ( (rx_size+4+3) & (RX_BUFFER_LEN-3-1) )) { */
         /*       //dbglog(DBG_KDEBUG, "bba: oops\n"); */
         /*       break; */

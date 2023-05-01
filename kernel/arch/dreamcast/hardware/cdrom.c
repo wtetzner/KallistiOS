@@ -106,7 +106,7 @@ int cdrom_set_sector_size(int size) {
 int cdrom_exec_cmd(int cmd, void *param) {
     int status[4] = {0};
     int f, n;
-    
+
     mutex_lock(&_g1_ata_mutex);
 
     /* Make sure to select the GD-ROM drive. */
@@ -122,8 +122,9 @@ int cdrom_exec_cmd(int cmd, void *param) {
         if(n == PROCESSING)
             thd_pass();
     }
-    while(n == PROCESSING);
-    
+    while(n == PROCESSING)
+        ;
+
     mutex_unlock(&_g1_ata_mutex);
 
     if(n == COMPLETED)
@@ -278,7 +279,7 @@ int cdrom_reinit_ex(int sector_part, int cdxa, int sector_size) {
 
     r = cdrom_change_datatype(sector_part, cdxa, sector_size);
     mutex_unlock(&_g1_ata_mutex);
-    
+
     return r;
 }
 
@@ -324,7 +325,7 @@ int cdrom_read_sectors_ex(void *buffer, int sector, int cnt, int mode) {
     */
     if(mode == CDROM_READ_DMA)
         rv = cdrom_exec_cmd(CMD_DMAREAD, &params);
-    else if (mode == CDROM_READ_PIO)
+    else if(mode == CDROM_READ_PIO)
         rv = cdrom_exec_cmd(CMD_PIOREAD, &params);
 
     mutex_unlock(&_g1_ata_mutex);

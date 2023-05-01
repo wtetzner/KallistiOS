@@ -850,7 +850,7 @@ int kthread_key_delete(kthread_key_t key) {
     }
 
     /* Make sure we can actually use free below. */
-    if(!malloc_irq_safe())  {
+    if(!malloc_irq_safe()) {
         irq_restore(old);
         errno = EPERM;
         return -1;

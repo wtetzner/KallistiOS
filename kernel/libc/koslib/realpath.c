@@ -70,7 +70,7 @@ realpath(const char *path, char resolved[PATH_MAX]) {
         left_len = strlcpy(left, path + 1, sizeof(left));
     }
     else {
-        /* if (getcwd(resolved, PATH_MAX) == NULL) {
+        /* if(getcwd(resolved, PATH_MAX) == NULL) {
             strlcpy(resolved, ".", PATH_MAX);
             return (NULL);
         } */

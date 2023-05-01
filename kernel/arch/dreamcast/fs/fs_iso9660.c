@@ -685,7 +685,7 @@ static ssize_t iso_read(void * h, void *buf, size_t bytes) {
            here commented out in case we could find a better use
            for it later than speed (i.e., preventing thread context
            switches). */
-        /* if (thissect == 2048 && toread >= 2048) {
+        /* if(thissect == 2048 && toread >= 2048) {
             // Round it off to an even sector count
             thissect = toread / 2048;
             toread = thissect * 2048;
@@ -694,7 +694,7 @@ static ssize_t iso_read(void * h, void *buf, size_t bytes) {
                 thissect);
 
             // Do the read
-            if (cdrom_read_sectors(outbuf,
+            if(cdrom_read_sectors(outbuf,
                 fh[fd].first_extent + fh[fd].ptr/2048 + 150,
                 thissect) < 0)
             {
