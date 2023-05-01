@@ -266,7 +266,7 @@ int rwsem_read_trylock(rw_semaphore_t *s) {
     int old, rv;
 
     old = irq_disable();
-    
+
     if(s->initialized != 1 && s->initialized != 2) {
         rv = -1;
         errno = EINVAL;

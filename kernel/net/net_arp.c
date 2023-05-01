@@ -242,7 +242,7 @@ int net_arp_revlookup(netif_t *nif, uint8 ip_out[4], const uint8 mac_in[6]) {
 }
 
 /* Send an ARP reply packet on the specified network adapter */
-static int net_arp_send(netif_t *nif, arp_pkt_t *pkt)   {
+static int net_arp_send(netif_t *nif, arp_pkt_t *pkt) {
     arp_pkt_t pkt_out;
     eth_hdr_t eth_hdr;
     uint8 buf[sizeof(arp_pkt_t) + sizeof(eth_hdr_t)];

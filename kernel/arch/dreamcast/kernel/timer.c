@@ -339,7 +339,7 @@ uint16 perf_cntr_get_config(int which) {
 int perf_cntr_start(int which, int mode, int count_type) {
     perf_cntr_clear(which);
     PMCR_CTRL(which) = PMCR_RUN | mode | (count_type << PMCR_CLOCK_TYPE_SHIFT);
-    
+
     return 0;
 }
 

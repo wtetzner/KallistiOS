@@ -477,7 +477,7 @@ int mmu_copyv(mmucontext_t *context1, struct iovec *iov1, int iovcnt1,
             run = dstcnt;
 
         /* Do the segment copy */
-        /* if (!sproket) {
+        /* if(!sproket) {
             dbgio_printf("Copying %08lx -> %08lx (%08lx -> %08lx), %d bytes\n",
                 srcptr, dstptr, src, dst, run);
             dbgio_flush();
@@ -642,7 +642,7 @@ void mmu_gen_tlb_miss(const char *what, irq_t source, irq_context_t *context) {
     }
 
     /* Make sure we don't overwrite the last TLB entry */
-    /* if (GET_URC() == last_urc) {
+    /* if(GET_URC() == last_urc) {
         last_urc++;
         SET_URC(last_urc);
     } else {

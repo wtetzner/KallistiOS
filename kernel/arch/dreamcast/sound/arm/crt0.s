@@ -68,7 +68,7 @@ fiq_timer:
 	str	r9,[r8]
 	
 	# Request a new timer interrupt. We'll calculate the number
-	# put in here based on the "jps" (jiffies per second). 
+	# put in here based on the "jps" (jiffies per second).
 	ldr	r8, timer_control
 	mov	r9,#256-(44100/4410)
 #	ldr	r9,jps

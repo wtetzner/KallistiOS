@@ -68,12 +68,12 @@ void snd_sfx_unload_all(void) {
 /* Unload a single sample */
 void snd_sfx_unload(sfxhnd_t idx) {
     snd_effect_t * t = (snd_effect_t *)idx;
-    
+
     if(idx == SFXHND_INVALID) {
         dbglog(DBG_WARNING, "snd_sfx: can't unload an invalid SFXHND\n");
         return;
     }
-    
+
     snd_mem_free(t->locl);
 
     if(t->stereo)
@@ -154,7 +154,7 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
     t = malloc(sizeof(snd_effect_t));
     memset(t, 0, sizeof(snd_effect_t));
-    
+
     /* Common characteristics not impacted by stream type */
     t->rate = hz;
     t->stereo = stereo - 1;
@@ -242,7 +242,7 @@ sfxhnd_t snd_sfx_load(const char *fn) {
     if(ownmem)
         free(tmp);
 
-    if(t != SFXHND_INVALID) 
+    if(t != SFXHND_INVALID)
         LIST_INSERT_HEAD(&snd_effects, t, list);
 
     return (sfxhnd_t)t;
@@ -270,12 +270,12 @@ int snd_sfx_play_chn(int chn, sfxhnd_t idx, int vol, int pan) {
     chan->loopend = size;
     chan->freq = t->rate;
     chan->vol = vol;
-    
-    if(!t->stereo) {        
+
+    if(!t->stereo) {
         chan->pan = pan;
         snd_sh4_to_aica(tmp, cmd->size);
     }
-    else {        
+    else {
         chan->pan = 0;
 
         snd_sh4_to_aica_stop();

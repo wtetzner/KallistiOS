@@ -112,7 +112,7 @@ typedef struct {
 /* \cond */
 /* Init / Shutdown */
 int cont_init(void);
-void    cont_shutdown(void);
+void cont_shutdown(void);
 /* \endcond */
 
 /** \brief  Controller automatic callback type.
@@ -134,7 +134,7 @@ typedef void (*cont_btn_callback_t)(uint8 addr, uint32 btns);
     \param  btns            The buttons bitmask to match.
     \param  cb              The callback to call when the buttons are pressed.
 */
-void    cont_btn_callback(uint8 addr, uint32 btns, cont_btn_callback_t cb);
+void cont_btn_callback(uint8 addr, uint32 btns, cont_btn_callback_t cb);
 
 /** \defgroup   controller_caps Controller capability bits.
 

@@ -757,7 +757,7 @@ void maple_wait_scan(void);
    like this:
 
    MAPLE_FOREACH_BEGIN(MAPLE_FUNC_CONTROLLER, cont_state_t, st)
-    if (st->buttons & CONT_START)
+    if(st->buttons & CONT_START)
         return -1;
    MAPLE_FOREACH_END()
 
@@ -786,7 +786,7 @@ void maple_wait_scan(void);
         int __i; \
         \
         __i = 0; \
-        while ( (__dev = maple_enum_type(__i, TYPE)) ) { \
+        while( (__dev = maple_enum_type(__i, TYPE)) ) { \
             VAR = (VARTYPE *)maple_dev_status(__dev); \
             do {
 

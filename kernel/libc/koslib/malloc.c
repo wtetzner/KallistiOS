@@ -1154,12 +1154,12 @@ extern "C" {
       struct Node* build_list() {
         struct Node** pool;
         int n = read_number_of_nodes_needed();
-        if (n <= 0) return 0;
+        if(n <= 0) return 0;
         pool = (struct Node**)(independent_calloc(n, sizeof(struct Node), 0);
-        if (pool == 0) die();
+        if(pool == 0) die();
         // organize into a linked list...
         struct Node* first = pool[0];
-        for (i = 0; i < n-1; ++i)
+        for(i = 0; i < n-1; ++i)
           pool[i]->next = pool[i+1];
         free(pool);     // Can now free the array (or not, if it is needed later)
         return first;
@@ -1214,7 +1214,7 @@ extern "C" {
         int msglen = strlen(msg);
         size_t sizes[3] = { sizeof(struct Head), msglen, sizeof(struct Foot) };
         void* chunks[3];
-        if (independent_comalloc(3, sizes, chunks) == 0)
+        if(independent_comalloc(3, sizes, chunks) == 0)
           die();
         struct Head* head = (struct Head*)(chunks[0]);
         char*        body = (char*)(chunks[1]);
@@ -2451,7 +2451,7 @@ int public_mALLOPt(int p, int v) {
         INTERNAL_SIZE_T* mzp = (INTERNAL_SIZE_T*)(charp);                           \
         CHUNK_SIZE_T  mctmp = (nbytes)/sizeof(INTERNAL_SIZE_T);                     \
         long mcn;                                                                   \
-        if (mctmp < 8) mcn = 0; else { mcn = (mctmp-1)/8; mctmp %= 8; }             \
+        if(mctmp < 8) mcn = 0; else { mcn = (mctmp-1)/8; mctmp %= 8; }             \
         switch (mctmp) {                                                            \
             case 0: for(;;) { *mzp++ = 0;                                             \
                 case 7:           *mzp++ = 0;                                             \
@@ -2470,7 +2470,7 @@ int public_mALLOPt(int p, int v) {
         INTERNAL_SIZE_T* mcdst = (INTERNAL_SIZE_T*) dest;                           \
         CHUNK_SIZE_T  mctmp = (nbytes)/sizeof(INTERNAL_SIZE_T);                     \
         long mcn;                                                                   \
-        if (mctmp < 8) mcn = 0; else { mcn = (mctmp-1)/8; mctmp %= 8; }             \
+        if(mctmp < 8) mcn = 0; else { mcn = (mctmp-1)/8; mctmp %= 8; }             \
         switch (mctmp) {                                                            \
             case 0: for(;;) { *mcdst++ = *mcsrc++;                                    \
                 case 7:           *mcdst++ = *mcsrc++;                                    \
@@ -2680,7 +2680,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /*  Same, except also perform argument check */
 
 #define checked_request2size(req, sz)                             \
-    if (REQUEST_OUT_OF_RANGE(req)) {                                \
+    if(REQUEST_OUT_OF_RANGE(req)) {                                \
         MALLOC_FAILURE_ACTION;                                        \
         return 0;                                                     \
     }                                                               \
@@ -3354,7 +3354,7 @@ static void do_check_inuse_chunk(p) mchunkptr p;
       Since more things can be checked with free chunks than inuse ones,
       if an inuse chunk borders them and debug is on, it's worth doing them.
     */
-    if(!prev_inuse(p))  {
+    if(!prev_inuse(p)) {
         /* Note that we cannot even look at prev unless it is not inuse */
         mchunkptr prv = prev_chunk(p);
         assert(next_chunk(prv) == p);
@@ -4286,7 +4286,7 @@ Void_t* mALLOc(bytes) size_t bytes;
                 unlink(victim, bck, fwd);
 
                 /* Exhaust */
-                if(remainder_size < MINSIZE)  {
+                if(remainder_size < MINSIZE) {
                     set_inuse_bit_at_offset(victim, size);
                     check_malloced_chunk(victim, nb);
                     return chunk2mem(victim);
@@ -5454,13 +5454,13 @@ int value;
     void *ptr = 0;
     static void *sbrk_top = 0;
 
-    if (size > 0)
+    if(size > 0)
     {
-      if (size < MINIMUM_MORECORE_SIZE)
+      if(size < MINIMUM_MORECORE_SIZE)
          size = MINIMUM_MORECORE_SIZE;
-      if (CurrentExecutionLevel() == kTaskLevel)
+      if(CurrentExecutionLevel() == kTaskLevel)
          ptr = PoolAllocateResident(size + RM_PAGE_SIZE, 0);
-      if (ptr == 0)
+      if(ptr == 0)
       {
         return (void *) MORECORE_FAILURE;
       }
@@ -5471,7 +5471,7 @@ int value;
       sbrk_top = (char *) ptr + size;
       return ptr;
     }
-    else if (size < 0)
+    else if(size < 0)
     {
       // we don't currently support shrink behavior
       return (void *) MORECORE_FAILURE;
@@ -5489,8 +5489,8 @@ int value;
   {
     void **ptr;
 
-    for (ptr = our_os_pools; ptr < &our_os_pools[MAX_POOL_ENTRIES]; ptr++)
-      if (*ptr)
+    for(ptr = our_os_pools; ptr < &our_os_pools[MAX_POOL_ENTRIES]; ptr++)
+      if(*ptr)
       {
          PoolDeallocate(*ptr);
          *ptr = 0;

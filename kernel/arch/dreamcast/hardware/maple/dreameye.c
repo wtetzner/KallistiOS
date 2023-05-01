@@ -126,7 +126,7 @@ int dreameye_get_image_count(maple_device_t *dev, int block) {
         /* Wait for the Dreameye to accept it */
         if(genwait_wait(&dev->frame, "dreameye_get_image_count", 500,
                         NULL) < 0) {
-            if(dev->frame.state != MAPLE_FRAME_VACANT)  {
+            if(dev->frame.state != MAPLE_FRAME_VACANT) {
                 /* Something went wrong... */
                 dev->frame.state = MAPLE_FRAME_VACANT;
                 dbglog(DBG_ERROR, "dreameye_get_image_count: timeout to unit "
@@ -239,7 +239,7 @@ static int dreameye_get_transfer_count(maple_device_t *dev, uint8 img) {
     /* Wait for the Dreameye to accept it */
     if(genwait_wait(&dev->frame, "dreameye_get_transfer_count", 500,
                     NULL) < 0) {
-        if(dev->frame.state != MAPLE_FRAME_VACANT)  {
+        if(dev->frame.state != MAPLE_FRAME_VACANT) {
             /* Something went wrong... */
             dev->frame.state = MAPLE_FRAME_VACANT;
             dbglog(DBG_ERROR, "dreameye_get_transfer_count: timeout to unit "
