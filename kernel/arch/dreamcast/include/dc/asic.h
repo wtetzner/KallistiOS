@@ -27,9 +27,9 @@ __BEGIN_DECLS
 #include <arch/types.h>
 
 /* All event codes are two 8-bit integers; the top integer is the event code
-   register to look in to check the event (and to acknolwedge it). The
-   register to check is 0xa05f6900+4*regnum. The bottom integer is the
-   bit index within that register. */
+    register to look in to check the event (and to acknolwedge it). The
+    register to check is 0xa05f6900+4*regnum. The bottom integer is the
+    bit index within that register. */
 
 /** \defgroup asic_events           ASIC event codes
     @{

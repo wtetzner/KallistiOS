@@ -131,18 +131,18 @@ void asic_evt_set_handler(uint16 code, asic_evt_handler hnd) {
    to handle external IRQ 9. */
 static void handler_irq9(irq_t source, irq_context_t *context) {
     uint8 reg, i;
-	
-	(void)source;
-	(void)context;
+
+    (void)source;
+    (void)context;
 
     /* Go through each event register and look for pending events */
     for(reg = 0; reg < ASIC_EVT_REGS; reg++) {
         /* Read the event mask and clear pending */
         uint32 mask = IN32(ASIC_ACK_A + (reg * 0x4));
-		OUT32(ASIC_ACK_A + (reg * 0x4), mask);
-		
-		/* Short circuit going through the table if none on this reg */
-		if(mask == 0) continue;
+        OUT32(ASIC_ACK_A + (reg * 0x4), mask);
+
+        /* Short circuit going through the table if none on this reg */
+        if(mask == 0) continue;
 
         /* Search for relevant handlers */
         for(i = 0; i < ASIC_EVT_REG_HNDS; i++) {
@@ -161,37 +161,37 @@ void asic_evt_disable_all(void) {
 
     for(irq = 0; irq < ASIC_IRQ_MAX; irq++) {
         for(sub = 0; sub < ASIC_EVT_REGS; sub++) {
-			OUT32(ASIC_EVT_REG_ADDR(irq, sub), 0);            
+            OUT32(ASIC_EVT_REG_ADDR(irq, sub), 0);
         }
     }
 }
 
 /* Disable a particular G2 event */
 void asic_evt_disable(uint16 code, uint8 irqlevel) {
-	assert(irqlevel < ASIC_IRQ_MAX);
-	
-	uint8 evtreg, evt;
+    assert(irqlevel < ASIC_IRQ_MAX);
+
+    uint8 evtreg, evt;
 
     evtreg = (code >> 8) & 0xff;
     evt = code & 0xff;
 
-	uint32 addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
-	uint32 val = IN32(addr);
-	OUT32(addr, val & ~(1 << evt));
+    uint32 addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
+    uint32 val = IN32(addr);
+    OUT32(addr, val & ~(1 << evt));
 }
 
 /* Enable a particular G2 event */
 void asic_evt_enable(uint16 code, uint8 irqlevel) {
-	assert(irqlevel < ASIC_IRQ_MAX);
+    assert(irqlevel < ASIC_IRQ_MAX);
 
-	uint8 evtreg, evt;
+    uint8 evtreg, evt;
 
     evtreg = (code >> 8) & 0xff;
     evt = code & 0xff;
 
-	uint32 addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
-	uint32 val = IN32(addr);
-	OUT32(addr, val | (1 << evt));
+    uint32 addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
+    uint32 val = IN32(addr);
+    OUT32(addr, val | (1 << evt));
 }
 
 /* Initialize events */
