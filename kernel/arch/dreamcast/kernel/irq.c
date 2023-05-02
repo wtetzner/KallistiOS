@@ -129,7 +129,9 @@ void irq_handle_exception(int code) {
         arch_panic("double fault");
     }
 
-    inside_int = 1;
+    /* Reveal this info about the int to inside_int for better 
+       diagnostics returns if we try to do something in the int. */
+    inside_int = ((code&0xf)<<16) | (evt&0xffff);
 
     /* If there's a global handler, call it */
     if(irq_hnd_global) {
