@@ -800,8 +800,13 @@ int fs_pty_shutdown(void) {
     if(!initted)
         return 0;
 
+    /* If we're in an int, lets do the trylock */
+    if(irq_inside_int())
+        mutex_trylock(&list_mutex);
+    else
+        mutex_lock(&list_mutex);
+
     /* Go through and free all the pty entries */
-    mutex_lock(&list_mutex);
     c = LIST_FIRST(&ptys);
 
     while(c != NULL) {

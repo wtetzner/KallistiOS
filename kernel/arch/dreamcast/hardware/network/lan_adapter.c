@@ -430,9 +430,7 @@ static void la_stop(void) {
 /* Shut it down for good */
 static void la_hw_shutdown(void) {
     /* Power down chip */
-    thd_sleep(2);
     la_write(DLCR7, la_read(DLCR7) & ~DLCR7_NSTBY);
-    thd_sleep(2);
 
     la_started = LA_NOT_STARTED;
 
