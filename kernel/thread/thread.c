@@ -920,7 +920,7 @@ int thd_init(void) {
     /* Schedule our first wakeup */
     timer_primary_wakeup(1000 / HZ);
 
-    printf("thd: pre-emption enabled, HZ=%d\n", HZ);
+    dbglog(DBG_INFO, "thd: pre-emption enabled, HZ=%d\n", HZ);
 
     return 0;
 }
