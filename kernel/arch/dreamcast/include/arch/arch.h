@@ -187,12 +187,12 @@ extern void * __kos_romdisk;
     These are the flags you can specify with KOS_INIT_FLAGS().
     @{
 */
-/** \brief  Default init flags (IRQs on, preemption enabled). */
-#define INIT_DEFAULT \
-    (INIT_IRQ | INIT_THD_PREEMPT)
+/** \brief  Default init flags (IRQs on). */
+#define INIT_DEFAULT      INIT_IRQ
 
 #define INIT_NONE           0x0000  /**< \brief Don't init optional things */
 #define INIT_IRQ            0x0001  /**< \brief Enable IRQs at startup */
+/* Preemptive mode is the only mode now. Keeping define for compatability. */
 #define INIT_THD_PREEMPT    0x0002  /**< \brief Enable thread preemption */
 #define INIT_NET            0x0004  /**< \brief Enable built-in networking */
 #define INIT_MALLOCSTATS    0x0008  /**< \brief Enable malloc statistics */

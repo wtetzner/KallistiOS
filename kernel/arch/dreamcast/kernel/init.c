@@ -105,9 +105,9 @@ int  __attribute__((weak)) arch_auto_init(void) {
 
     /* Threads */
     if(__kos_init_flags & INIT_THD_PREEMPT)
-        thd_init(THD_MODE_PREEMPT);
-    else
-        thd_init(THD_MODE_COOP);
+        dbglog(DBG_WARNING, "INIT_THD_PREEMPT is deprecated. KOS is always \
+            in pre-emptive threading mode\n");
+    thd_init();
 
     nmmgr_init();
 

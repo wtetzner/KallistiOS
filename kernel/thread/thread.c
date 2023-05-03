@@ -25,7 +25,7 @@
 /*
 
 This module supports thread scheduling in KOS. The timer interrupt is used
-to re-schedule the processor HZ times per second in pre-emptive mode.
+to re-schedule the processor HZ times per second.
 This is a fairly simplistic scheduler, though it does employ some
 standard advanced OS tactics like priority scheduling and semaphores.
 
@@ -53,7 +53,7 @@ static struct ktqueue run_queue;
 /* The currently executing thread. This thread should not be on any queues. */
 kthread_t *thd_current = NULL;
 
-/* Thread mode: cooperative or pre-emptive. */
+/* Thread mode: uninitialized or pre-emptive. */
 static int thd_mode = THD_MODE_NONE;
 
 /* Reaper semaphore. Counts the number of threads waiting to be reaped. */
@@ -655,7 +655,9 @@ static void thd_timer_hnd(irq_context_t *context) {
    sleep because it eases the load on the system for the other
    threads. */
 void thd_sleep(int ms) {
+    /* This should never happen. This should, perhaps, assert. */
     if(thd_mode == THD_MODE_NONE) {
+        dbglog(DBG_WARNING, "thd_sleep called when threading not initialized.\n");
         timer_spin_sleep(ms);
         return;
     }
@@ -811,28 +813,6 @@ struct _reent * thd_get_reent(kthread_t *thd) {
 
 /*****************************************************************************/
 
-/* Change threading modes */
-int thd_set_mode(int mode) {
-    int old = thd_mode;
-
-    /* Nothing to change? */
-    if(thd_mode == mode)
-        return thd_mode;
-
-    if(thd_mode == THD_MODE_COOP) {
-        /* Schedule our first pre-emption wakeup */
-        timer_primary_wakeup(1000 / HZ);
-    }
-
-    thd_mode = mode;
-
-    return old;
-}
-
-int thd_get_mode(void) {
-    return thd_mode;
-}
-
 /* Delete a TLS key. Note that currently this doesn't prevent you from reusing
    the key after deletion. This seems ok, as the pthreads standard states that
    using the key after deletion results in "undefined behavior".
@@ -878,7 +858,7 @@ int kthread_key_delete(kthread_key_t key) {
 /* Init/shutdown */
 
 /* Init */
-int thd_init(int mode) {
+int thd_init(void) {
     kthread_t *kern, *reaper;
 
     /* Make sure we're not already running */
@@ -886,7 +866,7 @@ int thd_init(int mode) {
         return -1;
 
     /* Setup our mode as appropriate */
-    thd_mode = mode;
+    thd_mode = THD_MODE_PREEMPT;
 
     /* Initialize handle counters */
     tid_highest = 1;
@@ -937,15 +917,10 @@ int thd_init(int mode) {
     /* Setup our pre-emption handler */
     timer_primary_set_callback(thd_timer_hnd);
 
-    /* If we're in pre-emptive mode, then schedule the first context switch */
-    if(thd_mode == THD_MODE_PREEMPT) {
-        /* Schedule our first wakeup */
-        timer_primary_wakeup(1000 / HZ);
+    /* Schedule our first wakeup */
+    timer_primary_wakeup(1000 / HZ);
 
-        printf("thd: pre-emption enabled, HZ=%d\n", HZ);
-    }
-    else
-        printf("thd: pre-emption disabled\n");
+    printf("thd: pre-emption enabled, HZ=%d\n", HZ);
 
     return 0;
 }
@@ -954,10 +929,8 @@ int thd_init(int mode) {
 void thd_shutdown(void) {
     kthread_t *n1, *n2;
 
-    /* Disable pre-emption, if neccessary */
-    if(thd_mode == THD_MODE_PREEMPT) {
-        timer_primary_set_callback(NULL);
-    }
+    /* Remove our pre-emption handler */
+    timer_primary_set_callback(NULL);
 
     /* Kill remaining live threads */
     n1 = LIST_FIRST(&thd_list);
