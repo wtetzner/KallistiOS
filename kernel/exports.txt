@@ -155,7 +155,6 @@ thd_get_current
 thd_get_pwd
 thd_set_pwd
 thd_get_errno
-thd_set_mode
 thd_block_now
 
 # Libraries
