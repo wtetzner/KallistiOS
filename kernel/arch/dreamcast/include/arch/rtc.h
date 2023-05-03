@@ -41,7 +41,7 @@ __BEGIN_DECLS
     presumably for power-efficiency reasons. Because of this, accessing 
     it requires a trip over the G2 BUS, which is notoriously slow.
 
-    \note 
+    \note
     For reading the current date/time, you should favor the standard C,
     C++, or POSIX functions, as they are platform-indpendent and are 
     calculating current time based on a cached boot time plus a delta
@@ -52,7 +52,7 @@ __BEGIN_DECLS
     Internally, the RTC's date/time is maintained using a 32-bit counter 
     with an epoch of January 1, 1950 00:00. Because of this, the Dreamcast's
     Y2K and the last timestamp it can represent before rolling over is 
-    February 06 2086 06:28:15. 
+    February 06 2086 06:28:15.
 */
 
 /** \defgroup rtc_regs Registers

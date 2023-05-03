@@ -754,7 +754,7 @@ int vmufs_write(maple_device_t * dev, const char * fn, void * inbuf, int insize,
 
     /* Write out the data and update our structs */
     if((st = vmufs_file_write(dev, &root, fat, dir, &nd, inbuf, insize / 512)) < 0) {
-        if (st == -2)
+        if(st == -2)
             rv = -7;
         else
             rv = -4;

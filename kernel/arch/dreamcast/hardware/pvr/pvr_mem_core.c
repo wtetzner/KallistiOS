@@ -350,7 +350,7 @@ int public_pvr_mALLOPt(int p, int v) {
         INTERNAL_SIZE_T* mzp = (INTERNAL_SIZE_T*)(charp);                           \
         unsigned long mctmp = (nbytes)/sizeof(INTERNAL_SIZE_T);                     \
         long mcn;                                                                   \
-        if (mctmp < 8) mcn = 0; else { mcn = (mctmp-1)/8; mctmp %= 8; }             \
+        if(mctmp < 8) mcn = 0; else { mcn = (mctmp-1)/8; mctmp %= 8; }             \
         switch (mctmp) {                                                            \
             case 0: for(;;) { *mzp++ = 0;                                             \
                 case 7:           *mzp++ = 0;                                             \
@@ -612,7 +612,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /*  Same, except also perform argument check */
 
 #define checked_request2size(req, sz)                             \
-    if (REQUEST_OUT_OF_RANGE(req)) {                                \
+    if(REQUEST_OUT_OF_RANGE(req)) {                                \
         MALLOC_FAILURE_ACTION;                                        \
         return 0;                                                     \
     }                                                               \
@@ -1221,7 +1221,7 @@ static void do_check_inuse_chunk(p) mchunkptr p;
       Since more things can be checked with free chunks than inuse ones,
       if an inuse chunk borders them and debug is on, it's worth doing them.
     */
-    if(!prev_inuse(p))  {
+    if(!prev_inuse(p)) {
         /* Note that we cannot even look at prev unless it is not inuse */
         mchunkptr prv = prev_chunk(p);
         assert(next_chunk(prv) == p);
@@ -2095,7 +2095,7 @@ Void_t* mALLOc(bytes) size_t bytes;
                 unlink(victim, bck, fwd);
 
                 /* Exhaust */
-                if(remainder_size < MINSIZE)  {
+                if(remainder_size < MINSIZE) {
                     set_inuse_bit_at_offset(victim, size);
                     check_malloced_chunk(victim, nb);
                     return chunk2mem(victim);
@@ -3446,13 +3446,13 @@ void pvr_int_mem_reset(void) {
     void *ptr = 0;
     static void *sbrk_top = 0;
 
-    if (size > 0)
+    if(size > 0)
     {
-      if (size < MINIMUM_MORECORE_SIZE)
+      if(size < MINIMUM_MORECORE_SIZE)
          size = MINIMUM_MORECORE_SIZE;
-      if (CurrentExecutionLevel() == kTaskLevel)
+      if(CurrentExecutionLevel() == kTaskLevel)
          ptr = PoolAllocateResident(size + RM_PAGE_SIZE, 0);
-      if (ptr == 0)
+      if(ptr == 0)
       {
         return (void *) MORECORE_FAILURE;
       }
@@ -3463,7 +3463,7 @@ void pvr_int_mem_reset(void) {
       sbrk_top = (char *) ptr + size;
       return ptr;
     }
-    else if (size < 0)
+    else if(size < 0)
     {
       // we don't currently support shrink behavior
       return (void *) MORECORE_FAILURE;
@@ -3481,8 +3481,8 @@ void pvr_int_mem_reset(void) {
   {
     void **ptr;
 
-    for (ptr = our_os_pools; ptr < &our_os_pools[MAX_POOL_ENTRIES]; ptr++)
-      if (*ptr)
+    for(ptr = our_os_pools; ptr < &our_os_pools[MAX_POOL_ENTRIES]; ptr++)
+      if(*ptr)
       {
          PoolDeallocate(*ptr);
          *ptr = 0;

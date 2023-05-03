@@ -1649,7 +1649,7 @@ typedef uint32 pvr_dr_state_t;
         (vtx_buf_ptr) = 0; \
         QACR0 = ((((uint32)PVR_TA_INPUT) >> 26) << 2) & 0x1c; \
         QACR1 = ((((uint32)PVR_TA_INPUT) >> 26) << 2) & 0x1c; \
-    } while (0)
+    } while(0)
 
 /** \brief  Obtain the target address for Direct Rendering.
 

@@ -693,9 +693,10 @@ int thd_join(kthread_t * thd, void **value_ptr) {
     if(thd == NULL)
         return -1;
 
-    if(irq_inside_int()) {
-        dbglog(DBG_WARNING, "thd_join(%p) called inside an interrupt!\n",
-               (void *)thd);
+    if((rv = irq_inside_int())) {
+        dbglog(DBG_WARNING, "thd_join(%p) called inside an interrupt with code: %x evt: %.4x\n",
+               (void *)thd,
+               ((rv>>16) & 0xf), (rv & 0xffff));
         return -1;
     }
 
@@ -850,7 +851,7 @@ int kthread_key_delete(kthread_key_t key) {
     }
 
     /* Make sure we can actually use free below. */
-    if(!malloc_irq_safe())  {
+    if(!malloc_irq_safe()) {
         irq_restore(old);
         errno = EPERM;
         return -1;

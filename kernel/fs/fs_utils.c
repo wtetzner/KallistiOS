@@ -166,7 +166,7 @@ ssize_t fs_path_append(char *dst, const char *src, size_t len) {
     /* If dst ends with '/' and src starts with '/', ignore '/' from dst */
     if(dlen > 0 && dst[dlen - 1] == '/' && src[0] == '/')
         --dlen;
-        
+
     /* Concatenate the src string on the dst, copying the NUL terminator while
        we are at it. */
     memcpy(dst + dlen, src, slen + 1);

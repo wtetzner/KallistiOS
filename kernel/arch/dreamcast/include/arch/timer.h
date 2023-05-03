@@ -228,7 +228,7 @@ void timer_shutdown(void);
 /** \defgroup   perf_counters Performance Counters
     The performance counter API exposes the SH4's hardware profiling registers, 
     which consist of two different sets of independently operable 64-bit 
-    counters.  
+    counters.
 */
 
 /** \brief  SH4 Performance Counter.

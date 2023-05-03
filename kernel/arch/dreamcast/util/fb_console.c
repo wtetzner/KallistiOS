@@ -34,7 +34,7 @@ static int fb_init(void) {
     bfont_set_encoding(BFONT_CODE_ISO8859_1);
 
     /* Init based on current video mode, defaulting to 640x480x16bpp. */
-    if (vid_mode == 0)
+    if(vid_mode == 0)
         dbgio_fb_set_target(NULL, 640, 480, 32, 32);
     else
         dbgio_fb_set_target(NULL, vid_mode->width, vid_mode->height, 32, 32);

@@ -203,7 +203,7 @@ void vid_set_start(uint32 base);
     This function sets the displayed framebuffer to the specified buffer and
     sets the vram_s and vram_l pointers to point at the next framebuffer, to
     allow for tearing-free framebuffer-direct drawing. The specified buffer 
-	is masked against (vid_mode->fb_count - 1) in order to loop around.
+    is masked against (vid_mode->fb_count - 1) in order to loop around.
 
     \param  fb              The framebuffer to display (or -1 for the next one).
 */

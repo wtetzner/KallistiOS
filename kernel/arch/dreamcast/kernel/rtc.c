@@ -81,7 +81,7 @@ int rtc_set_unix_secs(time_t secs) {
 
     /* Try 3 times to ensure we didn't write a value then have 
        the clock increment itself before the next. */
-    for(i = 0; i < RTC_RETRY_COUNT; i++) { 
+    for(i = 0; i < RTC_RETRY_COUNT; i++) {
         /* Write the least-significant 16-bits first, because 
            writing to the high 16-bits will lock RTC writes. */
         g2_write_32(RTC_TIMESTAMP_LOW_ADDR, (adjusted) & 0xffff);

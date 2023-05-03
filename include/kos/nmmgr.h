@@ -128,7 +128,7 @@ int nmmgr_handler_remove(nmmgr_handler_t *hnd);
 /** \cond */
 /* Name manager init */
 int nmmgr_init(void);
-void    nmmgr_shutdown(void);
+void nmmgr_shutdown(void);
 /** \endcond */
 
 __END_DECLS

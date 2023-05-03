@@ -176,7 +176,7 @@ uint16 *bfont_draw_one_row(uint16 *b, uint16 word, uint8 opaque, uint32 fg, uint
     uint16 write16 = 0x0000;
     uint16 oldcolor = *b;
 
-    if ((bpp == 4)||(bpp == 8)) {
+    if((bpp == 4)||(bpp == 8)) {
         /* For 4 or 8bpp we have to go 2 or 4 pixels at a time to properly write out in all cases. */
         uint8 bMask = (bpp==4) ? 0xf : 0xff;
         uint8 pix = 16/bpp;
@@ -217,21 +217,21 @@ unsigned char bfont_draw_ex(uint8 *buffer, uint32 bufwidth, uint32 fg, uint32 bg
     uint8 y;
 
     /* If they're requesting a wide char and in the wrong format, kick this out */
-    if (wide && (bfont_code_mode == BFONT_CODE_ISO8859_1)) {
+    if(wide && (bfont_code_mode == BFONT_CODE_ISO8859_1)) {
         dbglog(DBG_ERROR, "bfont_draw_ex: can't draw wide in bfont mode %d\n", bfont_code_mode);
         return 0;
     }
 
     /* Just making sure we can draw the character we want to */
-    if (bufwidth < (uint32)(BFONT_THIN_WIDTH*(wide+1))) {
+    if(bufwidth < (uint32)(BFONT_THIN_WIDTH*(wide+1))) {
         dbglog(DBG_ERROR, "bfont_draw_ex: buffer is too small to draw into\n");
         return 0;
     }
 
     /* Translate the character */
-    if (bfont_code_mode == BFONT_CODE_RAW)
+    if(bfont_code_mode == BFONT_CODE_RAW)
         ch = get_font_address() + c;
-    else if (wide && ((bfont_code_mode == BFONT_CODE_EUC) || (bfont_code_mode == BFONT_CODE_SJIS)))
+    else if(wide && ((bfont_code_mode == BFONT_CODE_EUC) || (bfont_code_mode == BFONT_CODE_SJIS)))
         ch = bfont_find_char_jp(c);
     else {
         if(iskana)
@@ -260,7 +260,7 @@ unsigned char bfont_draw_ex(uint8 *buffer, uint32 bufwidth, uint32 fg, uint32 bg
     }
 
     /* Return the horizontal distance covered in bytes */
-    if (wide)
+    if(wide)
         return (BFONT_WIDE_WIDTH*bpp)/8;
     else
         return (BFONT_THIN_WIDTH*bpp)/8;

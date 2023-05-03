@@ -99,7 +99,7 @@ struct netif_list * net_get_if_list(void) {
 /* Init/shutdown */
 
 /* Set default */
-netif_t *net_set_default(netif_t *n)    {
+netif_t *net_set_default(netif_t *n) {
     netif_t *olddev = net_default_dev;
 
     net_default_dev = n;

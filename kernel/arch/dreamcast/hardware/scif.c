@@ -224,7 +224,7 @@ int scif_init(void) {
         scsmr2 = 2;
         scbrr2 = (50000000 / (512 * serial_baud)) - 1;
     }
-    else if (serial_baud) {
+    else if(serial_baud) {
         scsmr2 = 3;
         scbrr2 = (50000000 / (2048 * serial_baud)) - 1;
     }
