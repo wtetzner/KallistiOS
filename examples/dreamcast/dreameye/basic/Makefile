@@ -21,9 +21,9 @@ $(TARGET): $(OBJS)
 	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o $(TARGET) $(KOS_START) \
 	$(OBJS) $(DATAOBJS) $(OBJEXTRA) $(KOS_LIBS)
 
-run: $(TARGET).elf
-	$(KOS_LOADER) $(TARGET).elf
+run: $(TARGET)
+	$(KOS_LOADER) $(TARGET)
 
 dist:
 	rm -f $(OBJS)
-	$(KOS_STRIP) $(TARGET).elf
+	$(KOS_STRIP) $(TARGET)
