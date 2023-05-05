@@ -59,7 +59,7 @@ typedef struct semaphore {
     \em     ENOMEM - out of memory \n
     \em     EINVAL - the semaphore's value is invalid (less than 0)
 */
-semaphore_t *sem_create(int value) __depr("Use sem_init or SEM_INITAILZER.");
+semaphore_t *sem_create(int value) __depr("Use sem_init or SEM_INITIALIZER.");
 
 /** \brief  Initialize a semaphore for use.
 

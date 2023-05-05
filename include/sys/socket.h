@@ -176,7 +176,7 @@ struct sockaddr_storage {
 /** \brief  Protocol family for Internet domain sockets (IPv6). */
 #define PF_INET6    AF_INET6
 
-/** \brief  Disable furhter receive operations. */
+/** \brief  Disable further receive operations. */
 #define SHUT_RD   0x00000001
 
 /** \brief  Disable further send operations. */

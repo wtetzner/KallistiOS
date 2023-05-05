@@ -80,7 +80,7 @@ typedef struct condvar {
     \par    Error Conditions:
     \em     ENOMEM - out of memory
 */
-condvar_t *cond_create() __depr("Use cond_init or COND_INTIALIZER.");
+condvar_t *cond_create() __depr("Use cond_init or COND_INITIALIZER.");
 
 /** \brief  Initialize a condition variable.
 
