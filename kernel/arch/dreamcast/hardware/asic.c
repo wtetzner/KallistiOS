@@ -116,8 +116,8 @@
 static asic_evt_handler asic_evt_handlers[ASIC_EVT_REGS][ASIC_EVT_REG_HNDS];
 
 /* Set a handler, or remove a handler */
-void asic_evt_set_handler(uint16 code, asic_evt_handler hnd) {
-    uint8 evtreg, evt;
+void asic_evt_set_handler(uint16_t code, asic_evt_handler hnd) {
+    uint8_t evtreg, evt;
 
     evtreg = (code >> 8) & 0xff;
     evt = code & 0xff;
@@ -130,7 +130,7 @@ void asic_evt_set_handler(uint16 code, asic_evt_handler hnd) {
 /* The ASIC event handler; this is called from the global IRQ handler
    to handle external IRQ 9. */
 static void handler_irq9(irq_t source, irq_context_t *context) {
-    uint8 reg, i;
+    uint8_t reg, i;
 
     (void)source;
     (void)context;
@@ -157,7 +157,7 @@ static void handler_irq9(irq_t source, irq_context_t *context) {
 
 /* Disable all G2 events */
 void asic_evt_disable_all(void) {
-    uint8 irq, sub;
+    uint8_t irq, sub;
 
     for(irq = 0; irq < ASIC_IRQ_MAX; irq++) {
         for(sub = 0; sub < ASIC_EVT_REGS; sub++) {
@@ -167,24 +167,24 @@ void asic_evt_disable_all(void) {
 }
 
 /* Disable a particular G2 event */
-void asic_evt_disable(uint16 code, uint8 irqlevel) {
+void asic_evt_disable(uint16_t code, uint8_t irqlevel) {
     assert(irqlevel < ASIC_IRQ_MAX);
 
-    uint8 evtreg, evt;
+    uint8_t evtreg, evt;
 
     evtreg = (code >> 8) & 0xff;
     evt = code & 0xff;
 
-    uint32 addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
-    uint32 val = IN32(addr);
+    uint32_t addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
+    uint32_t val = IN32(addr);
     OUT32(addr, val & ~(1 << evt));
 }
 
 /* Enable a particular G2 event */
-void asic_evt_enable(uint16 code, uint8 irqlevel) {
+void asic_evt_enable(uint16_t code, uint8_t irqlevel) {
     assert(irqlevel < ASIC_IRQ_MAX);
 
-    uint8 evtreg, evt;
+    uint8_t evtreg, evt;
 
     evtreg = (code >> 8) & 0xff;
     evt = code & 0xff;

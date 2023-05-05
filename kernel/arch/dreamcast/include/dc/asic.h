@@ -24,7 +24,7 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
-#include <arch/types.h>
+#include <stdint.h>
 
 /* All event codes are two 8-bit integers; the top integer is the event code
     register to look in to check the event (and to acknolwedge it). The
@@ -146,7 +146,7 @@ __BEGIN_DECLS
     \param  code            The ASIC event code that generated this event.
     \see    asic_events
 */
-typedef void (*asic_evt_handler)(uint32 code);
+typedef void (*asic_evt_handler)(uint32_t code);
 
 /** \brief  Set or remove an ASIC handler.
 
@@ -157,7 +157,7 @@ typedef void (*asic_evt_handler)(uint32 code);
     \param  handler         The function to call when the event happens.
 
 */
-void asic_evt_set_handler(uint16 code, asic_evt_handler handler);
+void asic_evt_set_handler(uint16_t code, asic_evt_handler handler);
 
 /** \brief  Disable all ASIC events.
 
@@ -178,7 +178,7 @@ void asic_evt_disable_all(void);
     \param  irqlevel        The IRQ level it was hooked on (see
                             \ref asic_irq_lv).
 */
-void asic_evt_disable(uint16 code, uint8 irqlevel);
+void asic_evt_disable(uint16_t code, uint8_t irqlevel);
 
 /** \brief  Enable an ASIC event.
 
@@ -192,7 +192,7 @@ void asic_evt_disable(uint16 code, uint8 irqlevel);
     \param  code            The ASIC event code to hook (see \ref asic_events).
     \param  irqlevel        The IRQ level to hook on (see \ref asic_irq_lv).
  */
-void asic_evt_enable(uint16 code, uint8 irqlevel);
+void asic_evt_enable(uint16_t code, uint8_t irqlevel);
 
 /** \brief  Init ASIC events. */
 void asic_init(void);
