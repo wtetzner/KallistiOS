@@ -35,6 +35,7 @@ for i in $includes; do
 done
 
 # Now write out the sym table
+echo '#pragma GCC diagnostic ignored "-Wdeprecated-declarations"' >> $outpfile
 echo "export_sym_t ${outpsym}[] = {" >> $outpfile
 for i in $names; do
 	echo "	{ \"$i\", (unsigned long)(&$i) }," >> $outpfile
@@ -42,4 +43,3 @@ done
 
 echo "	{ 0, 0 }" >> $outpfile
 echo "};" >> $outpfile
-
