@@ -480,6 +480,26 @@ int * thd_get_errno(kthread_t *thd);
 */
 struct _reent * thd_get_reent(kthread_t *thd);
 
+/** \brief  Change threading modes.
+
+    This function changes the current threading mode of the system.
+    With preemptive threading being the only mode, this is now 
+    deprecated.
+
+    \param  mode            One of the \ref thd_modes values.
+    \return                 The old mode of the threading system.
+*/
+int thd_set_mode(int mode) __attribute__((deprecated));
+
+/** \brief  Fetch the current threading mode.
+
+    With preemptive threading being the only mode, this is now 
+    deprecated.
+
+    \return                 The current mode of the threading system.
+*/
+int thd_get_mode(void) __attribute__((deprecated));
+
 /** \brief  Wait for a thread to exit.
 
     This function "joins" a joinable thread. This means effectively that the

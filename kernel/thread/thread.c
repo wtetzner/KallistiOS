@@ -813,6 +813,19 @@ struct _reent * thd_get_reent(kthread_t *thd) {
 
 /*****************************************************************************/
 
+/* Change threading modes */
+int thd_set_mode(int mode) {
+
+    dbglog(DBG_WARNING, "thd_set_mode has no effect. Cooperative threading \
+        mode is deprecated. KOS is always in pre-emptive threading mode. \n");
+
+    return mode;
+}
+
+int thd_get_mode(void) {
+    return thd_mode;
+}
+
 /* Delete a TLS key. Note that currently this doesn't prevent you from reusing
    the key after deletion. This seems ok, as the pthreads standard states that
    using the key after deletion results in "undefined behavior".
