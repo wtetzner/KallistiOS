@@ -227,6 +227,7 @@ typedef struct kthread_attr {
     @{
 */
 #define THD_MODE_NONE       -1  /**< \brief Threads not running */
+#define THD_MODE_COOP       0   /**< \brief Cooperative mode (deprecated) */
 #define THD_MODE_PREEMPT    1   /**< \brief Preemptive threading mode */
 /** @} */
 
