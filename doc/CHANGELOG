@@ -165,6 +165,9 @@ KallistiOS version 2.1.0 -----------------------------------------------
       registered with atexit() are called [Colton Pawielski == CP]
 - *** Cleaned up + documented RTC driver, added support for setting time [FG]
 - DC  Cleaned up the register access in video to match pvr [DH]
+- DC  Fixed various shutdown functions to be safer to call in an interrupt [DH]
+- DC  Cleaned up asic functions and corrected potential bugs [DH]
+- DC  Deprecated coop threading mode. Always use preemptive mode [DH]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Megan Potter == MP]

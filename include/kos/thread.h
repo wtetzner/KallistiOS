@@ -23,10 +23,7 @@ __BEGIN_DECLS
     \brief  Threading support.
 
     This file contains the interface to the threading system of KOS. Timer
-    interrupts are used to reschedule threads within the system while in
-    preemptive mode. There is also some support for a cooperative threading
-    mode (where each thread must manually give up its timeslice to swap out
-    threads).
+    interrupts are used to reschedule threads within the system.
 
     The thread scheduler itself is a relatively simplistic priority scheduler.
     There is no provision for priorities to erode over time, so keep that in
@@ -224,14 +221,13 @@ typedef struct kthread_attr {
 
 /** \defgroup thd_modes             Threading system modes
 
-    The threading system will always be in one of the following modes. This
-    represents the type of scheduling done by the system (or the special case of
-    threads not having been initialized yet).
+    The threading system will always be in one of the following modes. This 
+    represents either pre-emptive scheduling or an un-initialized state.
 
     @{
 */
 #define THD_MODE_NONE       -1  /**< \brief Threads not running */
-#define THD_MODE_COOP       0   /**< \brief Cooperative threading mode */
+#define THD_MODE_COOP       0   /**< \brief Cooperative mode (deprecated) */
 #define THD_MODE_PREEMPT    1   /**< \brief Preemptive threading mode */
 /** @} */
 
@@ -360,8 +356,8 @@ void thd_exit(void *rv) __noreturn;
 /** \brief  Force a thread reschedule.
 
     This function is the thread scheduler, and is generally called from a timer
-    interrupt, at least in preemptive mode. You will most likely never have a
-    reason to call this function directly.
+    interrupt. You will most likely never have a reason to call this function 
+    directly.
 
     For most cases, you'll want to set front_of_line to zero, but read the
     comments in kernel/thread/thread.c for more info, especially if you need to
@@ -488,18 +484,22 @@ struct _reent * thd_get_reent(kthread_t *thd);
 /** \brief  Change threading modes.
 
     This function changes the current threading mode of the system.
+    With preemptive threading being the only mode, this is now 
+    deprecated.
 
     \param  mode            One of the \ref thd_modes values.
-
     \return                 The old mode of the threading system.
 */
-int thd_set_mode(int mode);
+int thd_set_mode(int mode) __attribute__((deprecated));
 
 /** \brief  Fetch the current threading mode.
 
+    With preemptive threading being the only mode, this is now 
+    deprecated.
+
     \return                 The current mode of the threading system.
 */
-int thd_get_mode(void);
+int thd_get_mode(void) __attribute__((deprecated));
 
 /** \brief  Wait for a thread to exit.
 
@@ -560,12 +560,10 @@ int thd_pslist_queue(int (*pf)(const char *fmt, ...));
     This is normally done for you by default when KOS starts. This will also
     initialize all the various synchronization primitives.
 
-    \param  mode            One of the \ref thd_modes values.
-
     \retval -1              If threads are already initialized.
     \retval 0               On success.
 */
-int thd_init(int mode);
+int thd_init(void);
 
 /** \brief  Shutdown the threading system.
 

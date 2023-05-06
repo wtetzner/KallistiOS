@@ -104,10 +104,11 @@ int  __attribute__((weak)) arch_auto_init(void) {
     rtc_init();
 
     /* Threads */
-    if(__kos_init_flags & INIT_THD_PREEMPT)
-        thd_init(THD_MODE_PREEMPT);
-    else
-        thd_init(THD_MODE_COOP);
+    if(!(__kos_init_flags & INIT_THD_PREEMPT))
+        dbglog(DBG_WARNING, "Cooperative threading mode is deprecated. KOS is \
+        always in pre-emptive threading mode. \n");
+
+    thd_init();
 
     nmmgr_init();
 
