@@ -13,14 +13,14 @@ all: rm-elf $(TARGET)
 
 include $(KOS_BASE)/Makefile.rules
 
-clean:
-	rm -f $(TARGET) $(OBJS) romdisk.img
+clean: rm-elf
+	rm -f $(OBJS)
 
 rm-elf:
 	rm -f $(TARGET) romdisk.*
 
 $(TARGET): $(OBJS)
-	kos-cc -o $(TARGET) $(OBJS) $(OBJEXTRA)
+	kos-cc -o $(TARGET) $(OBJS)
 
 romdisk.img:
 	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v
@@ -31,6 +31,6 @@ romdisk.o: romdisk.img
 run: $(TARGET)
 	dc-tool -n -x $(TARGET)
 
-dist:
-	rm -f $(OBJS)
+dist: $(TARGET)
+	rm -f $(OBJS) romdisk.img
 	$(KOS_STRIP) $(TARGET)
