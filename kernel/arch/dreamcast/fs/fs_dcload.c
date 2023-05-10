@@ -493,6 +493,7 @@ int fs_dcload_detected(void) {
 }
 
 static int *dcload_wrkmem = NULL;
+static const char * dbgio_dcload_name = "fs_dcload";
 int dcload_type = DCLOAD_TYPE_NONE;
 
 /* Call this before arch_init_all (or any call to dbgio_*) to use dcload's
@@ -500,6 +501,7 @@ int dcload_type = DCLOAD_TYPE_NONE;
 void fs_dcload_init_console(void) {
     /* Setup our dbgio handler */
     memcpy(&dbgio_dcload, &dbgio_null, sizeof(dbgio_dcload));
+    dbgio_dcload.name = dbgio_dcload_name;
     dbgio_dcload.detected = fs_dcload_detected;
     dbgio_dcload.write_buffer = dcload_write_buffer;
     // dbgio_dcload.read = dcload_read_cons;
