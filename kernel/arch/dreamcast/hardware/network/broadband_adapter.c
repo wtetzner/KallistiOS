@@ -88,13 +88,12 @@ This driver has basically been rewritten since KOS 1.0.x.
 
 /****************************************************************************/
 /* GAPS PCI stuff probably ought to be moved to another file... */
-#define GAPS_BASE 0xa1000000
 
 /* Detect a GAPS PCI bridge */
 static int gaps_detect(void) {
     char str[16];
 
-    g2_read_block_8((uint8 *)str, GAPS_BASE + 0x1400, 16);
+    g2_read_block_8((uint8 *)str, 0xa1001400, 16);
 
     if(!strncmp(str, "GAPSPCI_BRIDGE_2", 16))
         return 0;
@@ -103,12 +102,13 @@ static int gaps_detect(void) {
 }
 
 /* Initialize GAPS PCI bridge */
+#define GAPS_BASE 0xa1000000
 static int gaps_init(void) {
     int i;
 
-    /* This shouldn't happen as init is done only if a detect succeded. */
+    /* Make sure we have one */
     if(gaps_detect() < 0) {
-        dbglog(DBG_INFO, "bba: gaps_init called but no device detected\n");
+        dbglog(DBG_INFO, "bba: no ethernet card found\n");
         return -1;
     }
 
@@ -1150,7 +1150,6 @@ static void bba_set_ispcfg(void) {
 
 /* Initialize */
 int bba_init(void) {
-
     /* Use the netcore callback */
     bba_set_rx_callback(bba_if_netinput);
 
@@ -1170,14 +1169,6 @@ int bba_init(void) {
     bba_if.index = 0;
     bba_if.dev_id = 0;
     bba_if.flags = NETIF_NO_FLAGS;
-    bba_if.if_detect = bba_if_detect;
-
-    /* Short circuit if no bba is detected */
-    if(bba_if.if_detect(&bba_if) < 0) {
-        dbglog(DBG_KDEBUG, "bba: no device detected\n");
-        return -1;
-    }
-
     bba_get_mac(bba_if.mac_addr);
     memset(bba_if.ip_addr, 0, sizeof(bba_if.ip_addr));
     memset(bba_if.netmask, 0, sizeof(bba_if.netmask));
@@ -1191,7 +1182,7 @@ int bba_init(void) {
     memset(&bba_if.ip6_gateway, 0, sizeof(bba_if.ip6_gateway));
     bba_if.mtu6 = 0;
     bba_if.hop_limit = 0;
-
+    bba_if.if_detect = bba_if_detect;
     bba_if.if_init = bba_if_init;
     bba_if.if_shutdown = bba_if_shutdown;
     bba_if.if_start = bba_if_start;
@@ -1207,13 +1198,19 @@ int bba_init(void) {
 
 #if 0
 
+    /* Try to detect/init us */
+    if(bba_if.if_detect(&bba_if) < 0) {
+        printf("net_bba: can't detect broadband adapter\n");
+        return -1;
+    }
+
     if(bba_if.if_init(&bba_if) < 0) {
-        printf("bba: can't init broadband adapter\n");
+        printf("net_bba: can't init broadband adapter\n");
         return -1;
     }
 
     if(bba_if.if_start(&bba_if) < 0) {
-        printf("bba: can't start broadband adapter\n");
+        printf("net_bba: can't start broadband adapter\n");
         return -1;
     }
 
@@ -1225,6 +1222,11 @@ int bba_init(void) {
 
 /* Shutdown */
 int bba_shutdown(void) {
+#if 1
+    /* Unregister us (if neccessary) */
+    net_unreg_device(&bba_if);
+#endif
+
     /* Shutdown hardware */
     bba_if.if_stop(&bba_if);
     bba_if.if_shutdown(&bba_if);
@@ -1239,17 +1241,17 @@ int bba_shutdown(void) {
 
 #if 0
 int module_init(int argc, char **argv) {
-    printf("bba: initializing\n");
+    printf("net_bba: initializing\n");
 
     if(bba_init() < 0)
         return -1;
 
-    printf("bba: done initializing\n");
+    printf("net_bba: done initializing\n");
     return 0;
 }
 
 int module_shutdown(void) {
-    printf("bba: exiting\n");
+    printf("net_bba: exiting\n");
 
     if(bba_shutdown() < 0)
         return -1;
