@@ -182,6 +182,14 @@ extern void * __kos_romdisk;
 /** \brief  State that you don't want a romdisk. */
 #define KOS_INIT_ROMDISK_NONE   NULL
 
+/** \brief  Register a single function to be called very early in the boot
+ *          process, before the BSS section is cleared.
+ *
+    \param  func            The function to register. The prototype should be:
+                            void func(void)
+*/
+#define KOS_INIT_EARLY(func) void (*__kos_init_early_fn)(void) = (func)
+
 /** \defgroup arch_initflags        Available flags for initialization
 
     These are the flags you can specify with KOS_INIT_FLAGS().
