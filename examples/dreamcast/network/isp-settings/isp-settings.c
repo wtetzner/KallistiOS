@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
                 "Static",
             };
             /* Check that cfg.method is set to a known value */
-            if(cfg.method<(sizeof(methods) / sizeof(methods[0])))
+            if(cfg.method < (sizeof(methods) / sizeof(methods[0])))
                 printf("Method:   %s\n", methods[cfg.method]);
             else
                 printf("Method:   unknown(%i)\n", cfg.method);
