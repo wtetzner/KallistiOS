@@ -100,12 +100,12 @@
 #include <dc/asic.h>
 #include <arch/spinlock.h>
 
-/* XXX These are from g1ata.c and should be replaced by a standardized method */
-#define OUT32(addr, data) *((volatile uint32_t *)addr) = data
-#define IN32(addr)        *((volatile uint32_t *)addr)
+/* XXX These based on g1ata.c and pvr.h and should be replaced by a standardized method */
+#define IN32(addr)         (* ( (volatile uint32_t *)(addr) ) )
+#define OUT32(addr, data)  IN32(addr) = (data)
 
 /* The set of asic regs are spaced by 0x10 with 0x4 between each sub reg */
-#define ASIC_EVT_REG_ADDR(irq, sub) ASIC_IRQD_A + (irq * 0x10) + (sub * 0x4)
+#define ASIC_EVT_REG_ADDR(irq, sub) (ASIC_IRQD_A + (irq * 0x10) + (sub * 0x4))
 
 #define ASIC_EVT_REGS 3
 #define ASIC_EVT_REG_HNDS 32
@@ -138,7 +138,7 @@ static void handler_irq9(irq_t source, irq_context_t *context) {
     /* Go through each event register and look for pending events */
     for(reg = 0; reg < ASIC_EVT_REGS; reg++) {
         /* Read the event mask and clear pending */
-        uint32 mask = IN32(ASIC_ACK_A + (reg * 0x4));
+        uint32_t mask = IN32(ASIC_ACK_A + (reg * 0x4));
         OUT32(ASIC_ACK_A + (reg * 0x4), mask);
 
         /* Short circuit going through the table if none on this reg */
@@ -189,8 +189,8 @@ void asic_evt_enable(uint16_t code, uint8_t irqlevel) {
     evtreg = (code >> 8) & 0xff;
     evt = code & 0xff;
 
-    uint32 addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
-    uint32 val = IN32(addr);
+    uint32_t addr = ASIC_EVT_REG_ADDR(irqlevel, evtreg);
+    uint32_t val = IN32(addr);
     OUT32(addr, val | (1 << evt));
 }
 
