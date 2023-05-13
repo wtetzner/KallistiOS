@@ -37,7 +37,7 @@ endif
 	kos-as $< -o $@
 
 %.o: %.S
-	kos-as $< -o $@
+	kos-cc $< -o $@
 
 subdirs: $(patsubst %, _dir_%, $(SUBDIRS))
 
