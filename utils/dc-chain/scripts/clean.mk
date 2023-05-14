@@ -13,7 +13,6 @@ clean_patches_stamp:
 	mv patch-*.stamp $${tmpdir} 2>/dev/null; \
 	mv $(stamp_gdb_unpack) $${tmpdir} 2>/dev/null; \
 	mv $(stamp_gdb_patch) $${tmpdir} 2>/dev/null; \
-	mv $(stamp_insight_unpack) $${tmpdir} 2>/dev/null; \
 	rm -f *.stamp; \
 	mv $${tmpdir}/*.stamp . 2>/dev/null; \
 	rm -rf $${tmpdir}
@@ -27,4 +26,3 @@ clean: clean_patches_stamp
 	-rm -rf build-binutils-$(sh_target)-$(sh_binutils_ver)
 	-rm -rf build-binutils-$(arm_target)-$(arm_binutils_ver)
 	-rm -rf build-$(gdb_name)
-	-rm -rf build-$(insight_name)

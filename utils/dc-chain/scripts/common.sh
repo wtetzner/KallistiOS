@@ -75,7 +75,6 @@ setup_download_var SH_BINUTILS
 setup_download_var SH_GCC
 setup_download_var NEWLIB
 setup_download_var GDB
-setup_download_var INSIGHT
 setup_download_var ARM_BINUTILS
 setup_download_var ARM_GCC
 
@@ -86,7 +85,6 @@ export SH_BINUTILS_TARBALL_URL=$GNU_MIRROR_URL/gnu/binutils/binutils-$SH_BINUTIL
 export SH_GCC_TARBALL_URL=$GNU_MIRROR_URL/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.$SH_GCC_TARBALL_TYPE
 export NEWLIB_TARBALL_URL=sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.$NEWLIB_TARBALL_TYPE
 export GDB_TARBALL_URL=$GNU_MIRROR_URL/gnu/gdb/gdb-$GDB_VER.tar.$GDB_TARBALL_TYPE
-export INSIGHT_TARBALL_URL=$GNU_MIRROR_URL/sourceware/insight/releases/insight-$INSIGHT_VER.tar.$INSIGHT_TARBALL_TYPE
 export ARM_BINUTILS_TARBALL_URL=$GNU_MIRROR_URL/gnu/binutils/binutils-$ARM_BINUTILS_VER.tar.$ARM_BINUTILS_TARBALL_TYPE
 export ARM_GCC_TARBALL_URL=$GNU_MIRROR_URL/gnu/gcc/gcc-$ARM_GCC_VER/gcc-$ARM_GCC_VER.tar.$ARM_GCC_TARBALL_TYPE
 
