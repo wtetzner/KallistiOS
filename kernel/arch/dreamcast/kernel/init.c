@@ -32,6 +32,8 @@ extern void _init(void);
 extern void _fini(void);
 extern void __verify_newlib_patch();
 
+void (*__kos_init_early_fn)(void) __attribute__((weak)) = NULL;
+
 int main(int argc, char **argv);
 uint32 _fs_dclsocket_get_ip(void);
 
@@ -229,6 +231,10 @@ void arch_main(void) {
 
     /* Ensure that UBC is not enabled from a previous session */
     ubc_disable_all();
+
+    /* Handle optional callback provided by KOS_INIT_EARLY() */
+    if (__kos_init_early_fn)
+	    __kos_init_early_fn();
 
     /* Clear out the BSS area */
     memset(bss_start, 0, bss_end - bss_start);
