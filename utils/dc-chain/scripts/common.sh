@@ -80,7 +80,7 @@ setup_download_var ARM_GCC
 
 
 # export GNU_MIRROR_URL=mirrors.kernel.org/gnu
-export GNU_MIRROR_URL=ftp.gnu.org
+export GNU_MIRROR_URL=ftpmirror.gnu.org
 export SH_BINUTILS_TARBALL_URL=$GNU_MIRROR_URL/gnu/binutils/binutils-$SH_BINUTILS_VER.tar.$SH_BINUTILS_TARBALL_TYPE
 export SH_GCC_TARBALL_URL=$GNU_MIRROR_URL/gnu/gcc/gcc-$SH_GCC_VER/gcc-$SH_GCC_VER.tar.$SH_GCC_TARBALL_TYPE
 export NEWLIB_TARBALL_URL=sourceware.org/pub/newlib/newlib-$NEWLIB_VER.tar.$NEWLIB_TARBALL_TYPE

@@ -108,7 +108,7 @@ endif
 
 # Web downloaders command-lines
 wget_cmd=wget -c
-curl_cmd=curl -C - -O
+curl_cmd=curl --fail --location -C - -O
 
 # Determine if we want to apply fixup sh4 newlib
 do_auto_fixup_sh4_newlib := 1
