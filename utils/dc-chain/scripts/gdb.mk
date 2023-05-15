@@ -7,7 +7,7 @@
 
 gdb_name = gdb-$(gdb_ver)
 gdb_file = $(gdb_name).tar.$(gdb_tarball_type)
-gdb_url  = $(download_protocol)://ftp.gnu.org/gnu/gdb/$(gdb_file)
+gdb_url  = $(download_protocol)://ftpmirror.gnu.org/gnu/gdb/$(gdb_file)
 
 stamp_gdb_unpack = gdb_unpack.stamp
 stamp_gdb_patch = gdb_patch.stamp
