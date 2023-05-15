@@ -71,10 +71,6 @@ if [ -z $KEEP_DOWNLOADS ]; then
     rm -f gdb-$GDB_VER.tar.$GDB_TARBALL_TYPE
   fi
 
-  if [ -f "insight-${INSIGHT_VER}a.tar.$INSIGHT_TARBALL_TYPE" ]; then
-    rm -f insight-${INSIGHT_VER}a.tar.$INSIGHT_TARBALL_TYPE
-  fi
-
   echo "Done!"
   echo "---------------------------------------"
 fi
@@ -93,10 +89,6 @@ fi
 
 if [ -d "gdb-$GDB_VER" ]; then
   rm -rf gdb-$GDB_VER
-fi
-
-if [ -d "insight-$INSIGHT_VER" ]; then
-  rm -rf insight-$INSIGHT_VER
 fi
 
 echo "Done!"

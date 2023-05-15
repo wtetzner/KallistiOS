@@ -29,7 +29,6 @@ Components included in the toolchains built through `dc-chain` are:
 - **GNU Compiler Collection** (`gcc`, `g++`);
 - **Newlib** (mainly `libc` plus other libraries);
 - **GNU Debugger** (`gdb`) - Optional;
-- **Insight** (A `gdb` UI based on **X11**) - Optional.
 
 **Binutils** and **GCC** are installed for both targets (i.e. `sh-elf` and
 `arm-eabi`) where **Newlib** and **GNU Debugger** (**GDB**) are needed only
@@ -93,7 +92,6 @@ For the `sh-elf` toolchain, they are:
 - `sh_gcc_ver`
 - `newlib_ver`
 - `gdb_ver`
-- `insight_ver`
 
 For the `arm-eabi` toolchain, they are:
 
@@ -316,9 +314,9 @@ of the problematic step only rather than running the whole process again.
 
 Interesting targets (you can `make` any of these):
 
-- `all`: `patch` `build` (patch and build everything, excluding `gdb` and `insight`)
+- `all`: `patch` `build` (patch and build everything, excluding `gdb`)
 - `patch`: `patch-gcc` `patch-newlib` `patch-kos` (should be executed once)
-- `build`: `build-sh4` `build-arm` (build everything, excluding `gdb` and `insight`)
+- `build`: `build-sh4` `build-arm` (build everything, excluding `gdb`)
 - `build-sh4`: `build-sh4-binutils` `build-sh4-gcc` (build only `sh-elf` toolchain, excluding `gdb`)
 - `build-arm`: `build-arm-binutils` `build-arm-gcc` (build only `arm-eabi` toolchain)
 - `build-sh4-binutils` (build only `binutils` for `sh-elf`)
@@ -327,4 +325,3 @@ Interesting targets (you can `make` any of these):
 - `build-arm-gcc`: `build-arm-gcc-pass1` (build only `arm-eabi-gcc`)
 - `build-sh4-newlib`: `build-sh4-newlib-only` `fixup-sh4-newlib` (build only `newlib` for `sh-elf`)
 - `gdb` (build only `sh-elf-gdb`; it's never built automatically)
-- `insight` (build only `insight`; it's never built automatically)

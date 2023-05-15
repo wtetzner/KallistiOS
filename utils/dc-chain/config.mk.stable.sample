@@ -15,21 +15,18 @@
 # build-arm-gcc: build-arm-gcc-pass1
 # build-sh4-newlib: build-sh4-newlib-only fixup-sh4-newlib
 # gdb
-# insight
 
 # Toolchain versions for SH
 sh_binutils_ver=2.34
 sh_gcc_ver=9.3.0
 newlib_ver=3.3.0
 gdb_ver=9.2
-insight_ver=6.8-1
 
 # Tarball extensions to download for SH
 sh_binutils_download_type=xz
 sh_gcc_download_type=xz
 newlib_download_type=gz
 gdb_tarball_type=xz
-insight_tarball_type=bz2
 
 # Toolchain for ARM
 # The ARM version of binutils/gcc is separated out as the particular CPU

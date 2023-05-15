@@ -51,7 +51,6 @@ include scripts/gcc-pass2.mk
 # ---- optional components {{{
 
 include scripts/gdb.mk
-include scripts/insight.mk
 
 # ---- }}}}
 
