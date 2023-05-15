@@ -27,9 +27,9 @@ __BEGIN_DECLS
 #ifdef __KOS_GCC_32MB__
 extern uint32 _arch_mem_top;
 #else
-#pragma message "Outdated toolchain: not patched for 32MB support, limiting KOS"\
-         " to 16MB-only behavior to retain maximum compatibility. Please"\
-         " update toolchain."
+#pragma message "Outdated toolchain: not patched for 32MB support, limiting "\
+    "KOS to 16MB-only behavior to retain maximum compatibility. Please "\
+    "update your toolchain."
 #define _arch_mem_top   ((uint32) 0x8d000000)
 #endif
 
@@ -183,9 +183,9 @@ extern void * __kos_romdisk;
 #define KOS_INIT_ROMDISK_NONE   NULL
 
 /** \brief  Register a single function to be called very early in the boot
- *          process, before the BSS section is cleared.
- *
-    \param  func            The function to register. The prototype should be:
+            process, before the BSS section is cleared.
+
+    \param  func            The function to register. The prototype should be
                             void func(void)
 */
 #define KOS_INIT_EARLY(func) void (*__kos_init_early_fn)(void) = (func)
