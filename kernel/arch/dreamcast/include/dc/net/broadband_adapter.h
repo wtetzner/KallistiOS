@@ -25,7 +25,8 @@ __BEGIN_DECLS
     @{
 */
 #define RT_IDR0             0x00    /**< \brief MAC address */
-#define RT_MAR0             0x08    /**< \brief Multicast filter */
+#define RT_MAR0             0x08    /**< \brief Multicast filter 0 */
+#define RT_MAR4             0x0c    /**< \brief Multicast filter 4 */
 #define RT_TXSTATUS0        0x10    /**< \brief Transmit status (4 32bit regs) */
 #define RT_TXADDR0          0x20    /**< \brief Tx descriptors (also 4 32bit) */
 #define RT_RXBUF            0x30    /**< \brief Receive buffer start address */
@@ -54,14 +55,21 @@ __BEGIN_DECLS
 #define RT_AS_ADVERT        0x66    /**< \brief Auto-negotiation advertisement reg (16 bits) */
 #define RT_AS_LPAR          0x68    /**< \brief Auto-negotiation link partner reg (16 bits) */
 #define RT_AS_EXPANSION     0x6A    /**< \brief Auto-negotiation expansion reg (16 bits) */
+#define RT_CONFIG5          0xD8    /**< \brief Config register 5 */
 /** @} */
 
 /** \defgroup bba_miicb RTL8139C MII (media independent interface) control bits
     @{
 */
-#define RT_MII_AN_START     0x0200  /**< \brief Start auto-negotiation */
-#define RT_MII_AN_ENABLE    0x1000  /**< \brief Enable auto-negotiation */
-#define RT_MII_RESET        0x8000  /**< \brief Reset the MII chip */
+#define RT_MII_RESET       0x8000  /**< \brief Reset the MII chip */
+#define RT_MII_RES4000     0x4000  /**< \brief Reserved */
+#define RT_MII_SPD_SET     0x2000  /**< \brief 1 for 100 0 for 10. Ignored if AN enabled. */
+#define RT_MII_AN_ENABLE   0x1000  /**< \brief Enable auto-negotiation */
+#define RT_MII_RES0800     0x0800  /**< \brief Reserved */
+#define RT_MII_RES0400     0x0400  /**< \brief Reserved */
+#define RT_MII_AN_START    0x0200  /**< \brief Start auto-negotiation */
+#define RT_MII_DUPLEX      0x0100  /**< \brief 1 for full 0 for half. Ignored if AN enabled. */
+
 /** @} */
 
 /** \defgroup bba_miisb RTL8139C MII (media independent interface) status bits
@@ -131,6 +139,54 @@ __BEGIN_DECLS
 #define RT_RX_CRC_ERR       0x00000004  /**< \brief CRC error */
 #define RT_RX_FRAME_ALIGN   0x00000002  /**< \brief Frame alignment error */
 #define RT_RX_STATUS_OK     0x00000001  /**< \brief Status ok: a good packet was received */
+/** @} */
+
+/** \defgroup bba_config1bits RTL8139C Config Register 1 bits
+
+    From RTL8139C(L) datasheet v1.4
+
+    @{
+*/
+#define RT_CONFIG1_LED1     0x80 /**< \brief XXX DC bba has no LED, maybe repurposed. */
+#define RT_CONFIG1_LED0     0x40 /**< \brief XXX DC bba has no LED, maybe repurposed. */
+#define RT_CONFIG1_DVRLOAD  0x20 /**< \brief Sets the Driver as loaded. */
+#define RT_CONFIG1_LWACT    0x10 /**< \brief LWAKE active mode. Default 0. */
+#define RT_CONFIG1_MEMMAP   0x08 /**< \brief Registers mapped to PCI mem space. Read Only */
+#define RT_CONFIG1_IOMAP    0x04 /**< \brief Registers mapped to PCI I/O space. Read Only */
+#define RT_CONFIG1_VPD      0x02 /**< \brief Enable Vital Product Data. */
+#define RT_CONFIG1_PMEn     0x01 /**< \brief Power Management Enable */
+/** @} */
+
+/** \defgroup bba_config4bits RTL8139C Config Register 4 bits
+
+    From RTL8139C(L) datasheet v1.4. Only RT_CONFIG4_RxFIFIOAC is used.
+
+    @{
+*/
+#define RT_CONFIG4_RxFIFIOAC 0x80 /**< \brief Auto-clear the Rx FIFO overflow. */
+#define RT_CONFIG4_AnaOff    0x40 /**< \brief Turn off analog power. Default 0. */
+#define RT_CONFIG4_LongWF    0x20 /**< \brief Long Wake-up Frames. */
+#define RT_CONFIG4_LWPME     0x10 /**< \brief LWake vs PMEB. */
+#define RT_CONFIG4_RES08     0x08 /**< \brief Reserved. */
+#define RT_CONFIG4_LWPTN     0x04 /**< \brief LWAKE Pattern. */
+#define RT_CONFIG4_RES02     0x02 /**< \brief Reserved. */
+#define RT_CONFIG4_PBWake    0x01 /**< \brief Disable pre-Boot Wakeup. */
+/** @} */
+
+/** \defgroup bba_config5bits RTL8139C Config Register 5 bits
+
+    From RTL8139C(L) datasheet v1.4. Only RT_CONFIG5_LDPS is used.
+
+    @{
+*/
+#define RT_CONFIG5_RES80    0x80 /**< \brief Reserved. */
+#define RT_CONFIG5_BWF      0x40 /**< \brief Enable Broadcast Wakeup Frame. Default 0. */
+#define RT_CONFIG5_MWF      0x20 /**< \brief Enable Multicast Wakeup Frame. Default 0. */
+#define RT_CONFIG5_UWF      0x10 /**< \brief Enable Unicast Wakeup Frame. Default 0. */
+#define RT_CONFIG5_FIFOAddr 0x08 /**< \brief Set FIFO address pointer. For testing only. */
+#define RT_CONFIG5_LDPS     0x04 /**< \brief Disable Link Down Power Saving mode. */
+#define RT_CONFIG5_LANW     0x02 /**< \brief Enable LANWake signal. */
+#define RT_CONFIG5_PME_STS  0x01 /**< \brief Allow PCI reset to set PME_Status bit. */
 /** @} */
 
 /** \brief  Retrieve the MAC Address of the attached BBA.
