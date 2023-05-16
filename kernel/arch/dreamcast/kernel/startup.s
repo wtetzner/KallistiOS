@@ -18,6 +18,9 @@
 .globl __arch_old_fpscr
 .globl __arch_mem_top
 
+.weak   _arch_stack_16m
+.weak   _arch_stack_32m
+
 _start:
 start:
 	! Disable interrupts (if they're enabled)
@@ -73,6 +76,7 @@ init:
 	mov.l	old_stack_addr,r0
 	mov.l	r15,@r0
 	mov.l   new_stack_16m,r15
+	mov.l	@r15,r15
 
 	! Check if 0xadffffff is a mirror of 0xacffffff, or if unique
 	! If unique, then memory is 32MB instead of 16MB, and we must
@@ -83,6 +87,7 @@ init:
 	mov	#0xba,r1
 	mov.b	r1,@-r2			! Store 0xba to 0xacffffff
 	mov.l	new_stack_32m,r1
+	mov.l	@r1,r1
 	or	r0,r1
 	mov	#0xab,r0
 	mov.b	r0,@-r1			! Store 0xab in 0xadffffff
@@ -91,6 +96,7 @@ init:
 	cmp/eq	r0,r1			! Check if values match
 	bt	memchk_done		! If so, mirror - we're done, move on
 	mov.l	new_stack_32m,r15	! If not, unique - set higher stack
+	mov.l	@r15,r15
 memchk_done:
 	mov.l	mem_top_addr,r0
 	mov.l	r15,@r0			! Save address of top of memory
@@ -205,9 +211,9 @@ __arch_mem_top:
 mem_top_addr:
 	.long	__arch_mem_top
 new_stack_16m:
-	.long	0x8d000000
+	.long	_arch_stack_16m
 new_stack_32m:
-	.long	0x8e000000
+	.long	_arch_stack_32m
 p2_mask:
 	.long	0xa0000000
 setup_cache_addr:

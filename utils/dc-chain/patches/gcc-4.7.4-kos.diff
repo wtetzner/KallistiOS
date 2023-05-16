@@ -1,6 +1,6 @@
 diff --color -ruN gcc-4.7.4/gcc/config/sh/sh.h gcc-4.7.4-kos/gcc/config/sh/sh.h
---- gcc-4.7.4/gcc/config/sh/sh.h	2013-03-25 17:55:56.000000000 -0500
-+++ gcc-4.7.4-kos/gcc/config/sh/sh.h	2023-04-29 12:35:14.894104257 -0500
+--- gcc-4.7.4/gcc/config/sh/sh.h	2023-05-15 22:37:11.104742972 -0500
++++ gcc-4.7.4-kos/gcc/config/sh/sh.h	2023-05-15 22:37:14.351749707 -0500
 @@ -93,6 +93,12 @@
      builtin_define ("__FMOVD_ENABLED__"); \
    builtin_define (TARGET_LITTLE_ENDIAN \
@@ -15,8 +15,8 @@ diff --color -ruN gcc-4.7.4/gcc/config/sh/sh.h gcc-4.7.4-kos/gcc/config/sh/sh.h
  
  /* Value should be nonzero if functions must have frame pointers.
 diff --color -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-kos/gcc/configure
---- gcc-4.7.4/gcc/configure	2014-02-12 10:43:47.000000000 -0600
-+++ gcc-4.7.4-kos/gcc/configure	2023-04-29 12:35:14.897104275 -0500
+--- gcc-4.7.4/gcc/configure	2023-05-15 22:37:11.074742909 -0500
++++ gcc-4.7.4-kos/gcc/configure	2023-05-15 22:37:14.352749709 -0500
 @@ -11338,7 +11338,7 @@
      target_thread_file='single'
      ;;
@@ -27,8 +27,8 @@ diff --color -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-kos/gcc/configure
      ;;
    *)
 diff --color -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-kos/gcc/cp/cfns.h
---- gcc-4.7.4/gcc/cp/cfns.h	2009-04-21 14:03:23.000000000 -0500
-+++ gcc-4.7.4-kos/gcc/cp/cfns.h	2023-04-29 12:35:14.898104281 -0500
+--- gcc-4.7.4/gcc/cp/cfns.h	2023-05-15 22:37:11.076742914 -0500
++++ gcc-4.7.4-kos/gcc/cp/cfns.h	2023-05-15 22:37:14.353749711 -0500
 @@ -53,6 +53,9 @@
  static unsigned int hash (const char *, unsigned int);
  #ifdef __GNUC__
@@ -49,8 +49,8 @@ diff --color -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-kos/gcc/cp/cfns.h
    switch (hval)
      {
 diff --color -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-kos/gcc/doc/gcc.texi
---- gcc-4.7.4/gcc/doc/gcc.texi	2010-06-09 18:46:33.000000000 -0500
-+++ gcc-4.7.4-kos/gcc/doc/gcc.texi	2023-04-29 12:35:14.898104281 -0500
+--- gcc-4.7.4/gcc/doc/gcc.texi	2023-05-15 22:37:10.038740760 -0500
++++ gcc-4.7.4-kos/gcc/doc/gcc.texi	2023-05-15 22:37:14.353749711 -0500
 @@ -86,9 +86,9 @@
  @item GNU Press
  @tab Website: www.gnupress.org
@@ -64,9 +64,9 @@ diff --color -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-kos/gcc/doc/gcc.texi
  @tab Tel 617-542-5942
  @item Boston, MA 02110-1301 USA
 diff --color -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-kos/libgcc/config/sh/crt1.S
---- gcc-4.7.4/libgcc/config/sh/crt1.S	2011-11-02 09:33:56.000000000 -0500
-+++ gcc-4.7.4-kos/libgcc/config/sh/crt1.S	2023-04-29 12:35:49.271313212 -0500
-@@ -1,1369 +1,233 @@
+--- gcc-4.7.4/libgcc/config/sh/crt1.S	2023-05-15 22:37:09.929740534 -0500
++++ gcc-4.7.4-kos/libgcc/config/sh/crt1.S	2023-05-15 22:37:20.022761471 -0500
+@@ -1,1369 +1,236 @@
 -/* Copyright (C) 2000, 2001, 2003, 2004, 2005, 2006, 2009, 2011
 -   Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
@@ -219,7 +219,26 @@ diff --color -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-kos/libgcc/config/
 -
 -#ifdef MMU_SUPPORT
 -	! Set up the VM using the MMU and caches
--
++! KallistiOS ##version##
++!
++! startup.s
++! (c)2000-2001 Megan Potter
++!
++! This file must appear FIRST in your linking order, or your program won't
++! work correctly as a raw binary.
++!
++! This is very loosely based on Marcus' crt0.s/startup.s
++!
++
++.globl start
++.globl _start
++.globl _arch_real_exit
++.globl __arch_old_sr
++.globl __arch_old_vbr
++.globl __arch_old_stack
++.globl __arch_old_fpscr
++.globl __arch_mem_top
+ 
 -	! .vm_ep is first instruction to execute
 -	! after VM initialization
 -	pt/l	.vm_ep, tr1
@@ -758,27 +777,10 @@ diff --color -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-kos/libgcc/config/
 -profiling_enabled:
 -	.long 0
 -#endif
--
-+! KallistiOS ##version##
-+!
-+! startup.s
-+! (c)2000-2001 Megan Potter
-+!
-+! This file must appear FIRST in your linking order, or your program won't
-+! work correctly as a raw binary.
-+!
-+! This is very loosely based on Marcus' crt0.s/startup.s
-+!
-+
-+.globl start
-+.globl _start
-+.globl _arch_real_exit
-+.globl __arch_old_sr
-+.globl __arch_old_vbr
-+.globl __arch_old_stack
-+.globl __arch_old_fpscr
-+.globl __arch_mem_top
++.weak   _arch_stack_16m
++.weak   _arch_stack_32m
  
+-
 -	.section .text
 -	.global	start
 -	.import ___rtos_profiler_start_timer
@@ -1654,7 +1656,7 @@ diff --color -ruN gcc-4.7.4/libgcc/config/sh/crt1.S gcc-4.7.4-kos/libgcc/config/
 +	.word	0x092d
 diff --color -ruN gcc-4.7.4/libgcc/config/sh/fake-kos.S gcc-4.7.4-kos/libgcc/config/sh/fake-kos.S
 --- gcc-4.7.4/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-4.7.4-kos/libgcc/config/sh/fake-kos.S	2023-04-29 12:35:14.898104281 -0500
++++ gcc-4.7.4-kos/libgcc/config/sh/fake-kos.S	2023-05-15 22:37:14.353749711 -0500
 @@ -0,0 +1,75 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1734,7 +1736,7 @@ diff --color -ruN gcc-4.7.4/libgcc/config/sh/fake-kos.S gcc-4.7.4-kos/libgcc/con
 \ No newline at end of file
 diff --color -ruN gcc-4.7.4/libgcc/config/sh/gthr-kos.h gcc-4.7.4-kos/libgcc/config/sh/gthr-kos.h
 --- gcc-4.7.4/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-4.7.4-kos/libgcc/config/sh/gthr-kos.h	2023-04-29 12:35:14.899104287 -0500
++++ gcc-4.7.4-kos/libgcc/config/sh/gthr-kos.h	2023-05-15 22:37:14.353749711 -0500
 @@ -0,0 +1,355 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012 Lawrence Sebald */
 +
@@ -2092,8 +2094,8 @@ diff --color -ruN gcc-4.7.4/libgcc/config/sh/gthr-kos.h gcc-4.7.4-kos/libgcc/con
 +
 +#endif /* ! GCC_GTHR_KOS_H */
 diff --color -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-kos/libgcc/config/sh/t-sh
---- gcc-4.7.4/libgcc/config/sh/t-sh	2011-11-07 11:14:32.000000000 -0600
-+++ gcc-4.7.4-kos/libgcc/config/sh/t-sh	2023-04-29 12:35:14.899104287 -0500
+--- gcc-4.7.4/libgcc/config/sh/t-sh	2023-05-15 22:37:09.929740534 -0500
++++ gcc-4.7.4-kos/libgcc/config/sh/t-sh	2023-05-15 22:37:14.353749711 -0500
 @@ -24,6 +24,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -2104,8 +2106,8 @@ diff --color -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-kos/libgcc/config/sh
  	$(gcc_compile) -c $<
  
 diff --color -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-kos/libgcc/configure
---- gcc-4.7.4/libgcc/configure	2012-08-06 09:34:27.000000000 -0500
-+++ gcc-4.7.4-kos/libgcc/configure	2023-04-29 12:35:14.899104287 -0500
+--- gcc-4.7.4/libgcc/configure	2023-05-15 22:37:09.912740499 -0500
++++ gcc-4.7.4-kos/libgcc/configure	2023-05-15 22:37:14.354749713 -0500
 @@ -4480,6 +4480,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -2115,8 +2117,8 @@ diff --color -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-kos/libgcc/configure
  
  # Substitute configuration variables
 diff --color -ruN gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h	2011-01-30 16:39:36.000000000 -0600
-+++ gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-29 12:35:14.899104287 -0500
+--- gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-15 22:37:11.265743306 -0500
++++ gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-15 22:37:14.354749713 -0500
 @@ -80,7 +80,12 @@
  
  namespace 

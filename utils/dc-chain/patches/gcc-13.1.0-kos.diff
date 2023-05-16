@@ -1,6 +1,6 @@
 diff --color -ruN gcc-13.1.0/gcc/config/sh/sh-c.cc gcc-13.1.0-kos/gcc/config/sh/sh-c.cc
---- gcc-13.1.0/gcc/config/sh/sh-c.cc	2023-04-26 02:09:39.000000000 -0500
-+++ gcc-13.1.0-kos/gcc/config/sh/sh-c.cc	2023-04-29 12:45:52.160038658 -0500
+--- gcc-13.1.0/gcc/config/sh/sh-c.cc	2023-05-15 22:32:33.801167700 -0500
++++ gcc-13.1.0-kos/gcc/config/sh/sh-c.cc	2023-05-15 22:32:40.133180838 -0500
 @@ -141,4 +141,11 @@
  
    cpp_define_formatted (pfile, "__SH_ATOMIC_MODEL_%s__",
@@ -14,8 +14,8 @@ diff --color -ruN gcc-13.1.0/gcc/config/sh/sh-c.cc gcc-13.1.0-kos/gcc/config/sh/
 +  builtin_define ("__KOS_GCC_32MB__");
  }
 diff --color -ruN gcc-13.1.0/gcc/configure gcc-13.1.0-kos/gcc/configure
---- gcc-13.1.0/gcc/configure	2023-04-26 02:11:18.000000000 -0500
-+++ gcc-13.1.0-kos/gcc/configure	2023-04-29 12:45:52.164038684 -0500
+--- gcc-13.1.0/gcc/configure	2023-05-15 22:32:36.862174050 -0500
++++ gcc-13.1.0-kos/gcc/configure	2023-05-15 22:32:40.135180842 -0500
 @@ -13012,7 +13012,7 @@
      target_thread_file='single'
      ;;
@@ -26,9 +26,9 @@ diff --color -ruN gcc-13.1.0/gcc/configure gcc-13.1.0-kos/gcc/configure
      ;;
    *)
 diff --color -ruN gcc-13.1.0/libgcc/config/sh/crt1.S gcc-13.1.0-kos/libgcc/config/sh/crt1.S
---- gcc-13.1.0/libgcc/config/sh/crt1.S	2023-04-26 02:09:43.000000000 -0500
-+++ gcc-13.1.0-kos/libgcc/config/sh/crt1.S	2023-04-29 12:46:39.571346358 -0500
-@@ -1,724 +1,233 @@
+--- gcc-13.1.0/libgcc/config/sh/crt1.S	2023-05-15 22:32:32.834165694 -0500
++++ gcc-13.1.0-kos/libgcc/config/sh/crt1.S	2023-05-15 22:32:50.679202715 -0500
+@@ -1,724 +1,236 @@
 -/* Copyright (C) 2000-2023 Free Software Foundation, Inc.
 -   This file was pretty much copied from newlib.
 +! KallistiOS ##version##
@@ -52,7 +52,9 @@ diff --color -ruN gcc-13.1.0/libgcc/config/sh/crt1.S gcc-13.1.0-kos/libgcc/confi
 +.globl __arch_mem_top
  
 -This file is part of GCC.
--
++.weak   _arch_stack_16m
++.weak   _arch_stack_32m
+ 
 -GCC is free software; you can redistribute it and/or modify it
 -under the terms of the GNU General Public License as published by the
 -Free Software Foundation; either version 3, or (at your option) any
@@ -971,7 +973,7 @@ diff --color -ruN gcc-13.1.0/libgcc/config/sh/crt1.S gcc-13.1.0-kos/libgcc/confi
 +	.word	0x092d
 diff --color -ruN gcc-13.1.0/libgcc/config/sh/fake-kos.S gcc-13.1.0-kos/libgcc/config/sh/fake-kos.S
 --- gcc-13.1.0/libgcc/config/sh/fake-kos.S	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-13.1.0-kos/libgcc/config/sh/fake-kos.S	2023-04-29 12:45:52.164038684 -0500
++++ gcc-13.1.0-kos/libgcc/config/sh/fake-kos.S	2023-05-15 22:32:40.135180842 -0500
 @@ -0,0 +1,78 @@
 +! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 +! These will be replaced by the real symbols in actual compiled programs.
@@ -1053,7 +1055,7 @@ diff --color -ruN gcc-13.1.0/libgcc/config/sh/fake-kos.S gcc-13.1.0-kos/libgcc/c
 +    mov     #-1, r0
 diff --color -ruN gcc-13.1.0/libgcc/config/sh/gthr-kos.h gcc-13.1.0-kos/libgcc/config/sh/gthr-kos.h
 --- gcc-13.1.0/libgcc/config/sh/gthr-kos.h	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-13.1.0-kos/libgcc/config/sh/gthr-kos.h	2023-04-29 12:45:52.165038690 -0500
++++ gcc-13.1.0-kos/libgcc/config/sh/gthr-kos.h	2023-05-15 22:32:40.135180842 -0500
 @@ -0,0 +1,401 @@
 +/* Copyright (C) 2009, 2010, 2011, 2012, 2020 Lawrence Sebald */
 +
@@ -1457,8 +1459,8 @@ diff --color -ruN gcc-13.1.0/libgcc/config/sh/gthr-kos.h gcc-13.1.0-kos/libgcc/c
 +
 +#endif /* ! GCC_GTHR_KOS_H */
 diff --color -ruN gcc-13.1.0/libgcc/config/sh/t-sh gcc-13.1.0-kos/libgcc/config/sh/t-sh
---- gcc-13.1.0/libgcc/config/sh/t-sh	2023-04-26 02:09:43.000000000 -0500
-+++ gcc-13.1.0-kos/libgcc/config/sh/t-sh	2023-04-29 12:45:52.165038690 -0500
+--- gcc-13.1.0/libgcc/config/sh/t-sh	2023-05-15 22:32:32.834165694 -0500
++++ gcc-13.1.0-kos/libgcc/config/sh/t-sh	2023-05-15 22:32:40.135180842 -0500
 @@ -23,6 +23,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -1469,8 +1471,8 @@ diff --color -ruN gcc-13.1.0/libgcc/config/sh/t-sh gcc-13.1.0-kos/libgcc/config/
  	$(gcc_compile) -c $<
  
 diff --color -ruN gcc-13.1.0/libgcc/configure gcc-13.1.0-kos/libgcc/configure
---- gcc-13.1.0/libgcc/configure	2023-04-26 02:09:43.000000000 -0500
-+++ gcc-13.1.0-kos/libgcc/configure	2023-04-29 12:45:52.165038690 -0500
+--- gcc-13.1.0/libgcc/configure	2023-05-15 22:32:32.883165796 -0500
++++ gcc-13.1.0-kos/libgcc/configure	2023-05-15 22:32:40.136180844 -0500
 @@ -5699,6 +5699,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -1480,8 +1482,8 @@ diff --color -ruN gcc-13.1.0/libgcc/configure gcc-13.1.0-kos/libgcc/configure
  esac
  
 diff --color -ruN gcc-13.1.0/libobjc/configure gcc-13.1.0-kos/libobjc/configure
---- gcc-13.1.0/libobjc/configure	2023-04-26 02:11:18.000000000 -0500
-+++ gcc-13.1.0-kos/libobjc/configure	2023-04-29 12:45:52.167038703 -0500
+--- gcc-13.1.0/libobjc/configure	2023-05-15 22:32:32.887165804 -0500
++++ gcc-13.1.0-kos/libobjc/configure	2023-05-15 22:32:40.136180844 -0500
 @@ -2918,11 +2918,9 @@
  
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -1495,8 +1497,8 @@ diff --color -ruN gcc-13.1.0/libobjc/configure gcc-13.1.0-kos/libobjc/configure
    return 0;
  }
 diff --color -ruN gcc-13.1.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-13.1.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-13.1.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-26 02:09:43.000000000 -0500
-+++ gcc-13.1.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-04-29 12:45:52.167038703 -0500
+--- gcc-13.1.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-15 22:32:33.215166485 -0500
++++ gcc-13.1.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-15 22:32:40.137180846 -0500
 @@ -22,14 +22,40 @@
  // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  // <http://www.gnu.org/licenses/>.
@@ -1548,8 +1550,8 @@ diff --color -ruN gcc-13.1.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-13.1.0-k
 +_GLIBCXX_END_NAMESPACE_VERSION
 +} // namespace
 diff --color -ruN gcc-13.1.0/libstdc++-v3/configure gcc-13.1.0-kos/libstdc++-v3/configure
---- gcc-13.1.0/libstdc++-v3/configure	2023-04-26 02:09:43.000000000 -0500
-+++ gcc-13.1.0-kos/libstdc++-v3/configure	2023-04-29 12:45:52.173038742 -0500
+--- gcc-13.1.0/libstdc++-v3/configure	2023-05-15 22:32:33.632167350 -0500
++++ gcc-13.1.0-kos/libstdc++-v3/configure	2023-05-15 22:32:40.140180852 -0500
 @@ -15809,6 +15809,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
