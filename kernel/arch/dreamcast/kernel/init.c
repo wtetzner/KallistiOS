@@ -32,7 +32,7 @@ extern void _init(void);
 extern void _fini(void);
 extern void __verify_newlib_patch();
 
-void (*__kos_init_early_fn)(void) __attribute__((weak)) = NULL;
+void (*__kos_init_early_fn)(void) __attribute__((weak,section(".data"))) = NULL;
 
 int main(int argc, char **argv);
 uint32 _fs_dclsocket_get_ip(void);
