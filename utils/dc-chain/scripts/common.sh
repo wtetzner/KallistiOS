@@ -114,8 +114,8 @@ export ARM_ISL_TARBALL_URL=gcc.gnu.org/pub/gcc/infrastructure/isl-${ARM_ISL_VER}
 # Retrieve the web downloader program available in this system.
 export IS_CURL=0
 export WEB_DOWNLOADER=
-curl_cmd=`get_make_var curl_cmd scripts/init.mk`
-wget_cmd=`get_make_var wget_cmd scripts/init.mk`
+curl_cmd="curl --fail --location -C - -O"
+wget_cmd="wget -c"
 force_downloader=`get_make_var force_downloader`
 if [ -z "$force_downloader" ]; then
   if command -v curl > /dev/null 2>&1; then

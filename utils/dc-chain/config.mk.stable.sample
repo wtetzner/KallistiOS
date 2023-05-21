@@ -26,7 +26,7 @@ gdb_ver=9.2
 sh_binutils_download_type=xz
 sh_gcc_download_type=xz
 newlib_download_type=gz
-gdb_tarball_type=xz
+gdb_download_type=xz
 
 # Toolchain for ARM
 # The ARM version of binutils/gcc is separated out as the particular CPU
@@ -169,3 +169,9 @@ install_mode=install-strip
 # portable if you built it on another environment. Don't mess with that flag
 # unless you know exactly what you are doing.
 #sh_force_libbfd_installation=1
+
+# Specify GNU Mirror override
+# The default mirror for GNU sources is `ftpmirror.gnu.org`
+# Setting this will allow overriding the default mirror which
+# may be desirable if you have a prefered mirror.
+# gnu_mirror=mirrors.kernel.org

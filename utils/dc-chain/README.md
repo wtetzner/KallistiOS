@@ -259,6 +259,9 @@ to the downloaded sources before building. Setting this option along with
 be unavailable. Also, this may be a problem if you still apply the KallistiOS
 patches. **Use this flag with care**.
 
+### Override GNU Download Mirror
+Set `gnu_mirror` to override the default of `ftpmirror.gnu.org` when you have
+a prefered mirror to download GNU sources from.
 
 ## Usage
 

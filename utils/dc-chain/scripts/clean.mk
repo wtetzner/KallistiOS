@@ -11,7 +11,7 @@ clean_patches_stamp:
 		mkdir "$${tmpdir}"; \
 	fi; \
 	mv patch-*.stamp $${tmpdir} 2>/dev/null; \
-	mv $(stamp_gdb_unpack) $${tmpdir} 2>/dev/null; \
+	mv $(stamp_gdb_download) $${tmpdir} 2>/dev/null; \
 	mv $(stamp_gdb_patch) $${tmpdir} 2>/dev/null; \
 	rm -f *.stamp; \
 	mv $${tmpdir}/*.stamp . 2>/dev/null; \

@@ -20,16 +20,22 @@ else
   $(error The required $(config_file) file is missing)
 endif
 
-# Detect host machine
-include scripts/host-detect.mk
-
 # Initialization rules
 include scripts/init.mk
+
+# Detect host machine
+include scripts/host-detect.mk
 
 # Makefile variables
 include scripts/variables.mk
 
 all: build
+
+# ---- download {{{
+
+include scripts/download.mk
+
+# ---- }}}
 
 # ---- patch {{{
 
