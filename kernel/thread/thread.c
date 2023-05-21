@@ -60,7 +60,7 @@ static int thd_mode = THD_MODE_NONE;
 static semaphore_t thd_reap_sem;
 
 /* Number of threads active in the system. */
-static uint32 thd_count = 0;
+static uint32_t thd_count = 0;
 
 /* The idle task */
 static kthread_t *thd_idle_thd = NULL;
@@ -116,7 +116,7 @@ int thd_pslist(int (*pf)(const char *fmt, ...)) {
             pf("%d\t", cur->prio);
 
         pf("%08lx\t", cur->flags);
-        pf("%ld\t\t", (uint32)cur->wait_timeout);
+        pf("%ld\t\t", (uint32_t)cur->wait_timeout);
         pf("%10s", thd_state_to_str(cur));
         pf("%s\n", cur->label);
     }
@@ -140,7 +140,7 @@ int thd_pslist_queue(int (*pf)(const char *fmt, ...)) {
             pf("%d\t", cur->prio);
 
         pf("%08lx\t", cur->flags);
-        pf("%ld\t\t", (uint32)cur->wait_timeout);
+        pf("%ld\t\t", (uint32_t)cur->wait_timeout);
         pf("%10s", thd_state_to_str(cur));
         pf("%s\n", cur->label);
     }
@@ -332,7 +332,7 @@ kthread_t *thd_create_ex(kthread_attr_t *attr, void * (*routine)(void *param),
                          void *param) {
     kthread_t *nt = NULL;
     tid_t tid;
-    uint32 params[4];
+    uint32_t params[4];
     int oldirq = 0;
     kthread_attr_t real_attr = { 0, THD_STACK_SIZE, NULL, PRIO_DEFAULT, NULL };
 
@@ -367,7 +367,7 @@ kthread_t *thd_create_ex(kthread_attr_t *attr, void * (*routine)(void *param),
 
             /* Create a new thread stack */
             if(!real_attr.stack_ptr) {
-                nt->stack = (uint32*)malloc(real_attr.stack_size);
+                nt->stack = (uint32_t*)malloc(real_attr.stack_size);
 
                 if(!nt->stack) {
                     free(nt);
@@ -376,19 +376,19 @@ kthread_t *thd_create_ex(kthread_attr_t *attr, void * (*routine)(void *param),
                 }
             }
             else {
-                nt->stack = (uint32*)real_attr.stack_ptr;
+                nt->stack = (uint32_t*)real_attr.stack_ptr;
             }
 
             nt->stack_size = real_attr.stack_size;
 
             /* Populate the context */
-            params[0] = (uint32)routine;
-            params[1] = (uint32)param;
+            params[0] = (uint32_t)routine;
+            params[1] = (uint32_t)param;
             params[2] = 0;
             params[3] = 0;
             irq_create_context(&nt->context,
-                               ((uint32)nt->stack) + nt->stack_size,
-                               (uint32)thd_birth, params, 0);
+                               ((uint32_t)nt->stack) + nt->stack_size,
+                               (uint32_t)thd_birth, params, 0);
 
             nt->tid = tid;
             nt->prio = real_attr.prio;
@@ -514,7 +514,7 @@ int thd_set_prio(kthread_t *thd, prio_t prio) {
    to make sure the priorities are all straight before returning, but you
    don't want a full context switch inside the same priority group.
 */
-void thd_schedule(int front_of_line, uint64 now) {
+void thd_schedule(int front_of_line, uint64_t now) {
     int dontenq;
     kthread_t *thd;
 
@@ -620,9 +620,9 @@ void thd_schedule_next(kthread_t *thd) {
 
 /* See kos/thread.h for description */
 irq_context_t * thd_choose_new(void) {
-    uint64 now = timer_ms_gettime64();
+    uint64_t now = timer_ms_gettime64();
 
-    //printf("thd_choose_new() woken at %d\n", (uint32)now);
+    //printf("thd_choose_new() woken at %d\n", (uint32_t)now);
 
     /* Do any re-scheduling */
     thd_schedule(0, now);
@@ -639,11 +639,11 @@ irq_context_t * thd_choose_new(void) {
    threads, swap out contexts, and sleep. */
 static void thd_timer_hnd(irq_context_t *context) {
     /* Get the system time */
-    uint64 now = timer_ms_gettime64();
+    uint64_t now = timer_ms_gettime64();
 
     (void)context;
 
-    //printf("timer woke at %d\n", (uint32)now);
+    //printf("timer woke at %d\n", (uint32_t)now);
 
     thd_schedule(0, now);
     timer_primary_wakeup(1000 / HZ);
