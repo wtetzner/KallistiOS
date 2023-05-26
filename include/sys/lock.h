@@ -1,8 +1,11 @@
 /* KallistiOS ##version##
 
-   lock.h
+   lock_common.h
    Copyright (C)2004 Megan Potter
 
+   This file is patched into the dc-chain newlib's <sys/lock.h>, changes
+   made to it should also be made to the patches in utils/dc-chain/patches/.
+   Other arches may need it here.
 */
 
 #ifndef __SYS_LOCK_H__
