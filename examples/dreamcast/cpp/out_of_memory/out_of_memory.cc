@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <malloc.h>
 
+#include <arch/arch.h>
+
 KOS_INIT_FLAGS(INIT_MALLOCSTATS);
 
 void new_handler_cb() {

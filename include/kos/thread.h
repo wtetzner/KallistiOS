@@ -12,10 +12,9 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
+#include <kos/cdefs.h>
 #include <kos/tls.h>
-#include <arch/types.h>
 #include <arch/irq.h>
-#include <arch/arch.h>
 #include <sys/queue.h>
 #include <sys/reent.h>
 
