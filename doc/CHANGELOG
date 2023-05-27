@@ -173,6 +173,7 @@ KallistiOS version 2.1.0 -----------------------------------------------
 - *** Updated Objective-C examples to include more thorough testing of the
       runtime aspects of the language [Andrew Apperley == AA]
 - DC  Improve fipr() and fipr_magnitude_sqr() functions [PC]
+- DC  Add optimized bit-reverse function && vmu_draw_lcd_rotated() [PC]
 
 KallistiOS version 2.0.0 -----------------------------------------------
 - DC  Broadband Adapter driver fixes [Megan Potter == MP]

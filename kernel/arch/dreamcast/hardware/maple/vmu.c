@@ -12,6 +12,7 @@
 #include <kos/genwait.h>
 #include <dc/maple.h>
 #include <dc/maple/vmu.h>
+#include <dc/math.h>
 #include <dc/biosfont.h>
 #include <dc/vmufs.h>
 #include <arch/timer.h>
@@ -204,6 +205,17 @@ int vmu_draw_lcd(maple_device_t * dev, const void *bitmap) {
     }
 
     return MAPLE_EOK;
+}
+
+int vmu_draw_lcd_rotated(maple_device_t *dev, const void *bitmap) {
+    uint32 bitmap_inverted[48];
+    unsigned int i;
+
+    for (i = 0; i < 48; i++) {
+        bitmap_inverted[i] = bit_reverse(((uint32 *)bitmap)[47 - i]);
+    }
+
+    return vmu_draw_lcd(dev, bitmap_inverted);
 }
 
 /* This function converts a xbm image to a 1-bit bitmap that can
