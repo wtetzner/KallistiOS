@@ -3,9 +3,8 @@
    lock_common.h
    Copyright (C)2004 Megan Potter
 
-   This file is patched into the dc-chain newlib's <sys/lock.h>, changes
-   made to it should also be made to the patches in utils/dc-chain/patches/.
-   Other arches may need it here.
+   This file is patched into the dc-chain newlib's <sys/lock.h>, by newlib.mk 
+   in \utils\dc-chain\scripts.
 */
 
 #ifndef __SYS_LOCK_H__
