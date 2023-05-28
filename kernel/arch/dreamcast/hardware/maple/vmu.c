@@ -169,7 +169,7 @@ int vmu_beep_raw(maple_device_t * dev, uint32 beep) {
 
 /* Draw a 1-bit bitmap on the LCD screen (48x32). return a -1 if
    an error occurs */
-int vmu_draw_lcd(maple_device_t * dev, void *bitmap) {
+int vmu_draw_lcd(maple_device_t * dev, const void *bitmap) {
     uint32 *    send_buf;
 
     assert(dev != NULL);

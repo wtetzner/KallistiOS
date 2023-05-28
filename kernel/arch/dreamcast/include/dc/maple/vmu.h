@@ -97,7 +97,7 @@ int vmu_beep_raw(maple_device_t * dev, uint32 beep);
     \retval MAPLE_EAGAIN    If the command couldn't be sent. Try again later.
     \retval MAPLE_ETIMEOUT  If the command timed out while blocking.
 */
-int vmu_draw_lcd(maple_device_t * dev, void *bitmap);
+int vmu_draw_lcd(maple_device_t * dev, const void *bitmap);
 
 /** \brief  Display a Xwindows XBM image on a VMU screen.
 
