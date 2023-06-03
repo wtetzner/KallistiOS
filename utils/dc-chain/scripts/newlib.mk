@@ -14,6 +14,7 @@ $(build_newlib): logdir
 	> $(log)
 	cd $(build); \
 	  ../$(src_dir)/configure \
+	    --disable-newlib-supplied-syscalls \
 	    --target=$(target) \
 	    --prefix=$(prefix) \
 	    $(extra_configure_args) \
@@ -43,21 +44,19 @@ fixup-sh4-newlib-apply:
 # to define _POSIX_THREADS
 # pthreads to kthreads mapping
 # so KOS includes are available as kos/file.h
-# kos/thread.h requires arch/arch.h
-# arch/arch.h requires dc/video.h
+# kos/thread.h requires arch/irq.h
 	cp $(kos_base)/include/pthread.h $(newlib_inc)
 	cp $(kos_base)/include/sys/_pthread.h $(newlib_inc)/sys
 	cp $(kos_base)/include/sys/sched.h $(newlib_inc)/sys
+	cp $(kos_base)/include/sys/lock.h $(newlib_inc)/sys
 ifndef MINGW32
 	ln -nsf $(kos_base)/include/kos $(newlib_inc)
 	ln -nsf $(kos_base)/kernel/arch/dreamcast/include/arch $(newlib_inc)
-	ln -nsf $(kos_base)/kernel/arch/dreamcast/include/dc   $(newlib_inc)
 else
 # Under MinGW/MSYS or MinGW-w64/MSYS2, the ln tool is not efficient, so it's
 # better to do a simple copy. Please keep that in mind when upgrading
 # KallistiOS or your toolchain!
 	cp -r $(kos_base)/include/kos $(newlib_inc)
 	cp -r $(kos_base)/kernel/arch/dreamcast/include/arch $(newlib_inc)
-	cp -r $(kos_base)/kernel/arch/dreamcast/include/dc   $(newlib_inc)
 	touch $(fixup_sh4_newlib_stamp)
 endif

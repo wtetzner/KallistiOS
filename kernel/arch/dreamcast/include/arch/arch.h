@@ -21,7 +21,7 @@
 #include <kos/cdefs.h>
 __BEGIN_DECLS
 
-#include <dc/video.h>
+#include <arch/types.h>
 
 /** \brief  Top of memory available, depending on memory size. */
 #ifdef __KOS_GCC_32MB__

@@ -19,7 +19,7 @@
 #include <dc/maple/controller.h>
 
 #include <arch/timer.h>
-#include <arch/types.h>
+#include <arch/arch.h>
 
 #include <kos/dbgio.h>
 #include <kos/blockdev.h>
@@ -50,8 +50,8 @@ static void __attribute__((__noreturn__)) wait_exit() {
 
 int main(int argc, char *argv[]) {
     kos_blockdev_t sd_dev;
-    uint64 begin, end, timer, average;
-    uint64 sum = 0;
+    uint64_t begin, end, timer, average;
+    uint64_t sum = 0;
     uint8_t pt;
     int i;
 

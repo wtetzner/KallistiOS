@@ -66,11 +66,11 @@ __BEGIN_DECLS
 #include <arch/exec.h>
 #include <arch/stack.h>
 #include <arch/byteorder.h>
+#include <arch/rtc.h>
 
 #ifdef _arch_dreamcast
 #   include <arch/gdb.h>
 #   include <arch/mmu.h>
-#   include <arch/rtc.h>
 
 #   include <dc/asic.h>
 #   include <dc/biosfont.h>

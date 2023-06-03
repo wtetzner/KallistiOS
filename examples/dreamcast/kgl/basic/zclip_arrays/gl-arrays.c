@@ -15,6 +15,8 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+#include <arch/arch.h>
+
 /* Load a PVR texture - located in pvr-texture.c */
 extern GLuint glTextureLoadPVR(char *fname, unsigned char isMipMapped, unsigned char glMipMap);
 
