@@ -153,7 +153,7 @@ fetch-arm-gcc: $(stamp_arm_gcc_download) $(if $(filter 1,$(use_custom_dependenci
 
 fetch-gdb: $(stamp_gdb_download)
 
-fetch-sh4: fetch-sh_binutils fetch-sh-gcc fetch-newlib
+fetch-sh4: fetch-sh-binutils fetch-sh-gcc fetch-newlib
 fetch-arm: fetch-arm-binutils fetch-arm-gcc
 
 fetch: fetch-sh4 fetch-arm
