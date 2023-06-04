@@ -18,6 +18,7 @@
 #include <dc/maple.h>
 #include <dc/maple/controller.h>
 
+#include <arch/arch.h>
 #include <arch/timer.h>
 
 #include <kos/init.h>
