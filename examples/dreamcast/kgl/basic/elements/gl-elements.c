@@ -1,5 +1,5 @@
-/*
-   KallistiOS 2.0.0
+/* 
+   KallistiOS ##version##
 
    gl-elements.c
    (c)2014 Josh Pearson
