@@ -28,27 +28,27 @@ int main(int argc, char **argv) {
     bfont_draw_str(vram_s + o, 640, 1, "Test of basic ASCII");  
     /* After each string, we'll increment the offset down by one row */
     o += 640 * BFONT_HEIGHT;
-    bfont_draw_str(vram_s + o, 640, 1, "Parlez-vous franï¿½ais?");
+    bfont_draw_str(vram_s + o, 640, 1, "Parlez-vous français?");
     o += 640 * BFONT_HEIGHT;
 
     /* Do a second set drawn transparently */
     bfont_draw_str(vram_s + o, 640, 0, "Test of basic ASCII");
     o += 640 * BFONT_HEIGHT;
-    bfont_draw_str(vram_s + o, 640, 0, "Parlez-vous franï¿½ais?");
+    bfont_draw_str(vram_s + o, 640, 0, "Parlez-vous français?");
     o += 640 * BFONT_HEIGHT;
 
     /* Test with EUC encoding */
     bfont_set_encoding(BFONT_CODE_EUC);
-    bfont_draw_str(vram_s + o, 640, 1, "ï¿½ï¿½ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ EUC!");
+    bfont_draw_str(vram_s + o, 640, 1, "¤³¤ó¤Ë¤Á¤Ï EUC!");
     o += 640 * BFONT_HEIGHT;
-    bfont_draw_str(vram_s + o, 640, 0, "ï¿½ï¿½ï¿½ï¿½ï¿½Ë¤ï¿½ï¿½ EUC!");
+    bfont_draw_str(vram_s + o, 640, 0, "¤³¤ó¤Ë¤Á¤Ï EUC!");
     o += 640 * BFONT_HEIGHT;
 
     /* Test with Shift-JIS encoding */
     bfont_set_encoding(BFONT_CODE_SJIS);
-    bfont_draw_str(vram_s + o, 640, 1, "ï¿½Aï¿½hï¿½ï¿½ï¿½Xï¿½ÏŠï¿½ SJIS");
+    bfont_draw_str(vram_s + o, 640, 1, "ƒAƒhƒŒƒX•ÏŠ· SJIS");
     o += 640 * BFONT_HEIGHT;
-    bfont_draw_str(vram_s + o, 640, 0, "ï¿½Aï¿½hï¿½ï¿½ï¿½Xï¿½ÏŠï¿½ SJIS");
+    bfont_draw_str(vram_s + o, 640, 0, "ƒAƒhƒŒƒX•ÏŠ· SJIS");
     o += 640 * BFONT_HEIGHT;
 
     /* Drawing the special symbols is a bit convoluted. First we'll draw some
