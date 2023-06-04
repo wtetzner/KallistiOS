@@ -33,6 +33,8 @@
 #include <dc/maple/controller.h>
 #include <dc/maple/vmu.h>
 
+#include <arch/arch.h>
+
 #include <plx/font.h>
 
 extern uint8_t romdisk[];

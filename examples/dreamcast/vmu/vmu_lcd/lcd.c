@@ -27,6 +27,8 @@
 #include <dc/maple/vmu.h>
 #include <dc/vmu_fb.h>
 
+#include <arch/arch.h>
+
 /* 4x6 font from the Linux kernel:
    https://github.com/torvalds/linux/blob/master/lib/fonts/font_mini_4x6.c
 
