@@ -57,6 +57,14 @@ patch-sh4-newlib: fetch-newlib
 patch-arm-binutils: fetch-arm-binutils
 patch-arm-gcc: fetch-arm-gcc
 
+# Copy over required KOS files to SH4 GCC directory before patching
+patch-sh4-gcc: sh-gcc-fixup
+sh-gcc-fixup:
+	@echo "+++ Copying required KOS files into GCC directory..."
+	cp $(kos_base)/kernel/arch/dreamcast/kernel/startup.s $(src_dir)/libgcc/config/sh/crt1.S
+	cp $(kos_base)/kernel/arch/dreamcast/kernel/gthr-kos.h $(src_dir)/libgcc/config/sh/gthr-kos.h
+	cp $(kos_base)/kernel/arch/dreamcast/kernel/fake-kos.S $(src_dir)/libgcc/config/sh/fake-kos.S
+
 uname_p := $(shell uname -p)
 uname_s := $(shell uname -s)
 
@@ -94,10 +102,6 @@ $(patch_gcc): diff_patches += $(wildcard $(patches)/$(uname_p)-$(uname_s)/$(src_
 endif
 endif
 $(patch_gcc):
-	@echo "+++ Copying necessary files into GCC folder..."
-	cp $(kos_base)/kernel/arch/dreamcast/kernel/startup.s $(src_dir)/libgcc/config/sh/crt1.S
-	cp $(kos_base)/kernel/arch/dreamcast/kernel/gthr-kos.h $(src_dir)/libgcc/config/sh/gthr-kos.h
-	cp $(kos_base)/kernel/arch/dreamcast/kernel/fake-kos.S $(src_dir)/libgcc/config/sh/fake-kos.S
 	$(call patch_apply)
 
 # Newlib
