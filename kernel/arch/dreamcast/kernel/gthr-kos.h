@@ -1,4 +1,7 @@
 /* Copyright (C) 2009, 2010, 2011, 2012, 2020 Lawrence Sebald */
+/* This file is added to GCC during the patching stage of toolchain
+   compilation. Any changes to this file will not take effect until
+   the toolchain is recompiled. */
 
 /* Threads compatibility routines for libgcc2 and libobjc.  */
 /* Compile this one with gcc.  */

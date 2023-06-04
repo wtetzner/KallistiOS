@@ -1,3 +1,7 @@
+! This file is added to GCC during the patching stage of toolchain
+! compilation. Any changes to this file will not take effect until the
+! toolchain is recompiled.
+
 ! Weakly linked symbols used to get GCC to hopefully compile itself properly.
 ! These will be replaced by the real symbols in actual compiled programs.
 
