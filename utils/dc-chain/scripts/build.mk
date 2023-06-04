@@ -49,13 +49,13 @@ build-sh4-gcc-pass2: fixup-sh4-newlib
 build-arm-gcc-pass1: build-arm-binutils
 
 # SH4 Download Dependencies
-build-sh4-binutils: fetch_sh_binutils
-build-sh4-gcc-pass1 build-sh4-gcc-pass2: fetch_sh_gcc
-build-sh4-newlib-only: fetch_newlib
+build-sh4-binutils: fetch-sh-binutils
+build-sh4-gcc-pass1 build-sh4-gcc-pass2: fetch-sh-gcc
+build-sh4-newlib-only: fetch-newlib
 
 # ARM Download Dependencies
-build-arm-binutils: fetch_arm_binutils
-build-arm-gcc-pass1: fetch_arm_gcc
+build-arm-binutils: fetch-arm-binutils
+build-arm-gcc-pass1: fetch-arm-gcc
 
 # GDB Patch Dependency
 build_gdb: patch_gdb
