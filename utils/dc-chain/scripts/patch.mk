@@ -57,6 +57,14 @@ patch-sh4-newlib: fetch-newlib
 patch-arm-binutils: fetch-arm-binutils
 patch-arm-gcc: fetch-arm-gcc
 
+# Copy over required KOS files to SH4 GCC directory before patching
+patch-sh4-gcc: sh-gcc-fixup
+sh-gcc-fixup: fetch-sh-gcc
+	@echo "+++ Copying required KOS files into GCC directory..."
+	cp $(kos_base)/kernel/arch/dreamcast/kernel/startup.s $(src_dir)/libgcc/config/sh/crt1.S
+	cp $(patches)/gcc/gthr-kos.h $(src_dir)/libgcc/config/sh/gthr-kos.h
+	cp $(patches)/gcc/fake-kos.S $(src_dir)/libgcc/config/sh/fake-kos.S
+
 uname_p := $(shell uname -p)
 uname_s := $(shell uname -s)
 
