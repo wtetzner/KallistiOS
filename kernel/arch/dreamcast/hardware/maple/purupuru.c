@@ -59,7 +59,6 @@ int purupuru_rumble_raw(maple_device_t *dev, uint32 effect) {
 }
 
 int purupuru_rumble(maple_device_t *dev, purupuru_effect_t *effect) {
-    uint32 *send_buf;
     uint32 comp_effect;
 
     assert(dev != NULL);
