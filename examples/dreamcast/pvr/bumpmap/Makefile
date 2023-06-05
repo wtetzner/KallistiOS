@@ -15,7 +15,7 @@ $(TARGET): $(OBJS)
 	kos-cc -o $(TARGET) $(OBJS) -lkmg -lkosutils
 
 romdisk.img: romdisk/bricks.kmg romdisk/bumpmap.raw
-	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v -x .keepme
+	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v
 
 romdisk.o: romdisk.img
 	$(KOS_BASE)/utils/bin2o/bin2o romdisk.img romdisk romdisk.o
