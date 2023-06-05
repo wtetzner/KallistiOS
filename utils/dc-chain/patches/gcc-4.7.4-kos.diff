@@ -1,6 +1,6 @@
-diff -ruN gcc-4.7.4/gcc/config/sh/sh.h gcc-4.7.4-kos/gcc/config/sh/sh.h
---- gcc-4.7.4/gcc/config/sh/sh.h	2023-05-19 21:08:39.913229830 -0500
-+++ gcc-4.7.4-kos/gcc/config/sh/sh.h	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/gcc/config/sh/sh.h gcc-4.7.4-kos/gcc/config/sh/sh.h
+--- gcc-4.7.4/gcc/config/sh/sh.h	2023-06-04 20:55:00.700746950 -0500
++++ gcc-4.7.4-kos/gcc/config/sh/sh.h	2023-06-04 20:55:12.808785621 -0500
 @@ -93,6 +93,12 @@
      builtin_define ("__FMOVD_ENABLED__"); \
    builtin_define (TARGET_LITTLE_ENDIAN \
@@ -14,9 +14,9 @@ diff -ruN gcc-4.7.4/gcc/config/sh/sh.h gcc-4.7.4-kos/gcc/config/sh/sh.h
  } while (0)
  
  /* Value should be nonzero if functions must have frame pointers.
-diff -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-kos/gcc/configure
---- gcc-4.7.4/gcc/configure	2023-05-19 21:08:39.545225523 -0500
-+++ gcc-4.7.4-kos/gcc/configure	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-kos/gcc/configure
+--- gcc-4.7.4/gcc/configure	2023-06-04 20:54:59.632743539 -0500
++++ gcc-4.7.4-kos/gcc/configure	2023-06-04 20:55:12.809785624 -0500
 @@ -11338,7 +11338,7 @@
      target_thread_file='single'
      ;;
@@ -26,9 +26,9 @@ diff -ruN gcc-4.7.4/gcc/configure gcc-4.7.4-kos/gcc/configure
      target_thread_file=${enable_threads}
      ;;
    *)
-diff -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-kos/gcc/cp/cfns.h
---- gcc-4.7.4/gcc/cp/cfns.h	2023-05-19 21:08:39.905229736 -0500
-+++ gcc-4.7.4-kos/gcc/cp/cfns.h	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-kos/gcc/cp/cfns.h
+--- gcc-4.7.4/gcc/cp/cfns.h	2023-06-04 20:55:00.677746876 -0500
++++ gcc-4.7.4-kos/gcc/cp/cfns.h	2023-06-04 20:55:12.809785624 -0500
 @@ -53,6 +53,9 @@
  static unsigned int hash (const char *, unsigned int);
  #ifdef __GNUC__
@@ -48,9 +48,9 @@ diff -ruN gcc-4.7.4/gcc/cp/cfns.h gcc-4.7.4-kos/gcc/cp/cfns.h
  
    switch (hval)
      {
-diff -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-kos/gcc/doc/gcc.texi
---- gcc-4.7.4/gcc/doc/gcc.texi	2023-05-19 21:08:39.541225476 -0500
-+++ gcc-4.7.4-kos/gcc/doc/gcc.texi	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-kos/gcc/doc/gcc.texi
+--- gcc-4.7.4/gcc/doc/gcc.texi	2023-06-04 20:54:59.622743507 -0500
++++ gcc-4.7.4-kos/gcc/doc/gcc.texi	2023-06-04 20:55:12.810785628 -0500
 @@ -86,9 +86,9 @@
  @item GNU Press
  @tab Website: www.gnupress.org
@@ -63,10 +63,9 @@ diff -ruN gcc-4.7.4/gcc/doc/gcc.texi gcc-4.7.4-kos/gcc/doc/gcc.texi
  @item 51 Franklin Street, Fifth Floor
  @tab Tel 617-542-5942
  @item Boston, MA 02110-1301 USA
-
-diff -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-kos/libgcc/config/sh/t-sh
---- gcc-4.7.4/libgcc/config/sh/t-sh	2023-05-19 21:08:39.465224587 -0500
-+++ gcc-4.7.4-kos/libgcc/config/sh/t-sh	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-kos/libgcc/config/sh/t-sh
+--- gcc-4.7.4/libgcc/config/sh/t-sh	2023-06-04 20:54:59.531743216 -0500
++++ gcc-4.7.4-kos/libgcc/config/sh/t-sh	2023-06-04 20:55:12.810785628 -0500
 @@ -24,6 +24,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -76,9 +75,9 @@ diff -ruN gcc-4.7.4/libgcc/config/sh/t-sh gcc-4.7.4-kos/libgcc/config/sh/t-sh
  crt1.o: $(srcdir)/config/sh/crt1.S
  	$(gcc_compile) -c $<
  
-diff -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-kos/libgcc/configure
---- gcc-4.7.4/libgcc/configure	2023-05-19 21:08:39.457224494 -0500
-+++ gcc-4.7.4-kos/libgcc/configure	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-kos/libgcc/configure
+--- gcc-4.7.4/libgcc/configure	2023-06-04 20:54:59.516743168 -0500
++++ gcc-4.7.4-kos/libgcc/configure	2023-06-04 20:55:12.810785628 -0500
 @@ -4480,6 +4480,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -87,9 +86,9 @@ diff -ruN gcc-4.7.4/libgcc/configure gcc-4.7.4-kos/libgcc/configure
  esac
  
  # Substitute configuration variables
-diff -ruN gcc-4.7.4/libobjc/Makefile.in gcc-4.7.4-kos/libobjc/Makefile.in
---- gcc-4.7.4/libobjc/Makefile.in	2023-05-19 21:08:39.197221451 -0500
-+++ gcc-4.7.4-kos/libobjc/Makefile.in	2023-05-19 21:09:56.730134438 -0500
+diff --color -ruN gcc-4.7.4/libobjc/Makefile.in gcc-4.7.4-kos/libobjc/Makefile.in
+--- gcc-4.7.4/libobjc/Makefile.in	2023-06-04 20:54:58.789740846 -0500
++++ gcc-4.7.4-kos/libobjc/Makefile.in	2023-06-04 20:55:12.810785628 -0500
 @@ -307,14 +307,16 @@
  $(srcdir)/aclocal.m4: @MAINT@ $(aclocal_deps)
  	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
@@ -120,9 +119,9 @@ diff -ruN gcc-4.7.4/libobjc/Makefile.in gcc-4.7.4-kos/libobjc/Makefile.in
  
  mostlyclean:
  	-$(LIBTOOL_CLEAN) rm -f libobjc$(libsuffix).la libobjc_gc$(libsuffix).la *.lo
-diff -ruN gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-19 21:08:39.197221451 -0500
-+++ gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-19 21:08:47.737321451 -0500
+diff --color -ruN gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h
+--- gcc-4.7.4/libstdc++-v3/config/cpu/sh/atomicity.h	2023-06-04 20:55:00.998747901 -0500
++++ gcc-4.7.4-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-06-04 20:55:12.810785628 -0500
 @@ -80,7 +80,12 @@
  
  namespace 

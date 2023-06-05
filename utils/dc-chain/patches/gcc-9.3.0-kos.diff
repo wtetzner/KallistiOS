@@ -1,6 +1,6 @@
-diff -ruN gcc-9.3.0/gcc/config/sh/sh-c.c gcc-9.3.0-kos/gcc/config/sh/sh-c.c
---- gcc-9.3.0/gcc/config/sh/sh-c.c	2023-05-19 21:24:03.788553776 -0500
-+++ gcc-9.3.0-kos/gcc/config/sh/sh-c.c	2023-05-19 21:24:12.336661195 -0500
+diff --color -ruN gcc-9.3.0/gcc/config/sh/sh-c.c gcc-9.3.0-kos/gcc/config/sh/sh-c.c
+--- gcc-9.3.0/gcc/config/sh/sh-c.c	2023-06-04 20:52:27.261256884 -0500
++++ gcc-9.3.0-kos/gcc/config/sh/sh-c.c	2023-06-04 20:52:36.936287786 -0500
 @@ -141,4 +141,11 @@
  
    cpp_define_formatted (pfile, "__SH_ATOMIC_MODEL_%s__",
@@ -13,9 +13,9 @@ diff -ruN gcc-9.3.0/gcc/config/sh/sh-c.c gcc-9.3.0-kos/gcc/config/sh/sh-c.c
 +  /* Toolchain supports setting up stack for 32MB */
 +  builtin_define ("__KOS_GCC_32MB__");
  }
-diff -ruN gcc-9.3.0/gcc/configure gcc-9.3.0-kos/gcc/configure
---- gcc-9.3.0/gcc/configure	2023-05-19 21:24:04.424561767 -0500
-+++ gcc-9.3.0-kos/gcc/configure	2023-05-19 21:24:12.336661195 -0500
+diff --color -ruN gcc-9.3.0/gcc/configure gcc-9.3.0-kos/gcc/configure
+--- gcc-9.3.0/gcc/configure	2023-06-04 20:52:27.441257459 -0500
++++ gcc-9.3.0-kos/gcc/configure	2023-06-04 20:52:36.938287792 -0500
 @@ -11862,7 +11862,7 @@
      target_thread_file='single'
      ;;
@@ -25,10 +25,9 @@ diff -ruN gcc-9.3.0/gcc/configure gcc-9.3.0-kos/gcc/configure
      target_thread_file=${enable_threads}
      ;;
    *)
-
-diff -ruN gcc-9.3.0/libgcc/config/sh/t-sh gcc-9.3.0-kos/libgcc/config/sh/t-sh
---- gcc-9.3.0/libgcc/config/sh/t-sh	2023-05-19 21:24:03.516550358 -0500
-+++ gcc-9.3.0-kos/libgcc/config/sh/t-sh	2023-05-19 21:24:12.336661195 -0500
+diff --color -ruN gcc-9.3.0/libgcc/config/sh/t-sh gcc-9.3.0-kos/libgcc/config/sh/t-sh
+--- gcc-9.3.0/libgcc/config/sh/t-sh	2023-06-04 20:52:26.518254511 -0500
++++ gcc-9.3.0-kos/libgcc/config/sh/t-sh	2023-06-04 20:52:36.938287792 -0500
 @@ -23,6 +23,8 @@
    $(LIB1ASMFUNCS_CACHE)
  LIB1ASMFUNCS_CACHE = _ic_invalidate _ic_invalidate_array
@@ -38,9 +37,9 @@ diff -ruN gcc-9.3.0/libgcc/config/sh/t-sh gcc-9.3.0-kos/libgcc/config/sh/t-sh
  crt1.o: $(srcdir)/config/sh/crt1.S
  	$(gcc_compile) -c $<
  
-diff -ruN gcc-9.3.0/libgcc/configure gcc-9.3.0-kos/libgcc/configure
---- gcc-9.3.0/libgcc/configure	2023-05-19 21:24:03.528550509 -0500
-+++ gcc-9.3.0-kos/libgcc/configure	2023-05-19 21:24:12.336661195 -0500
+diff --color -ruN gcc-9.3.0/libgcc/configure gcc-9.3.0-kos/libgcc/configure
+--- gcc-9.3.0/libgcc/configure	2023-06-04 20:52:26.562254651 -0500
++++ gcc-9.3.0-kos/libgcc/configure	2023-06-04 20:52:36.939287795 -0500
 @@ -5550,6 +5550,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
@@ -49,9 +48,9 @@ diff -ruN gcc-9.3.0/libgcc/configure gcc-9.3.0-kos/libgcc/configure
  esac
  
  
-diff -ruN gcc-9.3.0/libobjc/Makefile.in gcc-9.3.0-kos/libobjc/Makefile.in
---- gcc-9.3.0/libobjc/Makefile.in	2023-05-19 21:24:03.536550610 -0500
-+++ gcc-9.3.0-kos/libobjc/Makefile.in	2023-05-19 21:24:42.033034555 -0500
+diff --color -ruN gcc-9.3.0/libobjc/Makefile.in gcc-9.3.0-kos/libobjc/Makefile.in
+--- gcc-9.3.0/libobjc/Makefile.in	2023-06-04 20:52:26.580254709 -0500
++++ gcc-9.3.0-kos/libobjc/Makefile.in	2023-06-04 20:52:36.939287795 -0500
 @@ -307,14 +307,16 @@
  $(srcdir)/aclocal.m4: @MAINT@ $(aclocal_deps)
  	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
@@ -82,9 +81,9 @@ diff -ruN gcc-9.3.0/libobjc/Makefile.in gcc-9.3.0-kos/libobjc/Makefile.in
  
  mostlyclean:
  	-$(LIBTOOL_CLEAN) rm -f libobjc$(libsuffix).la libobjc_gc$(libsuffix).la *.lo
-diff -ruN gcc-9.3.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-9.3.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h
---- gcc-9.3.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-19 21:24:03.612551565 -0500
-+++ gcc-9.3.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-05-19 21:24:12.336661195 -0500
+diff --color -ruN gcc-9.3.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-9.3.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h
+--- gcc-9.3.0/libstdc++-v3/config/cpu/sh/atomicity.h	2023-06-04 20:52:26.780255348 -0500
++++ gcc-9.3.0-kos/libstdc++-v3/config/cpu/sh/atomicity.h	2023-06-04 20:52:36.939287795 -0500
 @@ -22,14 +22,40 @@
  // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  // <http://www.gnu.org/licenses/>.
@@ -135,9 +134,9 @@ diff -ruN gcc-9.3.0/libstdc++-v3/config/cpu/sh/atomicity.h gcc-9.3.0-kos/libstdc
 +
 +_GLIBCXX_END_NAMESPACE_VERSION
 +} // namespace
-diff -ruN gcc-9.3.0/libstdc++-v3/configure gcc-9.3.0-kos/libstdc++-v3/configure
---- gcc-9.3.0/libstdc++-v3/configure	2023-05-19 21:24:03.720552922 -0500
-+++ gcc-9.3.0-kos/libstdc++-v3/configure	2023-05-19 21:24:12.340661246 -0500
+diff --color -ruN gcc-9.3.0/libstdc++-v3/configure gcc-9.3.0-kos/libstdc++-v3/configure
+--- gcc-9.3.0/libstdc++-v3/configure	2023-06-04 20:52:27.100256370 -0500
++++ gcc-9.3.0-kos/libstdc++-v3/configure	2023-06-04 20:52:36.943287808 -0500
 @@ -15629,6 +15629,7 @@
      tpf)	thread_header=config/s390/gthr-tpf.h ;;
      vxworks)	thread_header=config/gthr-vxworks.h ;;
