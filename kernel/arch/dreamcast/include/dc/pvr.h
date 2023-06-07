@@ -1705,7 +1705,7 @@ int pvr_list_flush(pvr_list_t list);
     \retval 0               On success.
     \retval -1              On error (no scene started).
 */
-int pvr_scene_finish();
+int pvr_scene_finish(void);
 
 /** \brief  Block the caller until the PVR system is ready for another frame to
             be submitted.
@@ -1721,7 +1721,7 @@ int pvr_scene_finish();
     \retval 0               On success. A new scene can be started now.
     \retval -1              On error. Something is probably very wrong...
 */
-int pvr_wait_ready();
+int pvr_wait_ready(void);
 
 /** \brief  Check if the PVR system is ready for another frame to be submitted.
 
@@ -1730,7 +1730,7 @@ int pvr_wait_ready();
                             scene.
     \retval -1              If the PVR is not ready for a new scene yet.
 */
-int pvr_check_ready();
+int pvr_check_ready(void);
 
 
 /* Primitive handling ************************************************/
