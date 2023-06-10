@@ -70,7 +70,7 @@ int maple_hw_init(void) {
     assert_msg((((uint32)maple_state.dma_buffer) & 0x1f) == 0, "DMA buffer was unaligned; bug in dlmalloc; please report!");
 
     /* Force it into the P2 area */
-    maple_state.dma_buffer = (uint8*)((((uint32)maple_state.dma_buffer) & 0x1fffffff) | 0xa0000000);
+    maple_state.dma_buffer = (uint8*)((((uint32)maple_state.dma_buffer) & MEM_AREA_SIZE) | MEM_AREA_P2_MASK);
 #if MAPLE_DMA_DEBUG
     maple_state.dma_buffer += 512;
     maple_sentinel_setup(maple_state.dma_buffer - 512, MAPLE_DMA_SIZE + 1024);
