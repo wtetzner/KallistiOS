@@ -7,7 +7,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <assert.h>
-
+#include <kos/thread.h>
 #include <dc/maple.h>
 #include <dc/asic.h>
 #include <dc/vblank.h>
