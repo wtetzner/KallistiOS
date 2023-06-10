@@ -7,10 +7,11 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <assert.h>
+
 #include <dc/maple.h>
 #include <dc/asic.h>
 #include <dc/vblank.h>
-#include <kos/thread.h>
+#include <dc/memmap.h>
 
 #include <dc/maple/controller.h>
 #include <dc/maple/keyboard.h>
@@ -124,7 +125,7 @@ void maple_hw_shutdown(void) {
 #if MAPLE_DMA_DEBUG
         ptr -= 512;
 #endif
-        ptr = (ptr & 0x1fffffff) | 0x80000000;
+        ptr = (ptr & MEM_AREA_SIZE) | MEM_AREA_P1_MASK;
         free((void *)ptr);
         maple_state.dma_buffer = NULL;
     }

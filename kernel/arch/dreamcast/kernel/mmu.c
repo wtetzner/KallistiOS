@@ -9,13 +9,13 @@
 #include <string.h>
 #include <malloc.h>
 
-#include <kos/thread.h>
 #include <arch/arch.h>
 #include <arch/types.h>
 #include <arch/irq.h>
 #include <arch/mmu.h>
 #include <kos/dbgio.h>
 #include <arch/cache.h>
+#include <dc/memmap.h>
 
 /********************************************************************************/
 /* Register definitions */
@@ -344,7 +344,7 @@ int mmu_copyin(mmucontext_t *context, uint32 srcaddr, uint32 srccnt, void *buffe
     /* Setup source pointers */
     srcptr = (uint32)srcaddr;
 
-    if(!(srcptr & 0x8000000)) {
+    if(!(srcptr & MEM_AREA_P1_MASK)) {
         srcpage = map_virt(context, srcptr >> PAGESIZE_BITS);
 
         if(srcpage == NULL)
@@ -375,7 +375,7 @@ int mmu_copyin(mmucontext_t *context, uint32 srcaddr, uint32 srccnt, void *buffe
             run = srccnt;
 
         /* Do the segment copy */
-        memcpy(dst, (void*)(src | 0x80000000), run);
+        memcpy(dst, (void*)(src | MEM_AREA_P1_MASK), run);
 
         /* Adjust all the pointers */
         src += run;
@@ -445,7 +445,7 @@ int mmu_copyv(mmucontext_t *context1, struct iovec *iov1, int iovcnt1,
     dstcnt = iov2[dstiov].iov_len;
     dstptr = (uint32)iov2[dstiov].iov_base;
 
-    if(!(dstptr & 0x80000000)) {
+    if(!(dstptr & MEM_AREA_P1_MASK)) {
         dstpage = map_virt(context2, dstptr >> PAGESIZE_BITS);
 
         if(dstpage == NULL)
@@ -491,9 +491,9 @@ int mmu_copyv(mmucontext_t *context1, struct iovec *iov1, int iovcnt1,
             sproket = 1;
         } */
         //debug();
-        memcpy((void*)(dst | 0xa0000000), (void*)(src | 0x80000000), run);
+        memcpy((void*)(dst | MEM_AREA_P2_MASK), (void*)(src | MEM_AREA_P1_MASK), run);
         /* dcache_inval_range(dstptr, run); */
-        dcache_inval_range(dst | 0x80000000, run);
+        dcache_inval_range(dst | MEM_AREA_P1_MASK, run);
         //undebug();
 
         /* Adjust all the pointers */

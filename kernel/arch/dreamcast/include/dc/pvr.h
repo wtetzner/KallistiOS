@@ -36,6 +36,7 @@ __BEGIN_DECLS
 
 #include <arch/types.h>
 #include <dc/sq.h>
+#include <dc/memmap.h>
 #include <kos/img.h>
 
 /* Data types ********************************************************/
@@ -1662,7 +1663,7 @@ typedef uint32 pvr_dr_state_t;
 */
 #define pvr_dr_target(vtx_buf_ptr) \
     ({ (vtx_buf_ptr) ^= 32; \
-        (pvr_vertex_t *)(0xe0000000 | (vtx_buf_ptr)); \
+        (pvr_vertex_t *)(MEM_AREA_P4_MASK | (vtx_buf_ptr)); \
     })
 
 /** \brief  Commit a primitive written into the Direct Rendering target address.

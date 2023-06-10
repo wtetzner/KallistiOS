@@ -378,6 +378,6 @@ void arch_reboot(void) {
     irq_disable();
 
     /* Reboot */
-    rb = (reboot_func)0xa0000000;
+    rb = (reboot_func)(MEM_AREA_P2_MASK | 0x00000000);
     rb();
 }
