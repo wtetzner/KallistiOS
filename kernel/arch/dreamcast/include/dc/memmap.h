@@ -6,10 +6,10 @@
 */
 
 /** \file   dc/memmap.h
-    \brief  Defines of basic memory map values.
+    \brief  Constants for areas of the system memory map.
 
     Various addresses and masks are not tied to any single subsystem, but 
-	instead are generalized to the whole system.
+    instead are generalized to the whole system.
 
     \author Donald Haase
 */
