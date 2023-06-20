@@ -1,7 +1,7 @@
 /* KallistiOS ##version##
 
    kernel/arch/dreamcast/include/dc/memmap.h
-   (C)2023 Donald Haase
+   Copyright (C) 2023 Donald Haase
 
 */
 
