@@ -26,8 +26,9 @@ __BEGIN_DECLS
 /** \brief Cachable P1 memory region. */
 #define MEM_AREA_P1_MASK    0x80000000
 
-/** \brief Non-cacheable memory region offset. For DMA. 
-    In startup.s this is called 'p2_mask'
+/** \brief Non-cacheable memory region offset.
+
+    This is mainly useful for DMA-related purposes.
 */
 #define MEM_AREA_P2_MASK    0xa0000000
 
