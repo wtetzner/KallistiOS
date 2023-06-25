@@ -8,8 +8,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <arch/memory.h>
 #include <dc/maple.h>
-#include <dc/memmap.h>
 
 /* Enable / Disable the bus */
 void maple_bus_enable(void) {
@@ -33,7 +33,7 @@ int maple_dma_in_progress(void) {
 
 /* Set the DMA Address */
 void maple_dma_addr(void *ptr) {
-    maple_write(MAPLE_DMAADDR, ((uint32) ptr) & MEM_AREA_SIZE);
+    maple_write(MAPLE_DMAADDR, ((uint32) ptr) & MEM_AREA_P2_SIZE);
 }
 
 /* Return a "maple address" for a port,unit pair */

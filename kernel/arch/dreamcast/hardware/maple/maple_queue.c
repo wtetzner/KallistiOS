@@ -9,8 +9,8 @@
 #include <assert.h>
 #include <string.h>
 #include <dc/maple.h>
-#include <dc/memmap.h>
 #include <arch/irq.h>
+#include <arch/memory.h>
 
 /* Send all queued frames */
 void maple_queue_flush(void) {
@@ -158,7 +158,7 @@ void maple_frame_init(maple_frame_t *frame) {
 #if MAPLE_DMA_DEBUG
     buf_ptr += 512;
 #endif
-    buf_ptr = (buf_ptr & MEM_AREA_SIZE) | MEM_AREA_P2_MASK;
+    buf_ptr = (buf_ptr & MEM_AREA_SIZE) | MEM_AREA_P2_BASE;
     frame->recv_buf = (uint8*)buf_ptr;
 
     /* Clear out the receive buffer */

@@ -34,9 +34,9 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
+#include <arch/memory.h>
 #include <arch/types.h>
 #include <dc/sq.h>
-#include <dc/memmap.h>
 #include <kos/img.h>
 
 /* Data types ********************************************************/
