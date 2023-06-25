@@ -45,7 +45,7 @@ void maple_queue_flush(void) {
         *out++ = i->length | (i->dst_port << 16);
 
         /* Second word: receive buffer physical address */
-        *out++ = ((uint32)i->recv_buf) & MEM_AREA_SIZE;
+        *out++ = ((uint32)i->recv_buf) & MEM_AREA_CACHE_MASK;
 
         /* Third word: command, addressing, packet length */
         *out++ = (i->cmd & 0xff) | (maple_addr(i->dst_port, i->dst_unit) << 8)
@@ -158,7 +158,7 @@ void maple_frame_init(maple_frame_t *frame) {
 #if MAPLE_DMA_DEBUG
     buf_ptr += 512;
 #endif
-    buf_ptr = (buf_ptr & MEM_AREA_SIZE) | MEM_AREA_P2_BASE;
+    buf_ptr = (buf_ptr & MEM_AREA_CACHE_MASK) | MEM_AREA_P2_BASE;
     frame->recv_buf = (uint8*)buf_ptr;
 
     /* Clear out the receive buffer */

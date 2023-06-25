@@ -33,7 +33,7 @@ int maple_dma_in_progress(void) {
 
 /* Set the DMA Address */
 void maple_dma_addr(void *ptr) {
-    maple_write(MAPLE_DMAADDR, ((uint32) ptr) & MEM_AREA_P2_SIZE);
+    maple_write(MAPLE_DMAADDR, ((uint32) ptr) & MEM_AREA_CACHE_MASK);
 }
 
 /* Return a "maple address" for a port,unit pair */
