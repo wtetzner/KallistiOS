@@ -8,22 +8,22 @@
 /** \file   arch/memory.h
     \brief  Constants for areas of the system memory map.
 
-    Various addresses and masks are not tied to any single subsystem, but 
-    instead are generalized to the whole system.
+    Various addresses and masks that are set by the SH7750. None of the values 
+    here are Dreamcast-specific.
 
     These values are drawn from the Hitatchi SH7750 Series Hardware Manual rev 6.0.
 
     \author Donald Haase
 */
 
-#ifndef __DC_MEMORY_H
-#define __DC_MEMORY_H
+#ifndef __ARCH_MEMORY_H
+#define __ARCH_MEMORY_H
 
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
 /** \defgroup memory Memory
-    \brief    Basics of the Dreamcast Memory Map
+    \brief    Basics of the SH4 Memory Map
 
     The SH7750 Series physical address space is mapped onto a 29-bit external 
     memory space, with the upper 3 bits of the address indicating which memory 
@@ -103,7 +103,6 @@ __BEGIN_DECLS
 #define MEM_AREA_P4_BASE    0xe0000000
 
 /** \brief Store Queue (SQ) memory base.
-    \ingroup memory
     \ingroup p4mem
 
     This offset maps to the SQ memory region. RW to addresses from 
@@ -204,4 +203,4 @@ __BEGIN_DECLS
 
 __END_DECLS
 
-#endif /* __DC_MEMORY_H */
+#endif /* __ARCH_MEMORY_H */
