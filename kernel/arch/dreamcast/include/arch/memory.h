@@ -11,7 +11,7 @@
     Various addresses and masks are not tied to any single subsystem, but 
     instead are generalized to the whole system.
 
-    These values are drawn from the Hitatchi SH7750 Series Hardware Manual rev 6.0
+    These values are drawn from the Hitatchi SH7750 Series Hardware Manual rev 6.0.
 
     \author Donald Haase
 */
