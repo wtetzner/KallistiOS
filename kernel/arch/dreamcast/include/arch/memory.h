@@ -49,7 +49,7 @@ __BEGIN_DECLS
     by the WT bit of the cache control register. By default KOS sets this to 
     copy-back mode.
 
-    KOS runs in priviledged mode, so this is here merely for completeness.
+    KOS runs in privileged mode, so this is here merely for completeness.
 
 */
 #define MEM_AREA_U0_BASE    0x00000000
@@ -57,7 +57,7 @@ __BEGIN_DECLS
 /** \brief P0 memory region (cachable).
     \ingroup memory
 
-    This is the base priviledged mode memory address. It is cacheable as determined 
+    This is the base privileged mode memory address. It is cacheable as determined 
     by the WT bit of the cache control register. By default KOS sets this to 
     copy-back mode.
 
@@ -104,16 +104,6 @@ __BEGIN_DECLS
 
 /** \brief Store Queue (SQ) memory base.
     \ingroup memory
-
-    This offset maps to the SQ memory region. RW to addresses from 
-    0xe0000000-0xe3ffffff follow SQ rules.
-
-    \see dc\sq.h
-
-*/
-#define MEM_AREA_SQ_BASE    0xe0000000
-
-/** \brief Store Queue (SQ) memory base.
     \ingroup p4mem
 
     This offset maps to the SQ memory region. RW to addresses from 
