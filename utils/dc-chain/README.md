@@ -104,7 +104,7 @@ without problems.
 
 Working **GCC** and **Newlib** version combinations are:
 
-- GCC `13.1.0` with Newlib `4.3.0` for `sh-elf` and GCC `8.5.0` for `arm-eabi`
+- GCC `13.2.0` with Newlib `4.3.0` for `sh-elf` and GCC `8.5.0` for `arm-eabi`
   (**testing**; the most modern combination);
 - GCC `9.3.0` with Newlib `3.3.0` for `sh-elf` and GCC `8.4.0` for `arm-eabi`
   (**stable**; the most widely used, widely tested combination);
