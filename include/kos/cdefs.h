@@ -115,4 +115,17 @@
 /* GCC macros for special cases */
 /* #if __GNUC__ ==  */
 
+/* C++ doesn't support the restrict keyword from C99. As long as we're using
+   GCC (or something like it), we can use __restrict__ instead in C++. */
+#ifndef restrict
+#ifdef __cplusplus
+#ifdef __GNUC__
+/** \brief  Identify a C99-style restricted pointer. */
+#define restrict __restrict__
+#else /* __GNUC__ */
+#define restrict
+#endif /* __GNUC__ */
+#endif /* __cplusplus */
+#endif /* !restrict */
+
 #endif  /* __KOS_CDEFS_H */
