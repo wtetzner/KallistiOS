@@ -17,6 +17,7 @@ __BEGIN_DECLS
 #include <arch/irq.h>
 #include <sys/queue.h>
 #include <sys/reent.h>
+#include <stdint.h>
 
 #include <stdint.h>
 
@@ -105,6 +106,18 @@ TAILQ_HEAD(ktqueue, kthread);
 LIST_HEAD(ktlist, kthread);
 /* \endcond */
 
+/** \brief   Control Block Header
+    \ingroup threads
+
+    Header preceeding the static TLS data segments as defined by
+    the SH-ELF TLS ABI (version 1). This is what the thread pointer 
+    (GBR) points to for compiler access to thread-local data. 
+*/
+typedef struct tcbhead {
+    void *dtv;               /**< \brief Dynamic TLS vector (unused) */
+    uintptr_t pointer_guard; /**< \brief Pointer guard (unused) */
+} tcbhead_t;
+
 /** \brief   Structure describing one running thread.
     \ingroup threads
 
@@ -184,9 +197,12 @@ typedef struct kthread {
     /** \brief  Our reent struct for newlib. */
     struct _reent thd_reent;
 
-    /** \brief  Thread-local storage.
+    /** \brief  OS-level thread-local storage.
         \see    kos/tls.h   */
     struct kthread_tls_kv_list tls_list;
+
+    /** \brief Compiler-level thread-local storage. */
+    tcbhead_t* tcbhead;
 
     /** \brief  Return value of the thread function.
         This is only used in joinable threads.  */

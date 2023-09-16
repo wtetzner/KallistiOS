@@ -16,7 +16,6 @@ $(build_gcc_pass2): logdir
           --prefix=$(prefix) \
           --with-newlib \
           --disable-libssp \
-          --disable-tls \
           --enable-threads=$(thread_model) \
           --enable-languages=$(pass2_languages) \
           --enable-checking=release \

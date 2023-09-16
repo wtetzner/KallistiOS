@@ -10,6 +10,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <reent.h>
 #include <errno.h>
 #include <kos/thread.h>
@@ -21,6 +22,7 @@
 #include <arch/irq.h>
 #include <arch/timer.h>
 #include <arch/arch.h>
+#include <assert.h>
 
 /*
 
@@ -34,6 +36,16 @@ BSD kernel quite a bit to get some ideas on priorities, and I am
 also using their queue library verbatim (sys/queue.h).
 
 */
+
+/* TLS Section ELF data - exported from linker script. */
+extern int _tdata_start, _tdata_size;
+extern int _tbss_size;
+extern long _tdata_align, _tbss_align;
+
+/* Utility function for aligning an address or offset. */
+static inline size_t align_to(size_t address, size_t alignment) {
+    return (address + (alignment - 1)) & ~(alignment - 1);
+}
 
 /*****************************************************************************/
 /* Thread scheduler data */
@@ -327,6 +339,88 @@ int thd_remove_from_runnable(kthread_t *thd) {
     return 0;
 }
 
+/* Creates and initializes the static TLS segment for a thread,
+   composed of a Thread Control Block (TCB), followed by .TDATA,
+   followed by .TBSS, very carefully ensuring alignment of each
+   subchunk. 
+*/
+static void *thd_create_tls_data(void) {
+    size_t align, tdata_offset, tdata_end, tbss_offset, 
+        tbss_end, align_rem, tls_size;
+    
+    tcbhead_t *tcbhead;
+    void *tdata_segment, *tbss_segment;
+
+    /* Cached and typed local copies of TLS segment data for sizes, 
+       alignments, and initial value data pointer, exported by the 
+       linker script. 
+
+       SIZES MUST BE VOLATILE or the optimizer on non-debug builds will 
+       optimize zero-check conditionals away, since why would the 
+       address of a variable be NULL? (Linker script magic, it can be.)
+   */
+    const volatile size_t   tdata_size  = (size_t)(&_tdata_size);
+    const volatile size_t   tbss_size   = (size_t)(&_tbss_size);
+    const          size_t   tdata_align = tdata_size ? (size_t)_tdata_align : 1;
+    const          size_t   tbss_align  = tbss_size ? (size_t)_tbss_align : 1;
+    const          uint8_t *tdata_start = (const uint8_t *)(&_tdata_start);
+
+    /* Each subsegment of the requested memory chunk must be aligned
+       by the largest segment's memory alignment requirements. 
+   */
+    align = 8;               /* tcbhead_t has to be aligned by 8. */
+    if(tdata_align > align)
+        align = tdata_align; /* .TDATA segment's alignment */
+    if(tbss_align > align)
+        align = tbss_align;  /* .TBSS segment's alignment */
+
+    /* Calculate the sizing and offset location of each subsegment. */
+    tdata_offset = align_to(sizeof(tcbhead_t), align);
+    tdata_end    = tdata_offset + tdata_size;
+    tbss_offset  = align_to(tdata_end, tbss_align);
+    tbss_end     = tbss_offset + tbss_size; 
+
+    /* Calculate final aligned size requirement. */
+    align_rem = tbss_end % align;
+    tls_size  = tbss_end;
+
+    if(align_rem)
+        tls_size += (align - align_rem);
+
+    /* Allocate combined chunk with calculated size and alignment.  */
+    tcbhead = memalign(align, tls_size);
+    assert(tcbhead);    
+    assert(!((uintptr_t)tcbhead % 8)); 
+
+    /* Since we aren't using either member within it, zero out tcbhead. */
+    memset(tcbhead, 0, sizeof(tcbhead_t));  
+
+    /* Initialize .TDATA */
+    if(tdata_size) { 
+        tdata_segment = (uint8_t *)tcbhead + tdata_offset;
+
+        /* Verify proper alignment. */   
+        assert(!((uintptr_t)tdata_segment % tdata_align));
+
+        /* Initialize tdata_segment with .tdata bytes from ELF. */
+        memcpy(tdata_segment, tdata_start, tdata_size);
+    }
+
+    /* Initialize .TBSS */
+    if(tbss_size) { 
+        tbss_segment = (uint8_t *)tcbhead + tbss_offset; 
+
+        /* Verify proper alignment. */
+        assert(!((uintptr_t)tbss_segment % tbss_align));
+           
+        /* Zero-initialize tbss_segment. */
+        memset(tbss_segment, 0, tbss_size);
+    }
+
+    /* Return segment head: this is what GBR points to. */
+    return tcbhead;
+}
+
 /* New thread function; given a routine address, it will create a
    new kernel thread with the given attributes. When the routine
    returns, the thread will exit. Returns the new thread struct. */
@@ -383,6 +477,9 @@ kthread_t *thd_create_ex(const kthread_attr_t *restrict attr,
 
             nt->stack_size = real_attr.stack_size;
 
+            /* Create static TLS data */
+            nt->tcbhead = thd_create_tls_data();
+
             /* Populate the context */
             params[0] = (uint32_t)routine;
             params[1] = (uint32_t)param;
@@ -392,6 +489,8 @@ kthread_t *thd_create_ex(const kthread_attr_t *restrict attr,
                                ((uint32_t)nt->stack) + nt->stack_size,
                                (uint32_t)thd_birth, params, 0);
 
+            /* Set Thread Pointer */
+            nt->context.gbr = (uint32_t)nt->tcbhead;
             nt->tid = tid;
             nt->prio = real_attr.prio;
             nt->flags = THD_DEFAULTS;
@@ -474,6 +573,9 @@ int thd_destroy(kthread_t *thd) {
 
     /* Free its stack */
     free(thd->stack);
+
+    /* Free static TLS segment */
+    free(thd->tcbhead);
 
     /* Free the thread */
     free(thd);
@@ -911,6 +1013,9 @@ int thd_init(void) {
     kern = thd_create(0, NULL, NULL);
     strcpy(kern->label, "[kernel]");
     kern->state = STATE_RUNNING;
+
+    /* Initialize GBR register for Main Thread */
+    __builtin_set_thread_pointer((void*)kern->context.gbr);
 
     /* De-scehdule the thread (it's STATE_RUNNING) */
     thd_remove_from_runnable(kern);

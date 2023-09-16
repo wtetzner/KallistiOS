@@ -74,7 +74,17 @@ SECTIONS
   PROVIDE (__etext = .);
   PROVIDE (_etext = .);
   PROVIDE (etext = .);
-  .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
+  .rodata         : 
+  { 
+    *(.rodata .rodata.* .gnu.linkonce.r.*) 
+    . = ALIGN(4);
+    __tdata_align = .;
+    LONG (ALIGNOF(.tdata));
+    . = ALIGN(4);
+    __tbss_align = .;
+    LONG (ALIGNOF(.tbss));
+    . = ALIGN(4);
+  }
   .rodata1        : { *(.rodata1) }
   .sdata2         :
   {
@@ -91,8 +101,18 @@ SECTIONS
   .eh_frame       : ONLY_IF_RW { KEEP (*(.eh_frame)) }
   .gcc_except_table   : ONLY_IF_RW { *(.gcc_except_table .gcc_except_table.*) }
   /* Thread Local Storage sections  */
-  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) }
-  .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) }
+  .tdata	  : 
+  { 
+    __tdata_start = .;
+    *(.tdata .tdata.* .gnu.linkonce.td.*) 
+  }
+  __tdata_size = SIZEOF(.tdata);
+  .tbss	(NOLOAD)	  : 
+  { 
+    *(.tbss .tbss.* .gnu.linkonce.tb.*) 
+    *(.tcommon)
+  }
+  __tbss_size = SIZEOF(.tbss);
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);

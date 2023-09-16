@@ -5,6 +5,7 @@
 #
 
 all:
+	$(KOS_MAKE) -C compiler_tls
 	$(KOS_MAKE) -C general
 	$(KOS_MAKE) -C rwsem
 	$(KOS_MAKE) -C recursive_lock
@@ -14,6 +15,7 @@ all:
 	$(KOS_MAKE) -C atomics
 
 clean:
+	$(KOS_MAKE) -C compiler_tls clean
 	$(KOS_MAKE) -C general clean
 	$(KOS_MAKE) -C rwsem clean
 	$(KOS_MAKE) -C recursive_lock clean
@@ -23,6 +25,7 @@ clean:
 	$(KOS_MAKE) -C atomics clean
 
 dist:
+	$(KOS_MAKE) -C compiler_tls dist
 	$(KOS_MAKE) -C general dist
 	$(KOS_MAKE) -C rwsem dist
 	$(KOS_MAKE) -C recursive_lock dist

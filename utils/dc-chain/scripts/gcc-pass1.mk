@@ -21,7 +21,6 @@ $(build_gcc_pass1): logdir
 	      --with-newlib \
 	      --enable-languages=c \
 	      --disable-libssp \
-	      --disable-tls \
 	      --enable-checking=release \
 	      $(extra_configure_args) \
 	      $(macos_gcc_configure_args) \
