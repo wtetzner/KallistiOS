@@ -16,6 +16,7 @@
 #include <GL/glut.h>
 
 #include <kos/init.h>
+#include <dc/maple/controller.h>
 
 /* Load a PVR texture - located in pvr-texture.c */
 extern GLuint glTextureLoadPVR(char *fname, unsigned char isMipMapped, unsigned char glMipMap);
