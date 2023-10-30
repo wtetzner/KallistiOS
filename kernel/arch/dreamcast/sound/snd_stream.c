@@ -151,40 +151,41 @@ static void process_filters(snd_stream_hnd_t hnd, void **buffer, int *samplecnt)
 }
 
 static void sep_data(void *buffer, int len, int stereo) {
-    register int16  *bufsrc, *bufdst;
-    register int    x, y, cnt;
+    uint32_t *buf = (uint32_t *)buffer;
+    uint32_t *left_ptr = (uint32_t *)sep_buffer[1];
+    uint32_t *right_ptr = (uint32_t *)sep_buffer[0];
+    uint32_t data;
+    uint32_t left_val;
+    uint32_t right_val;
 
     if(stereo) {
-        bufsrc = (int16*)buffer;
-        bufdst = (int16 *)sep_buffer[0];
-        x = 0;
-        y = 0;
-        cnt = len / 2;
+        len <<= 1;
 
-        do {
-            *bufdst = *bufsrc;
-            bufdst++;
-            bufsrc += 2;
-            cnt--;
+        for(; len > 8; len -= 8) {
+            dcache_pref_block(buf + 8);
+
+            data = *buf++;
+            left_val = (data >> 16);
+            right_val = (data & 0xffff);
+
+            data = *buf++;
+            left_val |= (data & 0xffff0000);
+            right_val |= (data & 0xffff) << 16;
+
+            if(((uintptr_t)left_ptr & 31) == 0) {
+                dcache_alloc_block(left_ptr++, left_val);
+                dcache_alloc_block(right_ptr++, right_val);
+            }
+            else {
+                *left_ptr++ = left_val;
+                *right_ptr++ = right_val;
+            }
         }
-        while(cnt > 0);
-
-        bufsrc = (int16*)buffer;
-        bufsrc++;
-        bufdst = (int16 *)sep_buffer[1];
-        x = 1;
-        y = 0;
-        cnt = len / 2;
-
-        do {
-            *bufdst = *bufsrc;
-            bufdst++;
-            bufsrc += 2;
-            cnt--;
-            x += 2;
-            y++;
+        if(len) {
+            data = *buf++;
+            *(uint16_t *)left_ptr = (data >> 16);
+            *(uint16_t *)right_ptr = (data & 0xffff);
         }
-        while(cnt > 0);
     }
     else {
         memcpy(sep_buffer[0], buffer, len);
@@ -211,43 +212,58 @@ static void stereo_pcm16_split_sq(uint32 *data, uint32 aica_left, uint32 aica_ri
 	snd_pcm16_split_sq(data, masked_left, masked_right, size);
 }
 
-/* Prefill buffers -- do this before calling start() */
-void snd_stream_prefill(snd_stream_hnd_t hnd) {
+static void snd_stream_prefill_part(snd_stream_hnd_t hnd, uint32_t offset) {
+
+    const uint32_t buffer_size = streams[hnd].buffer_size;
+    uintptr_t left = streams[hnd].spu_ram_sch[0] + offset;
+    uintptr_t right = streams[hnd].spu_ram_sch[1] + offset;
+    int got = buffer_size;
     void *buf;
-    int got;
 
-    CHECK_HND(hnd);
-
-    if(!streams[hnd].get_data) return;
-
-    const uint32 buffer_size = streams[hnd].buffer_size;
-
-    if(streams[hnd].stereo)
-        buf = streams[hnd].get_data(hnd, buffer_size * 2, &got);
-    else
+    if(streams[hnd].stereo) {
         buf = streams[hnd].get_data(hnd, buffer_size, &got);
+    }
+    else {
+        buf = streams[hnd].get_data(hnd, buffer_size / 2, &got);
+    }
+
+    if(buf == NULL) {
+        dbglog(DBG_ERROR, "snd_stream_prefill_part(): get_data() failed\n");
+        return;
+    }
 
     process_filters(hnd, &buf, &got);
 
     if ((uintptr_t)buf & 31) {
-        sep_data(buf, got, streams[hnd].stereo);
-        spu_memload(streams[hnd].spu_ram_sch[0], (uint8*)sep_buffer[0], got);
-        spu_memload(streams[hnd].spu_ram_sch[1], (uint8*)sep_buffer[1], got);
+        sep_data(buf, got / 2, streams[hnd].stereo);
+        spu_memload(left, sep_buffer[0], got);
+        spu_memload(right, sep_buffer[1], got);
     }
     else {
+        left |= 0x00800000;
+        right |= 0x00800000;
         if (streams[hnd].stereo) {
-            stereo_pcm16_split_sq((uint32 *)buf,
-                streams[hnd].spu_ram_sch[0],
-                streams[hnd].spu_ram_sch[1],
-                got);
+            stereo_pcm16_split_sq((uint32_t *)buf, left, right, got);
         }
         else {
             g2_fifo_wait();
-            sq_cpy((uint32 *)streams[hnd].spu_ram_sch[0], buf, got);
+            sq_cpy((void *)left, buf, got);
             g2_fifo_wait();
-            sq_cpy((uint32 *)streams[hnd].spu_ram_sch[1], buf, got);
+            sq_cpy((void *)right, buf, got);
         }
     }
+}
+
+/* Prefill buffers -- do this before calling start() */
+void snd_stream_prefill(snd_stream_hnd_t hnd) {
+    CHECK_HND(hnd);
+
+    if(!streams[hnd].get_data) {
+        return;
+    }
+
+    snd_stream_prefill_part(hnd, 0);
+    snd_stream_prefill_part(hnd, streams[hnd].buffer_size / 2);
 
     /* Start with playing on buffer 0 */
     streams[hnd].last_write_pos = 0;
