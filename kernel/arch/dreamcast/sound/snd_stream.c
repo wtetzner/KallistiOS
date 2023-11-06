@@ -250,8 +250,11 @@ static void snd_stream_prefill_part(snd_stream_hnd_t hnd, uint32_t offset) {
         spu_memload_sq(left, buf, got);
         spu_memload_sq(right, buf, got);
     }
-    else if(((uintptr_t)buf & 31) || streams[hnd].type == AICA_SM_ADPCM_LS) {
-        if(streams[hnd].type == AICA_SM_ADPCM_LS) {
+    else if(((uintptr_t)buf & 31) || streams[hnd].type != AICA_SM_16BIT) {
+        if(streams[hnd].type == AICA_SM_8BIT) {
+            snd_pcm8_split(buf, sep_buffer[0], sep_buffer[1], got);
+        }
+        else if(streams[hnd].type == AICA_SM_ADPCM_LS) {
             snd_adpcm_split(buf, sep_buffer[0], sep_buffer[1], got);
         }
         else {
@@ -469,6 +472,10 @@ void snd_stream_start(snd_stream_hnd_t hnd, uint32 freq, int st) {
     snd_stream_start_type(hnd, AICA_SM_16BIT, freq, st);
 }
 
+void snd_stream_start_pcm8(snd_stream_hnd_t hnd, uint32 freq, int st) {
+    snd_stream_start_type(hnd, AICA_SM_8BIT, freq, st);
+}
+
 void snd_stream_start_adpcm(snd_stream_hnd_t hnd, uint32 freq, int st) {
     snd_stream_start_type(hnd, AICA_SM_ADPCM_LS, freq, st);
 }
@@ -589,6 +596,9 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
         else if(streams[hnd].stereo) {
             if(streams[hnd].type == AICA_SM_16BIT) {
                 snd_pcm16_split(data, sep_buffer[0], sep_buffer[1], needed_samples * 4);
+            }
+            else if(streams[hnd].type == AICA_SM_8BIT) {
+                snd_pcm8_split(data, sep_buffer[0], sep_buffer[1], needed_samples * 4);
             }
             else {
                 snd_adpcm_split(data, sep_buffer[0], sep_buffer[1], needed_samples * 4);
