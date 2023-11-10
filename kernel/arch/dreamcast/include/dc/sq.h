@@ -135,7 +135,7 @@ void * sq_cpy(void *dest, const void *src, size_t n);
     and only the low 8-bits are used from c.
 
     \param  dest            The address to begin setting at (32-byte aligned).
-    \param  src             The value to set (in the low 8-bits).
+    \param  c               The value to set (in the low 8-bits).
     \param  n               The number of bytes to set (multiple of 32).
     \return                 The original value of dest.
 
