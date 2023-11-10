@@ -200,28 +200,30 @@ static void sep_data(void *buffer, int len, int stereo) {
 
 void snd_pcm16_split_sq(uint32_t *data, uintptr_t left, uintptr_t right, size_t size) {
 
+    /* SPU memory in cached area */
     left |= 0x00800000;
     right |= 0x00800000;
 
-    uint32 masked_left = (0xe0000000 | (left & 0x03ffffe0));
-    uint32 masked_right = (0xe0000000 | (right & 0x03ffffe0));
+    uintptr_t masked_left = SQ_MASK_DEST_ADDR(left);
+    uintptr_t masked_right = SQ_MASK_DEST_ADDR(right);
+
+    sq_lock();
 
     /* Set store queue memory area as desired */
-    QACR0 = (left >> 24) & 0x1c;
-    QACR1 = (right >> 24) & 0x1c;
+    SET_QACR_REGS(left, right);
 
     int old = irq_disable();
-    do { } while(*(vuint32 *)0xa05f688c & (1 << 5)) ; // FIFO_SH4
-    do { } while(*(vuint32 *)0xa05f688c & (1 << 4)) ; // FIFO_G2
+    do { } while(*(vuint32 *)0xa05f688c & ((1 << 5) | (1 << 4))); /* FIFO_SH4 | FIFO_G2 */
 
     /* Separating channels and do fill/write queues as many times necessary. */
     snd_pcm16_split_sq_start(data, masked_left, masked_right, size);
 
     /* Wait for both store queues to complete if they are already used */
-    uint32 *d = (uint32 *)0xe0000000;
+    uint32_t *d = (uint32_t *)MEM_AREA_SQ_BASE;
     d[0] = d[8] = 0;
 
     irq_restore(old);
+    sq_unlock();
 }
 
 static void snd_stream_prefill_part(snd_stream_hnd_t hnd, uint32_t offset) {
