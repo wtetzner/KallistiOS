@@ -6,4 +6,6 @@
 
 OBJS = romdiskbase.o
 
+all: $(OBJS)
+
 include $(KOS_BASE)/Makefile.prefab

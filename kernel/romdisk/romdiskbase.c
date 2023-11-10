@@ -10,9 +10,6 @@ extern unsigned char romdisk[];
 
 void *__kos_romdisk = romdisk;
 
-static int do_fs_romdisk_mount(void)
-{
-    return fs_romdisk_mount("/rd", __kos_romdisk, 0);
-}
+extern int fs_romdisk_mount_builtin(void);
 
-int (*fs_romdisk_mount_weak)(void) = do_fs_romdisk_mount;
+int (*fs_romdisk_mount_builtin_weak)(void) = fs_romdisk_mount_builtin;

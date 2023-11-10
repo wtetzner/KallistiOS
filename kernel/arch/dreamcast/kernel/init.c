@@ -91,7 +91,13 @@ void (*net_shutdown_weak)(void) __attribute__((weak));
 
 int (*fs_romdisk_init_weak)(void) __attribute__((weak));
 int (*fs_romdisk_shutdown_weak)(void) __attribute__((weak));
-int (*fs_romdisk_mount_weak)(void) __attribute__((weak));
+int (*fs_romdisk_mount_builtin_weak)(void) __attribute__((weak));
+int (*fs_romdisk_mount_builtin_weak_legacy)(void) __attribute__((weak));
+
+/* Mount the built-in romdisk to /rd. */
+int fs_romdisk_mount_builtin(void) {
+    return fs_romdisk_mount("/rd", __kos_romdisk, 0);
+}
 
 /* Auto-init stuff: override with a non-weak symbol if you don't want all of
    this to be linked into your code (and do the same with the
@@ -160,9 +166,10 @@ int  __attribute__((weak)) arch_auto_init(void) {
 
     hardware_periph_init();     /* DC peripheral init */
 
-    if(fs_romdisk_mount_weak) {
-        fs_romdisk_mount_weak();
-    }
+    if(fs_romdisk_mount_builtin_weak)
+        fs_romdisk_mount_builtin_weak();
+    else if(fs_romdisk_mount_builtin_weak_legacy)
+        fs_romdisk_mount_builtin_weak_legacy();
 
 #ifndef _arch_sub_naomi
     if(!(__kos_init_flags & INIT_NO_DCLOAD) && *DCLOADMAGICADDR == DCLOADMAGICVALUE) {
