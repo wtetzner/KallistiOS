@@ -167,7 +167,7 @@ static int read_wav_header(file_t fd, wavhdr_t *wavhdr) {
     return 0;
 }
 
-static uint8_t* read_wav_data(file_t fd, wavhdr_t *wavhdr) {
+static uint8_t *read_wav_data(file_t fd, wavhdr_t *wavhdr) {
     /* Allocate memory for WAV data */
     uint8_t *wav_data = memalign(32, wavhdr->chunk.size);
 
@@ -340,8 +340,9 @@ err_occurred:
 sfxhnd_t snd_sfx_load(const char *fn) {
     file_t fd;
     wavhdr_t wavhdr;
-    uint8_t *wav_data;
     snd_effect_t *effect;
+    uint8_t *wav_data;
+    uint32_t sample_count;
 
     dbglog(DBG_DEBUG, "snd_sfx: loading effect %s\n", fn);
 
@@ -366,6 +367,14 @@ sfxhnd_t snd_sfx_load(const char *fn) {
            wavhdr.chunk.size, 
            wavhdr.fmt.format);
 
+    sample_count = wavhdr.fmt.sample_size >= 8 
+        ? wavhdr.chunk.size / ((wavhdr.fmt.sample_size / 8) * wavhdr.fmt.channels) 
+        : wavhdr.chunk.size / (0.5 * wavhdr.fmt.channels);
+
+    if(sample_count > 65534) {
+        dbglog(DBG_WARNING, "WAVE file is over 65534 samples\n");
+    }
+
     /* Read WAV data */
     wav_data = read_wav_data(fd, &wavhdr);
     fs_close(fd);
@@ -388,7 +397,7 @@ sfxhnd_t snd_sfx_load(const char *fn) {
 
 int snd_sfx_play_chn(int chn, sfxhnd_t idx, int vol, int pan) {
     int size;
-    snd_effect_t * t = (snd_effect_t *)idx;
+    snd_effect_t *t = (snd_effect_t *)idx;
     AICA_CMDSTR_CHANNEL(tmp, cmd, chan);
 
     size = t->len;
@@ -452,7 +461,7 @@ int snd_sfx_play(sfxhnd_t idx, int vol, int pan) {
         return -1;
     }
     else {
-        sfx_nextchan = (chn + 2) % 64;  // in case of stereo
+        sfx_nextchan = (chn + 2) % 64;  /* in case of stereo */
         return snd_sfx_play_chn(chn, idx, vol, pan);
     }
 }
