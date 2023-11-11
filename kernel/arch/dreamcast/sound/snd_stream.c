@@ -50,35 +50,35 @@ typedef struct filter {
 
 /* Each of these represents an active streaming channel */
 typedef struct strchan {
-    // Which AICA channels are we using?
+    /* Which AICA channels are we using? */
     int ch[2];
 
-    // The last write position in the playing buffer
+    /* The last write position in the playing buffer */
     uint32_t last_write_pos;
 
-    // The buffer size allocated for this stream.
+    /* The buffer size allocated for this stream. */
     size_t buffer_size;
 
-    // Stream data location in AICA RAM
+    /* Stream data location in AICA RAM */
     uint32_t spu_ram_sch[2];
 
-    // "Get data" callback; we'll call this any time we want to get
-    // another buffer of output data.
+    /* "Get data" callback; we'll call this any time we want to get
+       another buffer of output data. */
     snd_stream_callback_t get_data;
 
-    // Our list of filter callback functions for this stream
+    /* Our list of filter callback functions for this stream */
     TAILQ_HEAD(filterlist, filter) filters;
 
-    // Sample type
+    /* Sample type */
     int type;
 
-    // Sample size
+    /* Sample size */
     int bitsize;
 
-    // Stereo/mono flag
+    /* Stereo/mono flag */
     int channels;
 
-    // Playback frequency
+    /* Playback frequency */
     int frequency;
 
     /* Stream queueing is where we get everything ready to go but don't
@@ -92,10 +92,10 @@ typedef struct strchan {
     void *user_data;
 } strchan_t;
 
-// Our stream structs
+/* Our stream structs */
 static strchan_t streams[SND_STREAM_MAX];
 
-// Separation buffers (for stereo)
+/* Separation buffers (for stereo) */
 static uint32_t *sep_buffer[2] = {NULL, NULL};
 
 static mutex_t stream_mutex = MUTEX_INITIALIZER;
@@ -105,7 +105,7 @@ static mutex_t stream_mutex = MUTEX_INITIALIZER;
 
 #define LOCK_TIMEOUT_MS 1000
 
-// Check an incoming handle
+/* Check an incoming handle */
 #define CHECK_HND(x) do { \
         assert( (x) >= 0 && (x) < SND_STREAM_MAX ); \
         assert( streams[(x)].initted ); \
@@ -154,7 +154,7 @@ void *snd_stream_get_userdata(snd_stream_hnd_t hnd) {
 }
 
 void snd_stream_filter_add(snd_stream_hnd_t hnd, snd_stream_filter_t filtfunc, void * obj) {
-    filter_t * f;
+    filter_t *f;
 
     CHECK_HND(hnd);
 
@@ -165,7 +165,7 @@ void snd_stream_filter_add(snd_stream_hnd_t hnd, snd_stream_filter_t filtfunc, v
 }
 
 void snd_stream_filter_remove(snd_stream_hnd_t hnd, snd_stream_filter_t filtfunc, void * obj) {
-    filter_t * f;
+    filter_t *f;
 
     CHECK_HND(hnd);
 
@@ -179,7 +179,7 @@ void snd_stream_filter_remove(snd_stream_hnd_t hnd, snd_stream_filter_t filtfunc
 }
 
 static void process_filters(snd_stream_hnd_t hnd, void **buffer, int *samplecnt) {
-    filter_t * f;
+    filter_t *f;
 
     TAILQ_FOREACH(f, &streams[hnd].filters, lent) {
         f->func(hnd, f->data, streams[hnd].frequency, streams[hnd].channels, buffer, samplecnt);
@@ -236,7 +236,7 @@ void snd_pcm16_split_sq(uint32_t *data, uintptr_t left, uintptr_t right, size_t 
     SET_QACR_REGS(left, right);
 
     int old = irq_disable();
-    do { } while(*(vuint32 *)0xa05f688c & ((1 << 5) | (1 << 4))); /* FIFO_SH4 | FIFO_G2 */
+    do { } while(FIFO_STATUS & (FIFO_SH4 | FIFO_G2));
 
     /* Separating channels and do fill/write queues as many times necessary. */
     snd_pcm16_split_sq_start(data, masked_left, masked_right, size);
@@ -333,7 +333,7 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     int i, old;
     snd_stream_hnd_t hnd;
 
-    // Get an unused handle
+    /* Get an unused handle */
     hnd = -1;
     old = irq_disable();
 
@@ -352,7 +352,7 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     if(hnd == -1)
         return SND_STREAM_INVALID;
 
-    // Default this for now
+    /* Default this for now */
     streams[hnd].buffer_size = bufsize;
 
     /* Start off with queueing disabled */
@@ -364,14 +364,14 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     /* Initialize our filter chain list */
     TAILQ_INIT(&streams[hnd].filters);
 
-    // Allocate stream buffers
+    /* Allocate stream buffers */
     streams[hnd].spu_ram_sch[0] = snd_mem_malloc(streams[hnd].buffer_size * 2);
     streams[hnd].spu_ram_sch[1] = streams[hnd].spu_ram_sch[0] + streams[hnd].buffer_size;
 
-    // And channels
+    /* And channels */
     streams[hnd].ch[0] = snd_sfx_chn_alloc();
     streams[hnd].ch[1] = snd_sfx_chn_alloc();
-    printf("snd_stream: alloc'd channels %d/%d\n", streams[hnd].ch[0], streams[hnd].ch[1]);
+    dbglog(DBG_INFO, "snd_stream: alloc'd channels %d/%d\n", streams[hnd].ch[0], streams[hnd].ch[1]);
 
     return hnd;
 }
@@ -389,7 +389,7 @@ snd_stream_hnd_t snd_stream_reinit(snd_stream_hnd_t hnd, snd_stream_callback_t c
 }
 
 void snd_stream_destroy(snd_stream_hnd_t hnd) {
-    filter_t * c, * n;
+    filter_t *c, *n;
 
     CHECK_HND(hnd);
 
@@ -411,7 +411,6 @@ void snd_stream_destroy(snd_stream_hnd_t hnd) {
 
     snd_stream_stop(hnd);
     snd_mem_free(streams[hnd].spu_ram_sch[0]);
-    snd_mem_free(streams[hnd].spu_ram_sch[1]);
     memset(streams + hnd, 0, sizeof(streams[0]));
 }
 
