@@ -371,7 +371,7 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     /* And channels */
     streams[hnd].ch[0] = snd_sfx_chn_alloc();
     streams[hnd].ch[1] = snd_sfx_chn_alloc();
-    printf("snd_stream: alloc'd channels %d/%d\n", streams[hnd].ch[0], streams[hnd].ch[1]);
+    dbglog(DBG_INFO, "snd_stream: alloc'd channels %d/%d\n", streams[hnd].ch[0], streams[hnd].ch[1]);
 
     return hnd;
 }
