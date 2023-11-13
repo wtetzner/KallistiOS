@@ -707,7 +707,7 @@ int getaddrinfo(const char *nodename, const char *servname,
     }
 
     /* Try to handle input as an IPv4 address */
-    if(ihints.ai_family == AI_INET || ihints.ai_family == AF_UNSPEC) {
+    if(ihints.ai_family == AF_INET || ihints.ai_family == AF_UNSPEC) {
         uint32_t ip4_addr;
 
         if(inet_pton(AF_INET, nodename, &ip4_addr) > 0) {
