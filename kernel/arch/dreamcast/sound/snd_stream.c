@@ -100,9 +100,6 @@ static uint32_t *sep_buffer[2] = {NULL, NULL};
 
 static mutex_t stream_mutex = MUTEX_INITIALIZER;
 
-/* the address of the sound ram from the SH4 side */
-#define SPU_RAM_BASE 0xa0800000
-
 #define LOCK_TIMEOUT_MS 1000
 
 /* Check an incoming handle */
@@ -222,10 +219,11 @@ static void snd_pcm16_split_unaligned(void *buffer, void *left, void *right, siz
 }
 
 void snd_pcm16_split_sq(uint32_t *data, uintptr_t left, uintptr_t right, size_t size) {
+    g2_ctx_t ctx;
 
     /* SPU memory in cached area */
-    left |= 0x00800000;
-    right |= 0x00800000;
+    left |= SPU_RAM_BASE;
+    right |= SPU_RAM_BASE;
 
     uintptr_t masked_left = SQ_MASK_DEST_ADDR(left);
     uintptr_t masked_right = SQ_MASK_DEST_ADDR(right);
@@ -235,8 +233,8 @@ void snd_pcm16_split_sq(uint32_t *data, uintptr_t left, uintptr_t right, size_t 
     /* Set store queue memory area as desired */
     SET_QACR_REGS(left, right);
 
-    int old = irq_disable();
-    do { } while(FIFO_STATUS & (FIFO_SH4 | FIFO_G2));
+    /* Make sure the FIFOs are empty */
+    ctx = g2_lock();
 
     /* Separating channels and do fill/write queues as many times necessary. */
     snd_pcm16_split_sq_start(data, masked_left, masked_right, size);
@@ -245,7 +243,7 @@ void snd_pcm16_split_sq(uint32_t *data, uintptr_t left, uintptr_t right, size_t 
     uint32_t *d = (uint32_t *)MEM_AREA_SQ_BASE;
     d[0] = d[8] = 0;
 
-    irq_restore(old);
+    g2_unlock(ctx);
     sq_unlock();
 }
 
@@ -295,7 +293,7 @@ static void snd_stream_prefill_part(snd_stream_hnd_t hnd, uint32_t offset) {
     spu_memload_sq(right, sep_buffer[1], got / 2);
 }
 
-/* Prefill buffers -- do this before calling start() */
+/* Prefill buffers -- implicitly called by snd_stream_start() */
 void snd_stream_prefill(snd_stream_hnd_t hnd) {
     CHECK_HND(hnd);
 
@@ -314,7 +312,7 @@ void snd_stream_prefill(snd_stream_hnd_t hnd) {
 
 /* Initialize stream system */
 int snd_stream_init(void) {
-    /* Create stereo seperation buffers */
+    /* Create stereo separation buffers */
     if(!sep_buffer[0]) {
         sep_buffer[0] = memalign(32, SND_STREAM_BUFFER_MAX);
         sep_buffer[1] = sep_buffer[0] + (SND_STREAM_BUFFER_MAX / 8);
@@ -333,9 +331,10 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     int i, old;
     snd_stream_hnd_t hnd;
 
+    mutex_lock(&stream_mutex);
+
     /* Get an unused handle */
     hnd = -1;
-    old = irq_disable();
 
     for(i = 0; i < SND_STREAM_MAX; i++) {
         if(!streams[i].initted) {
@@ -347,10 +346,10 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     if(hnd != -1)
         streams[hnd].initted = 1;
 
-    irq_restore(old);
-
-    if(hnd == -1)
+    if(hnd == -1) {
+        mutex_unlock(&stream_mutex);
         return SND_STREAM_INVALID;
+    }
 
     /* Default this for now */
     streams[hnd].buffer_size = bufsize;
@@ -373,6 +372,8 @@ snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
     streams[hnd].ch[1] = snd_sfx_chn_alloc();
     dbglog(DBG_INFO, "snd_stream: alloc'd channels %d/%d\n", streams[hnd].ch[0], streams[hnd].ch[1]);
 
+    mutex_unlock(&stream_mutex);
+
     return hnd;
 }
 
@@ -391,10 +392,14 @@ snd_stream_hnd_t snd_stream_reinit(snd_stream_hnd_t hnd, snd_stream_callback_t c
 void snd_stream_destroy(snd_stream_hnd_t hnd) {
     filter_t *c, *n;
 
+    mutex_lock(&stream_mutex);
+
     CHECK_HND(hnd);
 
-    if(!streams[hnd].initted)
+    if(!streams[hnd].initted) {
+        mutex_unlock(&stream_mutex);
         return;
+    }
 
     snd_sfx_chn_free(streams[hnd].ch[0]);
     snd_sfx_chn_free(streams[hnd].ch[1]);
@@ -411,7 +416,10 @@ void snd_stream_destroy(snd_stream_hnd_t hnd) {
 
     snd_stream_stop(hnd);
     snd_mem_free(streams[hnd].spu_ram_sch[0]);
+    dbglog(DBG_INFO, "snd_stream: dealloc'd channels %d/%d\n", streams[hnd].ch[0], streams[hnd].ch[1]);
     memset(streams + hnd, 0, sizeof(streams[0]));
+
+    mutex_unlock(&stream_mutex);
 }
 
 /* Shut everything down and free mem */
@@ -503,7 +511,7 @@ static void snd_stream_start_type(snd_stream_hnd_t hnd, uint32_t type, uint32_t 
 
         /* Start both channels simultaneously */
         cmd->cmd_id = (1 << streams[hnd].ch[0]) |
-                    (1 << streams[hnd].ch[1]);
+                      (1 << streams[hnd].ch[1]);
     }
     else {
         /* Start one channel */
@@ -592,12 +600,12 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
     }
 
     /* Get channels position */
-    ch0pos = g2_read_32(SPU_RAM_BASE +
+    ch0pos = g2_read_32(SPU_RAM_UNCACHED_BASE +
                         AICA_CHANNEL(stream->ch[0]) +
                         offsetof(aica_channel_t, pos));
 
     if(stream->channels == 2) {
-        ch1pos = g2_read_32(SPU_RAM_BASE +
+        ch1pos = g2_read_32(SPU_RAM_UNCACHED_BASE +
                     AICA_CHANNEL(stream->ch[1]) +
                     offsetof(aica_channel_t, pos));
         /* The channel position register is 16-bit on AICA side, keep it in mind */
@@ -681,7 +689,7 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
         dcache_purge_range((uintptr_t)sep_buffer[0], needed_bytes);
         dcache_purge_range((uintptr_t)sep_buffer[1], needed_bytes);
 
-        // Second DMA will get started by the chain handler
+        /* Second DMA will get started by the chain handler */
         dmadest = stream->spu_ram_sch[1] + write_pos;
         dmacnt = needed_bytes;
         spu_dma_transfer(first_dma_buf,
@@ -700,7 +708,7 @@ int snd_stream_poll(snd_stream_hnd_t hnd) {
     }
 
     stream->last_write_pos += needed_samples;
-    write_pos = (uint32)bytes_to_samples(hnd, stream->buffer_size);
+    write_pos = (uint32_t)bytes_to_samples(hnd, stream->buffer_size);
 
     if(stream->last_write_pos >= write_pos) {
         stream->last_write_pos -= write_pos;
