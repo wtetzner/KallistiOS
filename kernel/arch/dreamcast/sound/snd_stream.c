@@ -328,7 +328,7 @@ int snd_stream_init(void) {
 }
 
 snd_stream_hnd_t snd_stream_alloc(snd_stream_callback_t cb, int bufsize) {
-    int i, old;
+    int i;
     snd_stream_hnd_t hnd;
 
     mutex_lock(&stream_mutex);
