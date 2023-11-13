@@ -1689,7 +1689,7 @@ static int net_tcp_getsockopt(net_socket_t *hnd, int level, int option_name,
                     goto copy_int;
 
                 case SO_ERROR:
-                    // Checking/resetting errors not implemented
+                    /* Checking/resetting errors not implemented */
                     goto simply_return;
 
                 case SO_RCVBUF:
