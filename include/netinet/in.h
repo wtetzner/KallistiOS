@@ -197,6 +197,7 @@ extern const struct in6_addr in6addr_loopback;
     \see                ipv6_opts
     \see                udp_opts
     \see                udplite_opts
+    \see                tcp_opts
 
     @{
 */
@@ -215,6 +216,7 @@ extern const struct in6_addr in6addr_loopback;
     \see                ipv4_opts
     \see                udp_opts
     \see                udplite_opts
+    \see                tcp_opts
 
     @{
 */
@@ -236,6 +238,7 @@ extern const struct in6_addr in6addr_loopback;
     \see                ipv4_opts
     \see                ipv6_opts
     \see                udplite_opts
+    \see                tcp_opts
 
     @{
 */
@@ -251,6 +254,7 @@ extern const struct in6_addr in6addr_loopback;
     \see                ipv4_opts
     \see                ipv6_opts
     \see                udp_opts
+    \see                tcp_opts
 
     @{
 */
