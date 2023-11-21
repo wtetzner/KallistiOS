@@ -49,7 +49,6 @@ tmpfile="$workdir/$(basename $0).$$.tmp"
 
 # Do the conversion
 cp "$source" "$tmpfile"
-kos-strip "$tmpfile"
 kos-objcopy -O binary "$tmpfile" "$destination"
 
 # Remove the temporary directory
