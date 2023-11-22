@@ -9,7 +9,6 @@
 
 	.text
 	.globl		_thd_block_now
-	.globl		_thd_block_now2
 
 ! Call this function to save the current task state (with one small
 ! exception -- PC will be moved forwards to the "restore" code) and
