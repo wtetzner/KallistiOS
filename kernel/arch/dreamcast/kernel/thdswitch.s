@@ -73,6 +73,11 @@ _thd_block_now:
 	fmov.d   dr12, @-r4   ! save FR12 & FR13
 	fmov.d   dr10, @-r4   ! save FR10 & FR11
 	fmov.d   dr8, @-r4    ! save FR8 & FR9
+!	fmov.d   dr6, @-r4    ! save FR6 & FR7
+!	fmov.d   dr4, @-r4    ! save FR4 & FR5
+!	fmov.d   dr2, @-r4    ! save FR2 & FR3
+!	fmov.d   dr0, @-r4    ! save FR0 & FR1    0x9c
+	add      #-32, r4
 	frchg                 ! Second FP bank
 	fmov.d   dr14, @-r4   ! save FR14 & FR15  0x98
 	fmov.d   dr12, @-r4   ! save FR12 & FR13

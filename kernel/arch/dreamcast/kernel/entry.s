@@ -169,6 +169,11 @@ _save_regs_finish:
     fmov.d  @r1+,dr14           ! restore FR14 & FR15
     frchg                       ! First FP bank
 	add #32, r1
+!	fmov.d  @r1+,dr0            ! restore FR0 & FR1
+!   fmov.d  @r1+,dr2            ! restore FR2 & FR3
+!   fmov.d  @r1+,dr4            ! restore FR4 & FR5
+!   fmov.d  @r1+,dr6            ! restore FR6 & FR7
+    fmov.d  @r1+,dr8            ! restore FR8 & FR9
     fmov.d  @r1+,dr8            ! restore FR8 & FR9
     fmov.d  @r1+,dr10           ! restore FR10 & FR11
     fmov.d  @r1+,dr12           ! restore FR12 & FR13
