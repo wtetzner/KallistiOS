@@ -2,13 +2,14 @@
 !
 !   arch/dreamcast/kernel/thdswitch.s
 !   Copyright (c)2003 Megan Potter
+!   Copyright (c)2023 Andy Barajas
 !
 ! Assembler code for swapping out running threads
 !
 
 	.text
-	.balign		4
 	.globl		_thd_block_now
+	.globl		_thd_block_now2
 
 ! Call this function to save the current task state (with one small
 ! exception -- PC will be moved forwards to the "restore" code) and
@@ -26,6 +27,7 @@
 ! No explicit return value, though R0 might be changed while the
 ! called is blocked. Returns when we are woken again later.
 !
+	.align 2
 _thd_block_now:
 	! There's no need to save R0-R7 since these are not guaranteed
 	! to persist across calls. So we'll put our temps down there
@@ -63,46 +65,27 @@ _thd_block_now:
 	! Save FPRs. We could probably skimp on FR0-FR7 but it'd probably
 	! be more trouble than it's worth to figure out which bank we're
 	! currently on, etc.
-	add		#0x60,r4	! readjust register pointer
-	add		#0x44,r4
-	sts.l		fpul,@-r4	! save FPUL  0xe0
+	add		#0xA4,r4	! readjust register pointer
 	sts.l		fpscr,@-r4	! save FPSCR 0xdc
 	mov		#0,r2		! Set known FP flags
 	lds		r2,fpscr
-	fmov.s		fr15,@-r4	! save FR15  0xd8
-	fmov.s		fr14,@-r4	! save FR14
-	fmov.s		fr13,@-r4	! save FR13
-	fmov.s		fr12,@-r4	! save FR12
-	fmov.s		fr11,@-r4	! save FR11
-	fmov.s		fr10,@-r4	! save FR10
-	fmov.s		fr9,@-r4	! save FR9
-	fmov.s		fr8,@-r4	! save FR8
-	fmov.s		fr7,@-r4	! save FR7
-	fmov.s		fr6,@-r4	! save FR6
-	fmov.s		fr5,@-r4	! save FR5
-	fmov.s		fr4,@-r4	! save FR4
-	fmov.s		fr3,@-r4	! save FR3
-	fmov.s		fr2,@-r4	! save FR2
-	fmov.s		fr1,@-r4	! save FR1
-	fmov.s		fr0,@-r4	! save FR0   0x9c
-	frchg				! Second FP bank
-	fmov.s		fr15,@-r4	! save FR15  0x98
-	fmov.s		fr14,@-r4	! save FR14
-	fmov.s		fr13,@-r4	! save FR13
-	fmov.s		fr12,@-r4	! save FR12
-	fmov.s		fr11,@-r4	! save FR11
-	fmov.s		fr10,@-r4	! save FR10
-	fmov.s		fr9,@-r4	! save FR9
-	fmov.s		fr8,@-r4	! save FR8
-	fmov.s		fr7,@-r4	! save FR7
-	fmov.s		fr6,@-r4	! save FR6
-	fmov.s		fr5,@-r4	! save FR5
-	fmov.s		fr4,@-r4	! save FR4
-	fmov.s		fr3,@-r4	! save FR3
-	fmov.s		fr2,@-r4	! save FR2
-	fmov.s		fr1,@-r4	! save FR1
-	fmov.s		fr0,@-r4	! save FR0   0x5c
-	frchg				! First FP bank again
+	fschg                 ! Switch to pair FP moves
+	fmov.d   dr14, @-r4   ! save FR14 & FR15  0xd8
+	fmov.d   dr12, @-r4   ! save FR12 & FR13
+	fmov.d   dr10, @-r4   ! save FR10 & FR11
+	fmov.d   dr8, @-r4    ! save FR8 & FR9
+	frchg                 ! Second FP bank
+	fmov.d   dr14, @-r4   ! save FR14 & FR15  0x98
+	fmov.d   dr12, @-r4   ! save FR12 & FR13
+	fmov.d   dr10, @-r4   ! save FR10 & FR11
+	fmov.d   dr8, @-r4    ! save FR8 & FR9
+	fmov.d   dr6, @-r4    ! save FR6 & FR7
+	fmov.d   dr4, @-r4    ! save FR4 & FR5
+	fmov.d   dr2, @-r4    ! save FR2 & FR3
+	fmov.d   dr0, @-r4    ! save FR0 & FR1    0x5c
+	frchg                 ! First FP bank again
+	fschg                 ! Switch to single FP moves
+	sts.l		fpul,@-r4	! save FPUL  0xe0
 
 	! Ok, everything is saved now. There's no need to switch stacks or
 	! anything, because any stack usage by the thread scheduler will not
@@ -116,6 +99,7 @@ _thd_block_now:
 	mov.l		ifraddr,r1
 	jmp		@r1
 	mov		r0,r4
+
 
 	.balign	4
 idaddr:
