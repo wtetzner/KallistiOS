@@ -28,12 +28,48 @@
 #ifndef __KOS_INIT_H
 #define __KOS_INIT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <kos/cdefs.h>
 __BEGIN_DECLS
 
 #include <arch/init_flags.h>
 #include <kos/init_base.h>
 #include <stdint.h>
+
+/** \cond */
+#ifdef __cplusplus
+#define __kos_cplusplus 1
+#else
+#define __kos_cplusplus 0
+#endif
+
+ #define __KOS_INIT_FLAGS_0(flags) \
+     const uint32_t __kos_init_flags = (flags); \
+     KOS_INIT_FLAG(flags, INIT_NET, arch_init_net); \
+     KOS_INIT_FLAG(flags, INIT_NET, net_shutdown); \
+     KOS_INIT_FLAG(flags, INIT_NET, bba_la_init); \
+     KOS_INIT_FLAG(flags, INIT_NET, bba_la_shutdown); \
+     KOS_INIT_FLAG(flags, INIT_FS_ROMDISK, fs_romdisk_init); \
+     KOS_INIT_FLAG(flags, INIT_FS_ROMDISK, fs_romdisk_shutdown); \
+     KOS_INIT_FLAG(flags, INIT_EXPORT, export_init); \
+     KOS_INIT_FLAGS_ARCH(flags)
+
+#define __KOS_INIT_FLAGS_1(flags) \
+    extern "C" { \
+        __KOS_INIT_FLAGS_0(flags); \
+    }
+
+#define __KOS_INIT_FLAGS(flags, cp) \
+    __KOS_INIT_FLAGS_##cp(flags)
+
+#define _KOS_INIT_FLAGS(flags, cp) \
+    __KOS_INIT_FLAGS(flags, cp)
+
+extern const uint32_t __kos_init_flags;
+/** \endcond */
 
 /** \brief  Exports and initializes the given KOS subsystems.
 
@@ -47,20 +83,8 @@ __BEGIN_DECLS
 
     \param  flags           Parts of KOS to init.
  */
- #define KOS_INIT_FLAGS(flags) \
-     const uint32_t __kos_init_flags = (flags); \
-     KOS_INIT_FLAG(flags, INIT_NET, arch_init_net); \
-     KOS_INIT_FLAG(flags, INIT_NET, net_shutdown); \
-     KOS_INIT_FLAG(flags, INIT_NET, bba_la_init); \
-     KOS_INIT_FLAG(flags, INIT_NET, bba_la_shutdown); \
-     KOS_INIT_FLAG(flags, INIT_FS_ROMDISK, fs_romdisk_init); \
-     KOS_INIT_FLAG(flags, INIT_FS_ROMDISK, fs_romdisk_shutdown); \
-     KOS_INIT_FLAG(flags, INIT_EXPORT, export_init); \
-     KOS_INIT_FLAGS_ARCH(flags)
-
-/** \cond */
-extern const uint32_t __kos_init_flags;
-/** \endcond */
+#define KOS_INIT_FLAGS(flags) \
+    _KOS_INIT_FLAGS(flags, __kos_cplusplus)
 
 /** \brief  Deprecated and not useful anymore. */
 #define KOS_INIT_ROMDISK(rd) \
@@ -107,5 +131,9 @@ extern void * __kos_romdisk;
 /** @} */
 
 __END_DECLS
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif /* !__KOS_INIT_H */
