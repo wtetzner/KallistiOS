@@ -501,16 +501,7 @@ int cdrom_init(void) {
     gdc_init_system();
     mutex_unlock(&_g1_ata_mutex);
 
-    cdrom_get_status(&status, &disc_type);
-
-    if(status < CD_STATUS_OPEN && disc_type > CD_CDDA && disc_type < CD_FAIL) {
-        /* Do an initial initialization */
-        cdrom_reinit();
-    } else {
-        dbglog(DBG_INFO, "cdrom_init: No disc inserted\n");
-    }
-
-    return 0;
+    return cdrom_reinit();
 }
 
 void cdrom_shutdown(void) {
