@@ -316,7 +316,10 @@ int cdrom_reinit(void) {
 /* Enhanced cdrom_reinit, takes the place of the old 'sector_size' function */
 int cdrom_reinit_ex(int sector_part, int cdxa, int sector_size) {
     int r;
-    r = cdrom_exec_cmd_timed(CMD_INIT, NULL, 10000);
+
+    do {
+        r = cdrom_exec_cmd_timed(CMD_INIT, NULL, 10000);
+    } while(r == ERR_DISC_CHG);
 
     if(r == ERR_NO_DISC || r == ERR_SYS || r == ERR_TIMEOUT) {
         return r;
