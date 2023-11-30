@@ -28,7 +28,6 @@
 KOS_INIT_FLAGS(INIT_DEFAULT | INIT_NET);
 
 /* Structure for 48-byte NTP packet */
-
 typedef struct ntp_packet {
     uint8_t leap_ver_mode;    /* First 2 bits are leap indicator, next
                                  three bits NTP version, last 3 bits mode */
@@ -49,31 +48,27 @@ typedef struct ntp_packet {
 } ntp_packet_t;
 
 int main(int argc, char **argv) {
-
+    ntp_packet_t packet;
+    int sockfd;
+    struct addrinfo *ai;
+    time_t ntp_time, dc_time;
     /* Set the framebuffer as the output device for dbgio. */
     dbgio_dev_select("fb");
 
     /* Create NTP packet and clear it */
-
-    ntp_packet_t packet;
     memset(&packet, 0, sizeof(ntp_packet_t));
 
     /* Leave leap indicator blank, set version number to 4,and
        set client mode to 3. 0x23 = 00 100 011 = 0, 4, 3 */
-
     packet.leap_ver_mode = 0x23;
 
     /* Create a new UDP socket */
-
-    int sockfd;
     if((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
         printf("Error opening socket!\n");
         ERR_EXIT();
     }
 
     /* Retrieve IP address for our specified hostname */
-
-    struct addrinfo *ai;
     if(getaddrinfo(NTP_SERVER, NTP_PORT, NULL, &ai)) {
         printf("Error resolving host!\n");
         ERR_EXIT();
@@ -83,10 +78,10 @@ int main(int argc, char **argv) {
         printf("Error connecting to server!\n");
         ERR_EXIT();
     }
+
     freeaddrinfo(ai);
 
     /* Send the NTP packet we constructed */
-
     if(write(sockfd, &packet, sizeof(ntp_packet_t)) < 0) {
         printf("Error writing to socket!\n");
         ERR_EXIT();
@@ -94,7 +89,6 @@ int main(int argc, char **argv) {
 
     /* Receive the packet back from the server,
        now filled out with the current time */
-
     if(read(sockfd, &packet, sizeof(ntp_packet_t)) < 0) {
         printf("Error reading response from socket!\n");
         ERR_EXIT();
@@ -102,17 +96,14 @@ int main(int argc, char **argv) {
 
     /* Grab time from the structure, and subtract 70 years to convert
        from NTP's 1900 epoch to Unix time's 1970 epoch */
-
-    time_t ntp_time = (ntohl(packet.trns_time_s) - NTP_DELTA);
+    ntp_time = (ntohl(packet.trns_time_s) - NTP_DELTA);
     printf("The current NTP time is...\n %s\n", ctime(&ntp_time));
 
     /* Print the current system time */
-
-    time_t dc_time = rtc_unix_secs();
+    dc_time = rtc_unix_secs();
     printf("Dreamcast system time is...\n %s\n", ctime(&dc_time));
 
     /* Set the system time to the NTP time and read it back */
-
     printf("Setting Dreamcast clock's time to NTP time...\n\n");
     rtc_set_unix_secs(ntp_time);
     dc_time = rtc_unix_secs();
@@ -120,10 +111,8 @@ int main(int argc, char **argv) {
 
     /* Wait 10 seconds for the user to see what's on the screen before we clear
        it during the exit back to the loader */
-
     thd_sleep(10 * 1000);
 
     return 0;
 }
-
 
