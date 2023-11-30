@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
     int sockfd;
     struct addrinfo *ai;
     time_t ntp_time, dc_time;
+
     /* Set the framebuffer as the output device for dbgio. */
     dbgio_dev_select("fb");
 
