@@ -57,14 +57,14 @@ _irq_save_regs:
     mov.l   r13,@(0x34,r0)   ! save R13
     mov.l   r14,@(0x38,r0)   ! save R14
     mov.l   r15,@(0x3c,r0)   ! save R15 (SP)
-    add     #0x5c,r0     ! readjust register pointer
-    stc.l   ssr,@-r0     ! save SSR  0x58
-    sts.l   macl,@-r0    ! save MACL 0x54
-    sts.l   mach,@-r0    ! save MACH 0x50
-    stc.l   vbr,@-r0     ! save VBR  0x4c
-    stc.l   gbr,@-r0     ! save GBR  0x48
-    sts.l   pr,@-r0      ! save PR   0x44
-    stc.l   spc,@-r0     ! save PC   0x40
+    add     #0x5c, r0    ! readjust register pointer
+    stc.l   ssr, @-r0    ! save SSR  0x58
+    sts.l   macl, @-r0   ! save MACL 0x54
+    sts.l   mach, @-r0   ! save MACH 0x50
+    stc.l   vbr, @-r0    ! save VBR  0x4c
+    stc.l   gbr, @-r0    ! save GBR  0x48
+    sts.l   pr, @-r0     ! save PR   0x44
+    stc.l   spc, @-r0    ! save PC   0x40
     
     add     #0xA4, r0    ! readjust register pointer
     sts.l   fpscr, @-r0  ! save FPSCR 0xdc
@@ -137,7 +137,7 @@ _save_regs_finish:
     ldc.l   @r1+, r5_bank      ! restore R5
     ldc.l   @r1+, r6_bank      ! restore R6
     ldc.l   @r1+, r7_bank      ! restore R7
-    add     #-32,r1            ! Go back to the front
+    add     #-32, r1           ! Go back to the front
     mov.l   @(0x20,r1), r8     ! restore R8    (r1 is now ...+0)
     mov.l   @(0x24,r1), r9     ! restore R9
     mov.l   @(0x28,r1), r10    ! restore R10
