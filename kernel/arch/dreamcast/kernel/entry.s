@@ -1,8 +1,8 @@
 ! KallistiOS ##version##
 !
 !   arch/dreamcast/kernel/entry.s
-!   Copyright (c)2003 Megan Potter
-!   Copyright (c)2023 Colton Pawielski
+!   Copyright (C) 2003 Megan Potter
+!   Copyright (C) 2023 Colton Pawielski
 !
 ! Assembler code for entry and exit to/from the kernel via exceptions
 !
