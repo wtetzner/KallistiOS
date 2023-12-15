@@ -235,7 +235,19 @@ pvr_init_params_t params = {
     { PVR_BINSIZE_16, PVR_BINSIZE_0, PVR_BINSIZE_16, PVR_BINSIZE_0, PVR_BINSIZE_0 },
 
     /* Vertex buffer size 512K */
-    512 * 1024
+    512 * 1024,
+
+    /* No DMA */
+    0,
+
+    /* No FSAA */
+    0,
+
+    /* Translucent Autosort enabled. */
+    0,
+
+    /* Extra OPBs */
+    3
 };
 
 int main(int argc, char **argv) {

@@ -249,7 +249,16 @@ pvr_init_params_t params = {
     2560 * 1024,
 
     /* Vertex DMA enabled */
-    1
+    1,
+
+    /* No FSAA */
+    0,
+
+    /* Translucent Autosort enabled. */
+    0,
+
+    /* Extra OPBs */
+    3
 };
 
 // DMA buffers. This should ideally be in separate memory banks to take
