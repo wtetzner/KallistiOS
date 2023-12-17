@@ -20,6 +20,7 @@
 __BEGIN_DECLS
 
 #include <arch/types.h>
+#include <arch/memory.h>
 
 /* From the SH-4 PDF */
 /** \defgroup   ubc_regs    UBC Registers
