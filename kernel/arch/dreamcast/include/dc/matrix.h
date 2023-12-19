@@ -7,16 +7,18 @@
 
 */
 
-/** \file   dc/matrix.h
-    \brief  Basic matrix operations.
+/** \file    dc/matrix.h
+    \brief   Basic matrix operations.
+    \ingroup math_matrices
 
     This file contains various basic matrix math functionality for using the
     SH4's matrix transformation unit. Higher level functionality, like the 3D
     functionality is built off of these operations.
 
+    \see    dc/matrix3d.h
+
     \author Megan Potter
     \author Josh "PH3NOM" Pearson
-    \see    dc/matrix3d.h
 */
 
 #ifndef __DC_MATRIX_H
@@ -26,6 +28,12 @@
 __BEGIN_DECLS
 
 #include <dc/vector.h>
+
+/** \defgroup math_matrices Matrices
+    \brief                  SH4-optimized matrix and linear algebra routines
+    \ingroup                math
+    @{
+*/
 
 /** \brief  Copy the internal matrix to a memory one.
 
@@ -430,6 +438,8 @@ void mat_transform_sq(void *input, void *output, int veccnt);
                               : "fr11" ); \
         x2 = __x; y2 = __y; z2 = __z; \
     }
+
+/** @} */
 
 __END_DECLS
 

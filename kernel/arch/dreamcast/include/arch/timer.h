@@ -16,7 +16,7 @@
     functionality that you might use in practice in here in normal programs is
     the gettime functions.
 
-    \sa arch/timer.h
+    \sa arch/rtc.h
     \sa arch/wdt.h
 
     \author Megan Potter
@@ -35,6 +35,7 @@ __BEGIN_DECLS
 
 /** \defgroup timers    Timer Unit
     \brief              SH4 CPU peripheral providing timers and counters
+    \ingroup            timing
 
     The Dreamcast's SH4 includes an on-chip Timer Unit (TMU) containing 3
     independent 32-bit channels (TMU0-TMU2). Each channel provides a
@@ -396,6 +397,9 @@ void timer_shutdown(void);
 /** \endcond */
 
 /** \defgroup   perf_counters Performance Counters
+    \brief                    SH4 CPU Performance Counter Driver
+    \ingroup                  debugging
+
     The performance counter API exposes the SH4's hardware profiling registers, 
     which consist of two different sets of independently operable 64-bit 
     counters.
@@ -431,10 +435,13 @@ void timer_shutdown(void);
 */
 #define PMCR_COUNT_RATIO_CYCLES 1
 
-/** \defgroup   perf_counters_modes Performance Counter Modes
+/** \defgroup   perf_counters_modes Modes
+    \brief                          Performance Counter Modes
+    \ingroup                        perf_counters
+
     This is the list of modes that are allowed to be passed into the perf_cntr_start()
     function, representing different things you want to count.
-    \ingroup perf_counters
+    
     @{
 */
 /*                MODE DEFINITION                  VALUE   MEASURMENT TYPE & NOTES */

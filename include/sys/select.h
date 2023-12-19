@@ -5,8 +5,9 @@
 
 */
 
-/** \file   select.h
-    \brief  Definitions for the select() function.
+/** \file    select.h
+    \brief   Definitions for the select() function.
+    \ingroup networking_sockets
 
     This file contains the definitions needed for using the select() function,
     as directed by the POSIX 2008 standard (aka The Open Group Base
@@ -47,6 +48,7 @@ __BEGIN_DECLS
 
 #define NFDBITS 32
 
+/** \brief Represents a set of file descriptors */
 typedef struct fd_set {
     unsigned long fds_bits[FD_SETSIZE / NFDBITS];
 } fd_set;
