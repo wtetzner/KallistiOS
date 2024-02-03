@@ -155,12 +155,12 @@ typedef struct ata_devdata {
 #define G1_DMA_TO_MEMORY            1
 
 /* Macros to access the ATA registers */
-#define OUT32(addr, data) *((volatile uint32_t *)addr) = data
-#define OUT16(addr, data) *((volatile uint16_t *)addr) = data
-#define OUT8(addr, data)  *((volatile uint8_t  *)addr) = data
-#define IN32(addr)        *((volatile uint32_t *)addr)
-#define IN16(addr)        *((volatile uint16_t *)addr)
-#define IN8(addr)         *((volatile uint8_t  *)addr)
+#define OUT32(addr, data) *((volatile uint32_t *)(addr)) = data
+#define OUT16(addr, data) *((volatile uint16_t *)(addr)) = data
+#define OUT8(addr, data)  *((volatile uint8_t  *)(addr)) = data
+#define IN32(addr)        *((volatile uint32_t *)(addr))
+#define IN16(addr)        *((volatile uint16_t *)(addr))
+#define IN8(addr)         *((volatile uint8_t  *)(addr))
 
 static int initted = 0;
 static int devices = 0;
