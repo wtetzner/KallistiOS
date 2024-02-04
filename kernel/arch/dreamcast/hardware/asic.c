@@ -105,7 +105,7 @@
 #define OUT32(addr, data)  IN32(addr) = (data)
 
 /* The set of asic regs are spaced by 0x10 with 0x4 between each sub reg */
-#define ASIC_EVT_REG_ADDR(irq, sub) (ASIC_IRQD_A + (irq * 0x10) + (sub * 0x4))
+#define ASIC_EVT_REG_ADDR(irq, sub) (ASIC_IRQD_A + ((irq) * 0x10) + ((sub) * 0x4))
 
 #define ASIC_EVT_REGS 3
 #define ASIC_EVT_REG_HNDS 32
