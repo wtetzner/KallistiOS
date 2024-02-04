@@ -10,7 +10,7 @@
 #include <arch/irq.h>
 
 /* Macros for accessing WDT registers */
-#define WDT(o, t)       (*((volatile t *)(WDT_BASE + o)))
+#define WDT(o, t)       (*((volatile t *)(WDT_BASE + (o))))
 #define WDT_READ(o)     (WDT(o, uint8_t))
 #define WDT_WRITE(o, v) (WDT(o, uint16_t) = ((o##_HIGH << 8) | ((v) & 0xff)))
 

@@ -16,10 +16,10 @@
 #include <assert.h>
 
 /* Macros for accessing SFRs common to both channels by index */
-#define BAR(o)  (*((vuint32 *)(uintptr_t)(SH4_REG_UBC_BARA  + (unsigned)o * 0xc))) /* Address */
-#define BASR(o) (*((vuint8  *)(uintptr_t)(SH4_REG_UBC_BASRA + (unsigned)o * 0x4))) /* ASID */
-#define BAMR(o) (*((vuint8  *)(uintptr_t)(SH4_REG_UBC_BAMRA + (unsigned)o * 0xc))) /* Address Mask */
-#define BBR(o)  (*((vuint16 *)(uintptr_t)(SH4_REG_UBC_BBRA  + (unsigned)o * 0xc))) /* Bus Cycle */
+#define BAR(o)  (*((vuint32 *)(uintptr_t)(SH4_REG_UBC_BARA  + (unsigned)(o) * 0xc))) /* Address */
+#define BASR(o) (*((vuint8  *)(uintptr_t)(SH4_REG_UBC_BASRA + (unsigned)(o) * 0x4))) /* ASID */
+#define BAMR(o) (*((vuint8  *)(uintptr_t)(SH4_REG_UBC_BAMRA + (unsigned)(o) * 0xc))) /* Address Mask */
+#define BBR(o)  (*((vuint16 *)(uintptr_t)(SH4_REG_UBC_BBRA  + (unsigned)(o) * 0xc))) /* Bus Cycle */
 
 /* Macros for accessing individual, channel-specific SFRs */
 #define BARA  (BAR(ubc_channel_a))              /**< Break Address A */
