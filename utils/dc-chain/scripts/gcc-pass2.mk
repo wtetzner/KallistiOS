@@ -14,6 +14,8 @@ $(build_gcc_pass2): logdir
         ../$(src_dir)/configure \
           --target=$(target) \
           --prefix=$(prefix) \
+          --with-gnu-as \
+          --with-gnu-ld \
           --with-newlib \
           --disable-libssp \
           --enable-threads=$(thread_model) \
