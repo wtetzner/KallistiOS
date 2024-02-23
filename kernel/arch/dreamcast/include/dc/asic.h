@@ -58,7 +58,7 @@ __BEGIN_DECLS
 #define ASIC_EVT_PVR_VBLANK_END           0x0004  /**< \brief VBLANK end interrupt */
 #define ASIC_EVT_PVR_HBLANK_BEGIN         0x0005  /**< \brief HBLANK begin interrupt */
 
-#define ASIC_EVT_PVR_YUV_DONE             0x0007  /**< \brief YUV completed */
+#define ASIC_EVT_PVR_YUV_DONE             0x0006  /**< \brief YUV completed */
 #define ASIC_EVT_PVR_OPAQUEDONE           0x0007  /**< \brief Opaque list completed */
 #define ASIC_EVT_PVR_OPAQUEMODDONE        0x0008  /**< \brief Opaque modifiers completed */
 #define ASIC_EVT_PVR_TRANSDONE            0x0009  /**< \brief Transparent list completed */
