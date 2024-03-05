@@ -78,7 +78,7 @@ typedef struct nmmgr_handler {
 */
 #define NMMGR_FLAGS_NEEDSFREE   0x00000001
 
-/** \brief  This structure maps into /dev/. 
+/** \brief  This structure maps into /dev/.
     \ingroup system_namemgr
 */
 #define NMMGR_FLAGS_INDEV       0x00000002

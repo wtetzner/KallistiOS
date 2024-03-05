@@ -1,11 +1,11 @@
 /* KallistiOS ##version##
 
    kos/fs_random.h
-   (c)2023 - Luke Benstead
+   Copyright (C) 2023 Luke Benstead
 
 */
 
-/** \file    kos/fs_dev.h
+/** \file    kos/fs_random.h
     \brief   Driver for /dev/random and /dev/urandom.
     \ingroup vfs_rnd
 

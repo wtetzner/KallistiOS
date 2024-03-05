@@ -74,7 +74,7 @@ static dirent_t *fs_root_readdir(fs_hnd_t * handle) {
     LIST_FOREACH(nmhnd, nmhead, list_ent) {
         if((nmhnd->flags & NMMGR_FLAGS_INDEV))
             continue;
-        
+
         if(nmhnd->type != NMMGR_TYPE_VFS)
             continue;
 
