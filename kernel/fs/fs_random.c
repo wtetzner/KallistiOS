@@ -88,9 +88,7 @@ static void * rnd_open(vfs_handler_t * vfs, const char *path, int mode) {
 /* Verify that a given hnd is actually in the list */
 static int rnd_verify_hnd(void * hnd) {
     rnd_fh_t    *cur;
-    int     rv;
-
-    rv = 0;
+    int     rv = 0;
 
     mutex_lock(&fh_mutex);
     TAILQ_FOREACH(cur, &rnd_fh, listent) {
@@ -101,10 +99,7 @@ static int rnd_verify_hnd(void * hnd) {
     }
     mutex_unlock(&fh_mutex);
 
-    if(rv)
-        return 1;
-    else
-        return 0;
+    return rv;
 }
 
 /* close a file */

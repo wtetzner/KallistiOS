@@ -160,6 +160,7 @@ int  __weak arch_auto_init(void) {
 
     fs_init();          /* VFS */
     fs_dev_init();
+    fs_null_init();
     fs_pty_init();          /* Pty */
     fs_ramdisk_init();      /* Ramdisk */
     KOS_INIT_FLAG_CALL(fs_romdisk_init);    /* Romdisk */
@@ -227,6 +228,7 @@ void  __weak arch_auto_shutdown(void) {
     fs_ramdisk_shutdown();
     KOS_INIT_FLAG_CALL(fs_romdisk_shutdown);
     fs_pty_shutdown();
+    fs_null_shutdown();
     fs_dev_shutdown();
     fs_shutdown();
     thd_shutdown();
