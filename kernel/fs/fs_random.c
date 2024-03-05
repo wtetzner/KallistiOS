@@ -273,10 +273,9 @@ static int rnd_fstat(void *fd, struct stat *st) {
 static vfs_handler_t vh = {
     /* Name handler */
     {
-        { 0 },                  /* name */
+        "/dev/random",          /* name */
         0,                      /* tbfi */
         0x00010000,             /* Version 1.0 */
-        NMMGR_FLAGS_NEEDSFREE |
         NMMGR_FLAGS_INDEV,      /* flags */
         NMMGR_TYPE_VFS,         /* VFS handler */
         NMMGR_LIST_INIT
@@ -311,48 +310,33 @@ static vfs_handler_t vh = {
     rnd_fstat
 };
 
-/* Create a random file handler with the name provided. */
-int rand_alias_init(char* name) {
-    vfs_handler_t * vfsh;
-    
-    /* Be sure that the name isn't going to break something */
-    if((strlen(name) + 1) > NAME_MAX) {
-        dbglog(DBG_DEBUG, "fs_random: the name %s is longer than NAME_MAX(%u)\n", name, NAME_MAX);
-        return -1;
-    }
-        
-    /* Create a VFS structure */
-    if(!(vfsh = (vfs_handler_t *)malloc(sizeof(vfs_handler_t)))) {
-        dbglog(DBG_DEBUG, "fs_random: out of memory creating vfs handler for %s\n", name);
-        return -1;
-    }
-    memcpy(vfsh, &vh, sizeof(vfs_handler_t));
-    strcpy(vfsh->nmmgr.pathname, name);
-
-    /* Register with the VFS */
-    if(nmmgr_handler_add(&vfsh->nmmgr)) {
-        dbglog(DBG_DEBUG, "fs_random: couldn't add fs for /dev/%s to nmmgr\n", name);
-        free(vfsh);
-        return -1;
-    }
-    
-    return 0;
-}
+/* alias handler interface */
+static alias_handler_t ah_u = {
+    {
+        "/dev/urandom",         /* name */
+        0,                      /* tbfi */
+        0x00010000,             /* Version 1.0 */
+        NMMGR_FLAGS_INDEV |
+        NMMGR_FLAGS_ALIAS ,     /* flags */
+        NMMGR_TYPE_VFS,         /* VFS handler */
+        NMMGR_LIST_INIT
+    },
+    &vh.nmmgr                   /* Aliased nmmgr */
+};
 
 int fs_rnd_init(void) {
     int rv = 0;
     TAILQ_INIT(&rnd_fh);
     mutex_init(&fh_mutex, MUTEX_TYPE_NORMAL);
-    
-    if ((rv = rand_alias_init("/dev/random"))) return rv;
-    if ((rv = rand_alias_init("/dev/urandom"))) return rv;    
-    
+
+    nmmgr_handler_add(&vh.nmmgr);
+    nmmgr_handler_add(&ah_u.nmmgr);
+
     return rv;
 }
 
 int fs_rnd_shutdown(void) {
     rnd_fh_t * c, * n;
-    nmmgr_handler_t *vfsh;
 
     /* First, clean up any open files */
     c = TAILQ_FIRST(&rnd_fh);
@@ -361,15 +345,12 @@ int fs_rnd_shutdown(void) {
         n = TAILQ_NEXT(c, listent);
         free(c);
         c = n;
-    }        
-    
+    }
+
     mutex_destroy(&fh_mutex);
-    
-    if((vfsh = nmmgr_lookup("/dev/random")))
-        nmmgr_handler_remove(vfsh);
-    
-    if((vfsh = nmmgr_lookup("/dev/urandom")))
-        nmmgr_handler_remove(vfsh);
+
+    nmmgr_handler_remove(&vh.nmmgr);
+    nmmgr_handler_remove(&ah_u.nmmgr);
 
     return 0;
 }
