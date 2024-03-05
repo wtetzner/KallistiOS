@@ -25,7 +25,6 @@ typedef struct dev_hnd {
 static dev_hnd_t dev_root_hnd = {0};
 static dirent_t dev_readdir_dirent;
 
-
 static dirent_t *dev_root_readdir(dev_hnd_t * handle) {
     nmmgr_handler_t *nmhnd;
     nmmgr_list_t    *nmhead;
@@ -46,7 +45,6 @@ static dirent_t *dev_root_readdir(dev_hnd_t * handle) {
     if(nmhnd == NULL)
         return NULL;
 
-    dev_readdir_dirent.attr = O_DIR;
     dev_readdir_dirent.size = -1;
 
     strcpy(dev_readdir_dirent.name, nmhnd->pathname + strlen("/dev/"));
@@ -67,6 +65,21 @@ dirent_t *dev_readdir(void *f) {
     }
 
     return dev_root_readdir(hnd);
+}
+
+int dev_rewinddir(void *f) {
+    dev_hnd_t * hnd = (dev_hnd_t *)f;
+
+    if((!hnd) || (hnd != &dev_root_hnd)
+        || (hnd->refcnt <= 0)) {
+        errno = EBADF;
+        return -1;
+    }
+
+    /* Reset our position */
+    hnd->hnd = 0;
+
+    return 0;
 }
 
 static void * dev_open(vfs_handler_t *vfs, const char *fn, int mode) {
@@ -118,21 +131,21 @@ static vfs_handler_t vh = {
 
     dev_open,
     dev_close,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL,               /* read */
+    NULL,               /* write */
+    NULL,               /* seek */
+    NULL,               /* tell */
+    NULL,               /* total */
     dev_readdir,
     NULL,               /* ioctl */
     NULL,               /* rename/move */
-    NULL,
-    NULL,
+    NULL,               /* unlink */
+    NULL,               /* mmap */
     NULL,               /* complete */
     NULL,               /* stat */
     NULL,               /* mkdir */
     NULL,               /* rmdir */
-    NULL,
+    NULL,               /* fcntl */
     NULL,               /* poll */
     NULL,               /* link */
     NULL,               /* symlink */
@@ -140,8 +153,8 @@ static vfs_handler_t vh = {
     NULL,               /* tell64 */
     NULL,               /* total64 */
     NULL,               /* readlink */
-    NULL,
-    NULL
+    dev_rewinddir,
+    NULL                /* fstat */
 };
 
 int fs_dev_init(void) {
