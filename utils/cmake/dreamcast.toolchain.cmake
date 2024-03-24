@@ -75,6 +75,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 
 # Set sysroot to kos-ports folder
 set(CMAKE_SYSROOT ${KOS_PORTS})
+set(ENV{PKG_CONFIG_SYSROOT_DIR} ${KOS_PORTS})
 
 ##### Add Platform-Specific #defines #####
 add_compile_definitions(__DREAMCAST__ _arch_dreamcast)
