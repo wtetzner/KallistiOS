@@ -18,7 +18,7 @@
 
 /* File handles */
 typedef struct null_fh_str {
-    int mode;                           /* mode the file was opened with */
+    int mode;                            /* mode the file was opened with */
 
     TAILQ_ENTRY(null_fh_str) listent;    /* list entry */
 } null_fh_t;
@@ -30,7 +30,7 @@ TAILQ_HEAD(null_fh_list, null_fh_str) null_fh;
 static mutex_t fh_mutex;
 
 /* openfile function */
-static null_fh_t *null_open_file(vfs_handler_t * vfs, const char *fn, int mode) {
+static null_fh_t *null_open_file(vfs_handler_t *vfs, const char *fn, int mode) {
     (void) vfs;
     (void) fn;
 
@@ -46,7 +46,7 @@ static null_fh_t *null_open_file(vfs_handler_t * vfs, const char *fn, int mode) 
 }
 
 /* open function */
-static void * null_open(vfs_handler_t * vfs, const char *path, int mode) {
+static void * null_open(vfs_handler_t *vfs, const char *path, int mode) {
     null_fh_t *fh = null_open_file(vfs, path, mode);
     if(!fh) {
         return NULL;
@@ -61,7 +61,7 @@ static void * null_open(vfs_handler_t * vfs, const char *path, int mode) {
 }
 
 /* Verify that a given hnd is actually in the list */
-static int null_verify_hnd(void * hnd) {
+static int null_verify_hnd(void *hnd) {
     null_fh_t    *cur;
     int     rv = 0;
 
@@ -78,7 +78,7 @@ static int null_verify_hnd(void * hnd) {
 }
 
 /* close a file */
-static int null_close(void * hnd) {
+static int null_close(void *hnd) {
     null_fh_t *fh;
 
     /* Check the handle */
@@ -99,7 +99,7 @@ static int null_close(void * hnd) {
 }
 
 /* read function */
-static ssize_t null_read(void * hnd, void *buffer, size_t cnt) {
+static ssize_t null_read(void *hnd, void *buffer, size_t cnt) {
     (void)buffer;
     (void)cnt;
     
@@ -121,7 +121,7 @@ static ssize_t null_read(void * hnd, void *buffer, size_t cnt) {
 }
 
 /* write function */
-static ssize_t null_write(void * hnd, const void *buffer, size_t cnt) {
+static ssize_t null_write(void *hnd, const void *buffer, size_t cnt) {
     (void) buffer;
 
     null_fh_t    *fh;
@@ -142,7 +142,7 @@ static ssize_t null_write(void * hnd, const void *buffer, size_t cnt) {
 }
 
 /* Seek elsewhere in a file */
-static off_t null_seek(void * hnd, off_t offset, int whence) {
+static off_t null_seek(void *hnd, off_t offset, int whence) {
     (void) offset;
     (void) whence;
 
@@ -154,7 +154,7 @@ static off_t null_seek(void * hnd, off_t offset, int whence) {
 }
 
 /* tell the current position in the file */
-static off_t null_tell(void * hnd) {
+static off_t null_tell(void *hnd) {
     /* Check the handle */
     if(!null_verify_hnd(hnd))
         return -1;
@@ -163,7 +163,7 @@ static off_t null_tell(void * hnd) {
 }
 
 /* return the filesize */
-static size_t null_total(void * fd) {
+static size_t null_total(void *fd) {
     /* Check the handle */
     if(!null_verify_hnd(fd))
         return -1;
@@ -226,7 +226,7 @@ static vfs_handler_t vh = {
     NULL,               /* unlink */
     NULL,
     NULL,               /* complete */
-    null_stat,           /* stat */
+    null_stat,          /* stat */
     NULL,               /* mkdir */
     NULL,               /* rmdir */
     NULL,               /* fcntl */

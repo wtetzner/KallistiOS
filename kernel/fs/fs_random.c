@@ -46,7 +46,7 @@ TAILQ_HEAD(rnd_fh_list, rnd_fh_str) rnd_fh;
 static mutex_t fh_mutex;
 
 /* openfile function */
-static rnd_fh_t *rnd_open_file(vfs_handler_t * vfs, const char *fn, int mode) {
+static rnd_fh_t *rnd_open_file(vfs_handler_t *vfs, const char *fn, int mode) {
     (void) vfs;
     (void) fn;
 
@@ -71,7 +71,7 @@ static rnd_fh_t *rnd_open_file(vfs_handler_t * vfs, const char *fn, int mode) {
 }
 
 /* open function */
-static void * rnd_open(vfs_handler_t * vfs, const char *path, int mode) {
+static void * rnd_open(vfs_handler_t *vfs, const char *path, int mode) {
     rnd_fh_t *fh = rnd_open_file(vfs, path, mode);
     if(!fh) {
         return NULL;
@@ -86,7 +86,7 @@ static void * rnd_open(vfs_handler_t * vfs, const char *path, int mode) {
 }
 
 /* Verify that a given hnd is actually in the list */
-static int rnd_verify_hnd(void * hnd) {
+static int rnd_verify_hnd(void *hnd) {
     rnd_fh_t    *cur;
     int     rv = 0;
 
@@ -103,7 +103,7 @@ static int rnd_verify_hnd(void * hnd) {
 }
 
 /* close a file */
-static int rnd_close(void * hnd) {
+static int rnd_close(void *hnd) {
     rnd_fh_t *fh;
     int retval = 0;
 
@@ -125,7 +125,7 @@ static int rnd_close(void * hnd) {
 }
 
 /* read function */
-static ssize_t rnd_read(void * hnd, void *buffer, size_t cnt) {
+static ssize_t rnd_read(void *hnd, void *buffer, size_t cnt) {
     rnd_fh_t *fh;
     uint8_t* buf = buffer;
 
@@ -145,7 +145,7 @@ static ssize_t rnd_read(void * hnd, void *buffer, size_t cnt) {
 }
 
 /* write function */
-static ssize_t rnd_write(void * hnd, const void *buffer, size_t cnt) {
+static ssize_t rnd_write(void *hnd, const void *buffer, size_t cnt) {
     (void) buffer;
     (void) cnt;
 
@@ -167,7 +167,7 @@ static ssize_t rnd_write(void * hnd, const void *buffer, size_t cnt) {
 
 
 /* Seek elsewhere in a file */
-static off_t rnd_seek(void * hnd, off_t offset, int whence) {
+static off_t rnd_seek(void *hnd, off_t offset, int whence) {
     (void) offset;
     (void) whence;
 
@@ -179,7 +179,7 @@ static off_t rnd_seek(void * hnd, off_t offset, int whence) {
 }
 
 /* tell the current position in the file */
-static off_t rnd_tell(void * hnd) {
+static off_t rnd_tell(void *hnd) {
     /* Check the handle */
     if(!rnd_verify_hnd(hnd))
         return -1;
@@ -188,7 +188,7 @@ static off_t rnd_tell(void * hnd) {
 }
 
 /* return the filesize */
-static size_t rnd_total(void * fd) {
+static size_t rnd_total(void *fd) {
     /* Check the handle */
     if(!rnd_verify_hnd(fd))
         return -1;
@@ -199,7 +199,7 @@ static size_t rnd_total(void * fd) {
 
 
 /* Delete a file */
-static int rnd_unlink(vfs_handler_t * vfs, const char *path) {
+static int rnd_unlink(vfs_handler_t *vfs, const char *path) {
     (void) vfs;
     (void) path;
 
