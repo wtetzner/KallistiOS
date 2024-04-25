@@ -652,11 +652,7 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
         state->region = KBD_REGION_US;
 
     /* Make sure all the queue variables are set up properly... */
-    state->queue_tail = state->queue_head = 0;
-
-    const int irqs = irq_disable();
-    state->queue_len = 0;
-    irq_restore(irqs);
+    state->queue_tail = state->queue_head = state->queue_len = 0;
 
     /* Make sure all the key repeat variables are set up properly too */
     state->kbd_repeat_key = KBD_KEY_NONE;
