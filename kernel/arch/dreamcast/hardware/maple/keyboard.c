@@ -379,7 +379,10 @@ void kbd_set_queue(int active) {
 }
 
 /* Take a key scancode, encode it appropriately, and place it on the
-   keyboard queue. At the moment we assume no key overflows. */
+   keyboard queue. At the moment we assume no key overflows.
+
+    NOTE: We are only calling this within an IRQ context, so operations on
+          kbd_state::queue_size are essentially atomic. */
 static int kbd_enqueue(kbd_state_t *state, uint8 keycode, int mods) {
     static char keymap_noshift[] = {
         /*0*/   0, 0, 0, 0, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
@@ -410,10 +413,10 @@ static int kbd_enqueue(kbd_state_t *state, uint8 keycode, int mods) {
         return 0;
 
     /* Queue the key up on the device-specific queue. */
-    if(atomic_load(&state->queue_len) < KBD_QUEUE_SIZE) {
+    if(state->queue_len < KBD_QUEUE_SIZE) {
         state->key_queue[state->queue_head] = keycode | (mods << 8);
         state->queue_head = (state->queue_head + 1) & (KBD_QUEUE_SIZE - 1);
-        atomic_fetch_add(&state->queue_len, 1);
+        ++state->queue_len;
     }
 
     /* If queueing is turned off, don't bother with the global queue. */
@@ -463,12 +466,18 @@ int kbd_queue_pop(maple_device_t *dev, int xlat) {
     uint32 rv, mods;
     uint8 ascii;
 
-    if(!atomic_load(&state->queue_len))
+    const int irqs = irq_disable();
+
+    if(!state->queue_len) {
+        irq_restore(irqs);
         return -1;
+    }
 
     rv = state->key_queue[state->queue_tail];
     state->queue_tail = (state->queue_tail + 1) & (KBD_QUEUE_SIZE - 1);
-    atomic_fetch_sub(&state->queue_len, 1);
+    --state->queue_len;
+
+    irq_restore(irqs);
 
     if(!xlat)
         return (int)rv;
@@ -643,7 +652,11 @@ static int kbd_attach(maple_driver_t *drv, maple_device_t *dev) {
         state->region = KBD_REGION_US;
 
     /* Make sure all the queue variables are set up properly... */
-    state->queue_tail = state->queue_head = state->queue_len = 0;
+    state->queue_tail = state->queue_head = 0;
+
+    const int irqs = irq_disable();
+    state->queue_len = 0;
+    irq_restore(irqs);
 
     /* Make sure all the key repeat variables are set up properly too */
     state->kbd_repeat_key = KBD_KEY_NONE;
