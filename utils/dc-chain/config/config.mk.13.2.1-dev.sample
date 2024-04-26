@@ -127,7 +127,7 @@ pass2_languages=c,c++,objc,obj-c++
 # experimental support for single-precision-default mode (m4-single) has just
 # been added to allow for the use of full 64-bit doubles. You may also add m4
 # (double-precision-default) which hasn't been tested, or you can simply stick
-# with m4-single-only to save disc space.
+# with m4-single-only to save disk space.
 precision_modes=m4-single-only,m4-single
 #precision_modes=m4-single-only,m4-single,m4
 
