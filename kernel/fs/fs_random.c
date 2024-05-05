@@ -56,6 +56,7 @@ static rnd_fh_t *rnd_open_file(vfs_handler_t *vfs, const char *fn, int mode) {
     if((mode & O_MODE_MASK) != O_RDONLY) {
         errno = EPERM;
         return NULL;
+    }
 
     /* Malloc a new fh struct */
     fd = malloc(sizeof(rnd_fh_t));
