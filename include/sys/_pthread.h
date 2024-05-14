@@ -14,4 +14,6 @@
 /** \brief  POSIX timeouts supported (sorta) */
 #define _POSIX_TIMEOUTS
 
+#define PTHREAD_MUTEX_ERRORCHECK 2
+
 #endif  /* __SYS__PTHREAD_H */

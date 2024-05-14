@@ -18,6 +18,12 @@ int pthread_mutexattr_init(pthread_mutexattr_t *attr) {
     return 0;
 }
 
+int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int type) {
+    (void)attr;
+    (void)type;
+    return 0;
+}
+
 int pthread_mutexattr_destroy(pthread_mutexattr_t *attr) {
     (void)attr;
     return 0;

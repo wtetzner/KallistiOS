@@ -69,6 +69,7 @@ extern "C" {
 
     int pthread_mutexattr_init(pthread_mutexattr_t *attr);
     int pthread_mutexattr_destroy(pthread_mutexattr_t *attr);
+    int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int type);
     int pthread_mutexattr_getpshared(const pthread_mutexattr_t *attr, int  *pshared);
     int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr, int pshared);
 

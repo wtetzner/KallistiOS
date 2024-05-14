@@ -8,6 +8,6 @@
 # use pthreads may cause problems but basic stuff should work.
 
 OBJS = pthread_mutex.o pthread_cond.o pthread_thd_attr.o pthread_thd.o \
-	pthread_tls.o
+	pthread_tls.o pthread_signal.o
 
 include $(KOS_BASE)/Makefile.prefab
